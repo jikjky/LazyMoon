@@ -1,0 +1,33 @@
+﻿@page "/Time"
+@inject Class.TwitchBot Bot
+@using System.Timers
+@implements IDisposable
+
+<div class="jumbotron">
+    <h1 style="text-align:center;">@_Time</h1>
+</div>
+<div class="jumbotron">
+    <h1 style="text-align:center;">@_Uptime</h1>
+</div>
+
+@code {
+    private string _Time = "0000-00-00 00:00:00";
+    private string _Uptime = "Uptime : 00:00:00";
+
+    private Timer timer = new Timer(1000);
+
+    protected override void OnInitialized()
+    {
+        timer.Elapsed += (sender, eventArgs) => OnTimerCallback();
+        timer.Start();
+    }
+
+    private void OnTimerCallback()
+    {
+        _Time = DateTime.Now.ToString("yyyy-MM-dd hh\\:mm\\:ss");
+        _Uptime = "Uptime : " + Bot.Uptime.ToString("hh\\:mm\\:ss");
+        this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+    }
+
+    void IDisposable.Dispose() => timer.Dispose();
+}
