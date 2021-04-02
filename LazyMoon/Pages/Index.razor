@@ -1,0 +1,39 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+@inject Class.TwitchBot Bot
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@using System.Security.Cryptography
+
+<body>
+    <div class="container">
+        <button type="submit" class="btn btn-dark" onclick="location.href = 'Time' ">Time</button>
+        <button type="submit" class="btn btn-dark" onclick="location.href = 'ValorantRanks' ">ValorantRanks</button>
+        <button type="submit" class="btn btn-dark" onclick="location.href = 'TTS' ">TTS</button>
+        <a href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=@client_id&redirect_uri=@redirect_uri&scope=bits:read%20channel:read:hype_train%20channel:read:redemptions%20channel:read:subscriptions%20chat:read%20chat:edit&state=temp">login</a>
+    </div>
+</body>
+
+
+@code
+{
+        string redirect_uri;
+        string client_id;
+
+    protected override void OnInitialized()
+    {
+        redirect_uri = NavigationManager.BaseUri.Remove(NavigationManager.BaseUri.Length-1);
+        client_id = Bot.twitchOauth.ClientId;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender == true)
+        {
+            //await localStorage.SetItemAsync("name", "John");
+            //name = await localStorage.GetItemAsync<string>("name");
+
+            await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+        }
+    }
+}

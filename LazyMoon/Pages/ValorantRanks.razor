@@ -1,0 +1,39 @@
+﻿@page "/ValorantRanks"
+@inject Class.TwitchBot bot
+
+<div style="text-align : center;">
+    <img src="@image" />
+    <h1>@markName</h1>
+    <h2>@score</h2>
+</div>
+
+@code {
+    string image;
+    string markName;
+    string score;
+
+    public class ValorantRating
+    {
+        public string MarkName;
+        public string MarkImage;
+    }
+
+    public int ranking;
+
+    public List<ValorantRating> valorantRatings = new List<ValorantRating>();
+
+    protected override void OnInitialized()
+    {
+        bot.valorantRank.OnChangeRank += OnChangeRank;
+        bot.valorantRank.GetRank();
+        this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+    }
+
+    protected void OnChangeRank(int score, string rank, string path)
+    {
+        image = path;
+        markName = rank;
+        this.score = score.ToString();
+        this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+    }
+}
