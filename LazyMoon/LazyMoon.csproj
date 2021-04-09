@@ -12,15 +12,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="log\**" />
     <Compile Remove="wwwroot\sound\**" />
+    <Content Remove="log\**" />
     <Content Remove="wwwroot\sound\**" />
+    <EmbeddedResource Remove="log\**" />
     <EmbeddedResource Remove="wwwroot\sound\**" />
+    <None Remove="log\**" />
     <None Remove="wwwroot\sound\**" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
     <PackageReference Include="Google.Cloud.TextToSpeech.V1" Version="2.0.0" />
+    <PackageReference Include="log4net" Version="2.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.1.2" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
@@ -45,7 +50,7 @@
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\favicon2.ico">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\google.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

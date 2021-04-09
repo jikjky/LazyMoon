@@ -16,6 +16,7 @@ namespace LazyMoon
     {
         public static void Main(string[] args)
         {
+            Log4NetManager.SetInstance = System.Environment.CurrentDirectory + "/log/";
             CreateHostBuilder(args).Build().Run();
         }
 

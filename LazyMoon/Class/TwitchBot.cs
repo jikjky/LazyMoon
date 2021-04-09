@@ -26,6 +26,8 @@ namespace LazyMoon.Class
 
     public class TwitchBot
     {
+        Log4NetManager Log = Log4NetManager.GetInstance();
+
         public class TwitchOAuth
         {
             public string OAuth;
@@ -36,14 +38,14 @@ namespace LazyMoon.Class
             {
                 if (OAuthFile.Exists == false)
                 {
-                    return ;
+                    return;
                 }
                 var text = OAuthFile.OpenText();
                 OAuth = text.ReadLine();
                 ClientId = text.ReadLine();
                 AccessToken = text.ReadLine();
                 text.Close();
-                return ;
+                return;
             }
         }
 
@@ -75,22 +77,24 @@ namespace LazyMoon.Class
 
         public TimeSpan tempTimeSpan = TimeSpan.FromSeconds(0);
 
-        public TimeSpan Uptime 
-        { 
-            get 
+        public TimeSpan Uptime
+        {
+            get
             {
                 return tempTimeSpan;
-            } 
+            }
         }
         //생성자
         public TwitchBot()
         {
-
+            Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create TwitchBot Instance");
             tts = new TTS();
             valorantRank = new Class.ValorantRank();
 
             twitchOauth = new TwitchOAuth(new FileInfo("wwwroot//twitch.oauth"));
+            Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetTwitchOauth");
 
+            Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set ClientOption");
             ConnectionCredentials credentials = new ConnectionCredentials(chanel, twitchOauth.OAuth);
             var clientOptions = new ClientOptions
             {
@@ -98,14 +102,16 @@ namespace LazyMoon.Class
                 ThrottlingPeriod = TimeSpan.FromSeconds(30)
             };
             WebSocketClient customClient = new WebSocketClient(clientOptions);
+            Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create Client");
             client = new TwitchClient(customClient);
             client.Initialize(credentials, chanel);
 
             client.OnMessageReceived += Client_OnMessageReceived;
 
+            Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Client Connetct");
             client.Connect();
 
-
+            Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create Api");
             api = new TwitchAPI();
             api.Settings.ClientId = twitchOauth.ClientId;
             api.Settings.AccessToken = twitchOauth.AccessToken;
@@ -144,22 +150,30 @@ namespace LazyMoon.Class
             new Thread(() =>
             {
                 TimeSpan lastTime = TimeSpan.FromMilliseconds(0);
-                while (true)
+                try
                 {
                     var foundChannelResponse = api.V5.Users.GetUserByNameAsync(chanel).Result;
-                    var foundChannel = foundChannelResponse.Matches.FirstOrDefault();
-                    var a = api.V5.Streams.GetUptimeAsync(foundChannel.Id).Result;
+                    while (true)
+                    {
+                    
+                            var foundChannel = foundChannelResponse.Matches.FirstOrDefault();
+                            var a = api.V5.Streams.GetUptimeAsync(foundChannel.Id).Result;
 
-                    if (a != null)
-                    {
-                        tempTimeSpan = a.Value;
-                        lastTime = tempTimeSpan;
+                            if (a != null)
+                            {
+                                tempTimeSpan = a.Value;
+                                lastTime = tempTimeSpan;
+                            }
+                            else
+                            {
+                                tempTimeSpan = lastTime;
+                            }
+                            Thread.Sleep(300);
                     }
-                    else
-                    {
-                        tempTimeSpan = lastTime;
-                    }
-                    Thread.Sleep(1000);
+                }
+                catch (Exception e)
+                {
+                    Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Uptime Update Error : " + e.Message);
                 }
             })
             { IsBackground = true }
@@ -174,15 +188,25 @@ namespace LazyMoon.Class
         /// <param name="message"></param>
         private void SendMessage(string message)
         {
-            if (mLastMessage != message)
+            try
             {
-                client.SendMessage(chanel, message);
+                if (mLastMessage != message)
+                {
+                    client.SendMessage(chanel, message);
+                }
+                else
+                {
+                    message = message + "ㅤ";
+                    client.SendMessage(chanel, message);
+                }
             }
-            else
+            catch (Exception e)
             {
-                message = message + "ㅤ";
-                client.SendMessage(chanel, message);
+                Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "SendMessage Chanel Error : " + chanel + " Message : " + message + " Exception : " + e.Message);
+                client.JoinChannel(chanel);
             }
+            
+            Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SendMessage Chanel : " + chanel + " Message : " + message);
             mLastMessage = message;
         }
 
@@ -450,12 +474,12 @@ namespace LazyMoon.Class
                 foreach (var tempIndex in indexList)
                 {
                     speechText = speechText.Remove(tempIndex, 1);
-                }   
+                }
             }
 
             // 특정 글자 변경
             speechText = speechText.Replace("ㄳ", "감사");
-            speechText = speechText.Replace("ㄱㅅ", "감사");  
+            speechText = speechText.Replace("ㄱㅅ", "감사");
             speechText = speechText.Replace("ㅅㄱ", "수고");
             speechText = speechText.Replace("ㅎㅇ", "하이");
             speechText = speechText.Replace("ㅂㅇ", "바이");
@@ -467,7 +491,7 @@ namespace LazyMoon.Class
             speechText = speechText.Replace("병신", "모자란아이");
             speechText = speechText.Replace("못한다", "잘한다");
             speechText = speechText.Replace("ㅈㄴ", "엄청");
-            speechText = speechText.Replace("ㅅ", "샷");    
+            speechText = speechText.Replace("ㅅ", "샷");
             speechText = speechText.Replace("ㄱ", "고");
             speechText = speechText.Replace("ㄷ", "덜");
             speechText = speechText.Replace("ㅋ", "키");
@@ -512,7 +536,7 @@ namespace LazyMoon.Class
                 speechText = speechText.Remove(25);
             }
             TTSQueue.Enqueue(new TTSQueueInfo() { message = speechText, name = e.ChatMessage.Username });
-            if(OnMessage != null)
+            if (OnMessage != null)
                 OnMessage(e.ChatMessage.Message);
         }
     }
