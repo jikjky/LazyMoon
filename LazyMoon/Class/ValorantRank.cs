@@ -15,6 +15,8 @@ namespace LazyMoon.Class
 
     public class ValorantRank
     {
+        Log4NetManager Log = Log4NetManager.GetInstance();
+
         public event ChangeRankEvent OnChangeRank;
 
         public int currentRank;
@@ -33,6 +35,8 @@ namespace LazyMoon.Class
 
         public ValorantRank()
         {
+            Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create ValorantRank Instance");
+
             valorantRatings.Add(new ValorantRating() { MarkName = "Iron1", MarkImage = "ValorantRanks\\Iron1.png" });
             valorantRatings.Add(new ValorantRating() { MarkName = "Iron2", MarkImage = "ValorantRanks\\Iron2.png" });
             valorantRatings.Add(new ValorantRating() { MarkName = "Iron3", MarkImage = "ValorantRanks\\Iron3.png" });
@@ -63,6 +67,8 @@ namespace LazyMoon.Class
 
         public void ChangeRank(int score, string rank)
         {
+            Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Change Rank Score : " + score.ToString() + " Rank : " + rank);
+
             if (score != 0)
             {
                 int temp = currentScore + score;
@@ -115,6 +121,8 @@ namespace LazyMoon.Class
 
         public void GetRank()
         {
+            Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "GetRank Name : " + valorantRatings[currentRank].MarkName);
+
             OnChangeRank?.Invoke(currentScore, valorantRatings[currentRank].MarkName, valorantRatings[currentRank].MarkImage);
         }
     }

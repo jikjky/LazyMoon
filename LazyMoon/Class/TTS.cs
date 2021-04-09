@@ -26,6 +26,8 @@ namespace LazyMoon.Class
 
     public class TTS
     {
+        Log4NetManager Log = Log4NetManager.GetInstance();
+
         public class TTSSetting
         {
             private double Rate_ = 1;
@@ -71,6 +73,7 @@ namespace LazyMoon.Class
                 Rate = 1;
             }
         }
+
         //TTS
         TextToSpeechClient ttsClient;
 
@@ -98,6 +101,8 @@ namespace LazyMoon.Class
         //생성자
         public TTS()
         {
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create TTS Instance");
+
             //TTS
             FileInfo file = new FileInfo(@"wwwroot/google.json");
             Init("civil-sprite-288916", file.FullName);
@@ -120,38 +125,60 @@ namespace LazyMoon.Class
 
         public void SaveConfig()
         {
-            string jsonString;
-            jsonString = JsonConvert.SerializeObject(ttsSetting);
-            File.WriteAllText("config.json", jsonString);
+            try
+            {
+                string jsonString;
+                jsonString = JsonConvert.SerializeObject(ttsSetting);
+                File.WriteAllText("config.json", jsonString);
+
+                Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Save Config : " + jsonString);
+            }
+            catch (Exception e)
+            {
+                Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Save Config Error : " + e.Message);
+            }
         }
 
         public void LoadConfig()
         {
-            string jsonString;
-            jsonString = File.ReadAllText("config.json");
-            ttsSetting = JsonConvert.DeserializeObject<TTSSetting>(jsonString);
+            try
+            {
+                string jsonString;
+                jsonString = File.ReadAllText("config.json");
+                ttsSetting = JsonConvert.DeserializeObject<TTSSetting>(jsonString);
+
+                Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Load Config : " + jsonString);
+            }
+            catch (Exception e)
+            {
+                Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Load Config Error : " + e.Message);
+            }
         }
 
         public void SetTTSEnable(bool enabled)
         {
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSEnable : " + enabled.ToString());
             ttsSetting.TTSEnable = enabled;
             SaveConfig();
         }
 
         public void SetTTSRate(double rate)
         {
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSRate : " + rate.ToString());
             ttsSetting.Rate = rate;
             SaveConfig();
         }
 
         public void SetTTSVolume(double volume)
         {
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSVolume : " + volume.ToString());
             ttsSetting.Volume = volume;
             SaveConfig();
         }
 
         public void SetTTSDefault()
         {
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetTTSDefault");
             ttsSetting.SetDefault();
             SaveConfig();
         }
@@ -161,9 +188,18 @@ namespace LazyMoon.Class
         /// </summary>
         public void SaveUserInfo()
         {
-            string jsonString;
-            jsonString = JsonConvert.SerializeObject(VoiceSettingDictionary);
-            File.WriteAllText("userinfo.json", jsonString);
+            try
+            {
+                string jsonString;
+                jsonString = JsonConvert.SerializeObject(VoiceSettingDictionary);
+                File.WriteAllText("userinfo.json", jsonString);
+
+                Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Save User Config : " + jsonString);
+            }
+            catch (Exception e)
+            {
+                Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Save User Config Error : " + e.Message);
+            }
         }
 
         /// <summary>
@@ -171,9 +207,18 @@ namespace LazyMoon.Class
         /// </summary>
         public void LoadUserInfo()
         {
-            string jsonString;
-            jsonString = File.ReadAllText("userinfo.json");
-            VoiceSettingDictionary = JsonConvert.DeserializeObject<Dictionary<string, VoiceSetting>>(jsonString);
+            try
+            {
+                string jsonString;
+                jsonString = File.ReadAllText("userinfo.json");
+                VoiceSettingDictionary = JsonConvert.DeserializeObject<Dictionary<string, VoiceSetting>>(jsonString);
+
+                Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Load User Config : " + jsonString);
+            }
+            catch (Exception e)
+            {
+                Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Load User Config Error : " + e.Message);
+            }
         }
 
         /// <summary>
@@ -191,6 +236,7 @@ namespace LazyMoon.Class
             {
                 VoiceSettingDictionary.Add(name, new VoiceSetting() { Gender = gender });
             }
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetVoiceGender User : " + name + " Value : " + gender.ToString());
             SaveUserInfo();
         }
 
@@ -209,6 +255,7 @@ namespace LazyMoon.Class
             {
                 VoiceSettingDictionary.Add(name, new VoiceSetting() { Pitch = pitch });
             }
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetVoicePitch User : " + name + " Value : " + pitch.ToString());
             SaveUserInfo();
         }
 
@@ -227,6 +274,7 @@ namespace LazyMoon.Class
             {
                 VoiceSettingDictionary.Add(name, new VoiceSetting() { Use = on });
             }
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetTTS User : " + name + " Value : " + on.ToString());
             SaveUserInfo();
         }
 
@@ -246,11 +294,13 @@ namespace LazyMoon.Class
             {
                 returnValue = new VoiceSetting();
             }
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "GetVoiceInfo User : " + name);
             return returnValue;
         }
 
         public void Init(string projectId, string jsonPath)
         {
+            Log.TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set Google");
             TextToSpeechClientBuilder builder = new TextToSpeechClientBuilder
             {
                 CredentialsPath = jsonPath
