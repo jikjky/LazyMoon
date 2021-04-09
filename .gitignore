@@ -363,6 +363,6 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # Config File
-LazyMoon/ttsconfig.json
-LazyMoon/userinfo.json
-LazyMoon/valorantrank.json
+ttsconfig.json
+userinfo.json
+valorantrank.json
