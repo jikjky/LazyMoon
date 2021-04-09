@@ -56,11 +56,13 @@ namespace LazyMoon
             TTSLog,
             TwitchBotLog,
             ValorantRankLog,
+            FileLog,
         }
 
         public Log4NetBase TTSLog;
         public Log4NetBase TwitchBotLog;
         public Log4NetBase ValorantRankLog;
+        public Log4NetBase FileLog;
 
         private Log4NetManager(FileInfo path)
         {
@@ -74,6 +76,9 @@ namespace LazyMoon
 
             ValorantRankLog = new Log4NetBase("ValorantRankLog", mSettingFilePath);
             mManagedeList.Add(ValorantRankLog);
+
+            FileLog = new Log4NetBase("FileLog", mSettingFilePath);
+            mManagedeList.Add(FileLog);
 
             DeleteDayPeriodSetting();
         }
