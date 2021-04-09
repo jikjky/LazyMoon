@@ -34,6 +34,7 @@
             NavigationManager.NavigateTo("ValorantRanks", true);
         if(rank.SetBot(Text) == false)
             NavigationManager.NavigateTo("", true);
+        rank.LoadData(Text);
         rank.OnChangeRank += OnChangeRank;
         rank.GetRank();
         await this.InvokeAsync(new Action(() => { StateHasChanged(); }));

@@ -103,7 +103,7 @@ namespace LazyMoon
             {
                 string jsonString;
                 jsonString = JsonConvert.SerializeObject(ttsSetting);
-                File.WriteAllText("config.json", jsonString);
+                File.WriteAllText("ttsconfig.json", jsonString);
 
                 Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Save TTS Config : " + jsonString);
             }
@@ -118,7 +118,7 @@ namespace LazyMoon
             try
             {
                 string jsonString;
-                jsonString = File.ReadAllText("config.json");
+                jsonString = File.ReadAllText("ttsconfig.json");
                 ttsSetting = JsonConvert.DeserializeObject<TTSSetting>(jsonString);
 
                 Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Load TTS Config : " + jsonString);
@@ -306,7 +306,7 @@ namespace LazyMoon
             {
                 string jsonString;
                 jsonString = JsonConvert.SerializeObject(ValorantRankDictionary);
-                File.WriteAllText("userinfo.json", jsonString);
+                File.WriteAllText("valorantrank.json", jsonString);
 
                 Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Save Rank Config : " + jsonString);
             }
@@ -321,7 +321,7 @@ namespace LazyMoon
             try
             {
                 string jsonString;
-                jsonString = File.ReadAllText("userinfo.json");
+                jsonString = File.ReadAllText("valorantrank.json");
                 ValorantRankDictionary = JsonConvert.DeserializeObject<Dictionary<string, ValorantRankSetting>>(jsonString);
 
                 Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Load Rank Config : " + jsonString);
