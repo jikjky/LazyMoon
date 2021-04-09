@@ -6,34 +6,57 @@
 @using System.Security.Cryptography
 
 <body>
-    <div class="container">
-        <button type="submit" class="btn btn-dark" onclick="location.href = 'Time' ">Time</button>
-        <button type="submit" class="btn btn-dark" onclick="location.href = 'ValorantRanks' ">ValorantRanks</button>
-        <button type="submit" class="btn btn-dark" onclick="location.href = 'TTS' ">TTS</button>
-        <a href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=@client_id&redirect_uri=@redirect_uri&scope=bits:read%20channel:read:hype_train%20channel:read:redemptions%20channel:read:subscriptions%20chat:read%20chat:edit&state=temp">login</a>
+    <style type="text/css">
+        .jumbotron {
+        }
+    </style>
+
+    <NavMenu />
+
+    <div class="d-flex align-items-center section-aquamarine py-5 cover" style="background-image: url(&quot;Image/darksky.jpg&quot;);">
+        <div class="container mt-5">
+            <div class="jumbotron">
+                <div>
+                    <h1 class="text-center"><b>LazyMoon</b></h1>
+                    <p class="text-center">Hello My WebPage</p>
+                    <p class="text-center"><a class="btn btn-primary btn-lg" href="#" role="button">Bot</a></p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="py-5 bg-light" id="Infomation">
+        <div class="container-fluid">
+            <div class="jumbotron">
+                <div>
+                    <h3 class="text-center mt-5"><b>Create By</b></h3>
+                    <img src="Image/dsBuffer.png" alt="" class="rounded-circle mx-auto d-block" style="max-width : 20%;">
+                    <h3 class="text-center"><b>Jung Gwang Young</b></h3>
+                    <p class="text-center">Developer</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="https://www.youtube.com/channel/UCjeyFRwDpdyev_HmiABTvGg">
+                        <img src="Image/YouTube.png" alt="" height="50" class="my-2 mx-auto d-block">
+                        <h3 class="text-center">Youtube</h3>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="https://www.twitch.tv/jikjky">
+                        <img src="Image/Twitch.png" alt="" height="50" class="my-2 mx-auto d-block">
+                        <h3 class="text-center">Twitch</h3>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="https://github.com/jikjky">
+                        <img src="Image/Github.png" alt="" height="50" class="my-2 mx-auto d-block">
+                        <h3 class="text-center">Github</h3>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
     </div>
 </body>
-
-
-@code
-{
-        string redirect_uri;
-        string client_id;
-
-    protected override void OnInitialized()
-    {
-        redirect_uri = NavigationManager.BaseUri.Remove(NavigationManager.BaseUri.Length-1);
-        client_id = Bot.twitchOauth.ClientId;
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender == true)
-        {
-            //await localStorage.SetItemAsync("name", "John");
-            //name = await localStorage.GetItemAsync<string>("name");
-
-            await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
-        }
-    }
-}
