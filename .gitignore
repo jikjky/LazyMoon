@@ -361,3 +361,8 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Config File
+LazyMoon/ttsconfig.json
+LazyMoon/userinfo.json
+LazyMoon/valorantrank.json
