@@ -27,6 +27,7 @@ namespace LazyMoon.Class
     public class TwitchBot
     {
         Log4NetManager Log = Log4NetManager.GetInstance();
+        Global global = Global.GetInstance();
 
         public class TwitchOAuth
         {
@@ -90,6 +91,7 @@ namespace LazyMoon.Class
             Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create TwitchBot Instance");
             tts = new TTS();
             valorantRank = new Class.ValorantRank();
+            valorantRank.LoadData(chanel);
 
             twitchOauth = new TwitchOAuth(new FileInfo("wwwroot//twitch.oauth"));
             Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetTwitchOauth");
@@ -155,20 +157,20 @@ namespace LazyMoon.Class
                     var foundChannelResponse = api.V5.Users.GetUserByNameAsync(chanel).Result;
                     while (true)
                     {
-                    
-                            var foundChannel = foundChannelResponse.Matches.FirstOrDefault();
-                            var a = api.V5.Streams.GetUptimeAsync(foundChannel.Id).Result;
 
-                            if (a != null)
-                            {
-                                tempTimeSpan = a.Value;
-                                lastTime = tempTimeSpan;
-                            }
-                            else
-                            {
-                                tempTimeSpan = lastTime;
-                            }
-                            Thread.Sleep(300);
+                        var foundChannel = foundChannelResponse.Matches.FirstOrDefault();
+                        var a = api.V5.Streams.GetUptimeAsync(foundChannel.Id).Result;
+
+                        if (a != null)
+                        {
+                            tempTimeSpan = a.Value;
+                            lastTime = tempTimeSpan;
+                        }
+                        else
+                        {
+                            tempTimeSpan = lastTime;
+                        }
+                        Thread.Sleep(300);
                     }
                 }
                 catch (Exception e)
@@ -204,8 +206,9 @@ namespace LazyMoon.Class
             {
                 Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "SendMessage Chanel Error : " + chanel + " Message : " + message + " Exception : " + e.Message);
                 client.JoinChannel(chanel);
+                client.SendMessage(chanel, message);
             }
-            
+
             Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SendMessage Chanel : " + chanel + " Message : " + message);
             mLastMessage = message;
         }
@@ -270,12 +273,12 @@ namespace LazyMoon.Class
                         {
                             if (splitText[1] == "on")
                             {
-                                tts.SetTTSEnable(true);
+                                global.SetTTSEnable(true);
                                 SendMessage($"TTS Enable");
                             }
                             else if (splitText[1] == "off")
                             {
-                                tts.SetTTSEnable(false);
+                                global.SetTTSEnable(false);
                                 SendMessage($"TTS Disabled");
                             }
                             else
@@ -294,7 +297,7 @@ namespace LazyMoon.Class
                             double value;
                             if (double.TryParse(splitText[1], out value))
                             {
-                                tts.SetTTSRate(value);
+                                global.SetTTSRate(value);
                                 SendMessage($"Set TTS Rate {value} [min : 0.25 , max :4.0]");
                             }
                             else
@@ -313,7 +316,7 @@ namespace LazyMoon.Class
                             double value;
                             if (double.TryParse(splitText[1], out value))
                             {
-                                tts.SetTTSVolume(value);
+                                global.SetTTSVolume(value);
                                 SendMessage($"Set TTS Volume {value} [min : -96 , max :16]");
                             }
                             else
@@ -327,7 +330,7 @@ namespace LazyMoon.Class
                     }
                     else if (splitText[0].ToLower() == "!ttsdefault")
                     {
-                        tts.SetTTSDefault();
+                        global.SetTTSDefault();
                         SendMessage($"Set TTS Volume 0, Set TTS Rate 1");
                     }
                     else if (splitText[0].ToLower() == "!help")
@@ -364,9 +367,9 @@ namespace LazyMoon.Class
                         {
                             if (temp >= -20 && temp <= 20)
                             {
-                                tts.SetVoicePitch(e.ChatMessage.Username, temp);
+                                global.SetVoicePitch(e.ChatMessage.Username, temp);
                                 isError = false;
-                                var tempInfo = tts.GetVoiceInfo(e.ChatMessage.Username);
+                                var tempInfo = global.GetVoiceInfo(e.ChatMessage.Username);
                                 SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nGender : {tempInfo.Gender.ToString()} \r\nPicth : {tempInfo.Pitch}");
                             }
                         }
@@ -383,16 +386,16 @@ namespace LazyMoon.Class
                     {
                         if (splitText[1].ToLower() == "male")
                         {
-                            tts.SetVoiceGender(e.ChatMessage.Username, TTS.EGender.Male);
+                            global.SetVoiceGender(e.ChatMessage.Username, Global.EGender.Male);
                             isError = false;
-                            var tempInfo = tts.GetVoiceInfo(e.ChatMessage.Username);
+                            var tempInfo = global.GetVoiceInfo(e.ChatMessage.Username);
                             SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nGender : {tempInfo.Gender.ToString()} \r\nPicth : {tempInfo.Pitch}");
                         }
                         else if (splitText[1].ToLower() == "female")
                         {
-                            tts.SetVoiceGender(e.ChatMessage.Username, TTS.EGender.Female);
+                            global.SetVoiceGender(e.ChatMessage.Username, Global.EGender.Female);
                             isError = false;
-                            var tempInfo = tts.GetVoiceInfo(e.ChatMessage.Username);
+                            var tempInfo = global.GetVoiceInfo(e.ChatMessage.Username);
                             SendMessage($"{e.ChatMessage.Username} Your Setting is \nGender : {tempInfo.Gender.ToString()} \nPicth : {tempInfo.Pitch}");
                         }
                     }
@@ -408,16 +411,16 @@ namespace LazyMoon.Class
                     {
                         if (splitText[1].ToLower() == "on")
                         {
-                            tts.SetTTS(e.ChatMessage.Username, true);
+                            global.SetTTS(e.ChatMessage.Username, true);
                             isError = false;
-                            var tempInfo = tts.GetVoiceInfo(e.ChatMessage.Username);
+                            var tempInfo = global.GetVoiceInfo(e.ChatMessage.Username);
                             SendMessage($"{e.ChatMessage.Username} TTS On");
                         }
                         else if (splitText[1].ToLower() == "off")
                         {
-                            tts.SetTTS(e.ChatMessage.Username, false);
+                            global.SetTTS(e.ChatMessage.Username, false);
                             isError = false;
-                            var tempInfo = tts.GetVoiceInfo(e.ChatMessage.Username);
+                            var tempInfo = global.GetVoiceInfo(e.ChatMessage.Username);
                             SendMessage($"{e.ChatMessage.Username} TTS Off");
                         }
                     }
