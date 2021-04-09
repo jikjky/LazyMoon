@@ -14,6 +14,8 @@ namespace LazyMoon.Class
 {
     public class ValorantRankRoute : IDisposable
     {
+        Log4NetManager Log = Log4NetManager.GetInstance();
+
         public class TwitchOAuth
         {
             public string OAuth;
@@ -61,6 +63,8 @@ namespace LazyMoon.Class
 
         public ValorantRankRoute()
         {
+            Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create ValorantRankRoute Instance");
+
             valorantRatings.Add(new ValorantRating() { MarkName = "Iron1", MarkImage = "ValorantRanks\\Iron1.png" });
             valorantRatings.Add(new ValorantRating() { MarkName = "Iron2", MarkImage = "ValorantRanks\\Iron2.png" });
             valorantRatings.Add(new ValorantRating() { MarkName = "Iron3", MarkImage = "ValorantRanks\\Iron3.png" });
@@ -91,11 +95,14 @@ namespace LazyMoon.Class
 
         public bool SetBot(string chanel)
         {
+            Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set Instance Chanel : " + chanel);
+
             this.chanel = chanel;
 
             twitchOauth = new TwitchOAuth(new FileInfo("wwwroot//twitch.oauth"));
             try
             {
+                Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set Client Option");
                 ConnectionCredentials credentials = new ConnectionCredentials(chanel, twitchOauth.OAuth);
                 var clientOptions = new ClientOptions
                 {
@@ -103,11 +110,13 @@ namespace LazyMoon.Class
                     ThrottlingPeriod = TimeSpan.FromSeconds(30)
                 };
                 WebSocketClient customClient = new WebSocketClient(clientOptions);
+                Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create Client");
                 client = new TwitchClient(customClient);
                 client.Initialize(credentials, this.chanel);
 
                 client.OnMessageReceived += Client_OnMessageReceived;
 
+                Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Connect Client");
                 client.Connect();
                 return true;
             }
@@ -119,6 +128,8 @@ namespace LazyMoon.Class
 
         public void ChangeRank(int score, string rank)
         {
+            Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Chanel : " + chanel + " Change Rank Score : " + score.ToString() + " Rank : " + rank);
+
             if (score != 0)
             {
                 int temp = currentScore + score;
@@ -171,20 +182,31 @@ namespace LazyMoon.Class
 
         public void GetRank()
         {
+            Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Chanel : " + chanel + " GetRank Name : " + valorantRatings[currentRank].MarkName);
             OnChangeRank?.Invoke(currentScore, valorantRatings[currentRank].MarkName, valorantRatings[currentRank].MarkImage);
         }
 
         private void SendMessage(string message)
         {
-            if (mLastMessage != message)
+            try
             {
-                client.SendMessage(chanel, message);
+                if (mLastMessage != message)
+                {
+                    client.SendMessage(chanel, message);
+                }
+                else
+                {
+                    message = message + "ㅤ";
+                    client.SendMessage(chanel, message);
+                }
             }
-            else
+            catch (Exception e)
             {
-                message = message + "ㅤ";
-                client.SendMessage(chanel, message);
+                Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "SendMessage Chanel Error : " + chanel + " Message : " + message + " Exception : " + e.Message);
+                client.JoinChannel(chanel);
             }
+
+            Log.ValorantRankLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SendMessage Chanel : " + chanel + " Message : " + message);
             mLastMessage = message;
         }
 
