@@ -8,12 +8,24 @@
 <NavMenu />
 
 <body>
-    <div class="container" style="margin-top:70px">
-        <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/Time' ">Time</button>
-        <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/ValorantRanks' ">ValorantRanks</button>
-        <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/TTS' ">TTS</button>
-        <a href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=@client_id&redirect_uri=@redirect_uri&scope=bits:read%20channel:read:hype_train%20channel:read:redemptions%20channel:read:subscriptions%20chat:read%20chat:edit&state=temp">login</a>
-    </div>
+    @if (is_first)
+    {
+        @if (string.IsNullOrEmpty(user_name))
+        {
+            <div class="container" style="margin-top:70px">
+                <a type="submit" class="btn btn-dark" href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=@client_id&redirect_uri=@redirect_uri&scope=user_read">Login</a>
+            </div>
+        }
+        else
+        {
+            <div class="container" style="margin-top:70px">
+                <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/Time/@user_name' ">Time</button>
+                <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/ValorantRanks/@user_name' ">ValorantRanks</button>
+                <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/TTS/@user_name' ">TTS</button>
+                <button type="submit" class="btn btn-dark" @onclick="OnLogout">LogOut</button>
+            </div>
+        }
+    }
 </body>
 
 
@@ -21,21 +33,54 @@
 {
     string redirect_uri;
     string client_id;
+    string user_name;
+    bool is_first = false;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        redirect_uri = NavigationManager.BaseUri.Remove(NavigationManager.BaseUri.Length - 1);
+        redirect_uri = NavigationManager.BaseUri + "bot";
         client_id = Bot.twitchOauth.ClientId;
+
+        if (NavigationManager.Uri.IndexOf("access_token") != -1)
+        {
+            string code = NavigationManager.Uri.Remove(0,NavigationManager.Uri.IndexOf("access_token"));
+            List<string> list = code.Split("&").ToList();
+            foreach (var item in list)
+            {
+                var value = item.Split('=');
+                if (value.Length >= 2)
+                {
+                    if (value[0] == "access_token")
+                    {
+                        var user = Bot.Login(value[1]);
+
+                        user_name = Encryption.Encryption.Encrypt(user.Name);
+
+                        await localStorage.SetItemAsync("name", user_name);
+                        NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
+                    }
+                }
+            }
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender == true)
         {
-            //await localStorage.SetItemAsync("name", "John");
-            //name = await localStorage.GetItemAsync<string>("name");
-
+            user_name = await localStorage.GetItemAsync<string>("name");
+            is_first = true;
             await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
         }
     }
+
+    async void OnLogout()
+    {
+        await localStorage.SetItemAsync("name", "");
+        user_name = await localStorage.GetItemAsync<string>("name");
+        NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
+
+        await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+    }
 }
+
