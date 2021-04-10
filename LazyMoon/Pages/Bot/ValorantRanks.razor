@@ -1,5 +1,6 @@
-﻿@page "/Bot/ValorantRanks"
-@inject Class.TwitchBot bot
+﻿@page "/Bot/ValorantRanks/{text}"
+@inject Class.TwitchBot Bot
+@inject NavigationManager NavigationManager
 
 <div style="text-align : center;">
     <img src="@image" />
@@ -8,9 +9,14 @@
 </div>
 
 @code {
+    [Parameter]
+    public string Text { get; set; }
+
     string image;
     string markName;
     string score;
+
+    private Class.TwitchBot.Bot bot;
 
     public class ValorantRating
     {
@@ -22,11 +28,17 @@
 
     public List<ValorantRating> valorantRatings = new List<ValorantRating>();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+
+        Text = Encryption.Encryption.Decrypt(Text);
+        bot = Bot.GetBot(Text);
+        if (bot == null)
+            NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
+
         bot.valorantRank.OnChangeRank += OnChangeRank;
         bot.valorantRank.GetRank();
-        this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+        await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
     }
 
     protected void OnChangeRank(int score, string rank, string path)

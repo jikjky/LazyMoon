@@ -46,7 +46,7 @@ namespace LazyMoon.Class
             Init("civil-sprite-288916", file.FullName);
         }
 
-        
+
 
         public void Init(string projectId, string jsonPath)
         {
@@ -58,11 +58,11 @@ namespace LazyMoon.Class
 
             ttsClient = builder.Build();
 
-            return ;
+            return;
         }
 
 
-        public void Speak(string setText, string name)
+        public void Speak(string setText, string name, string chanel)
         {
             int gender = 3;
             if (setText[setText.Length - 1] == '`')
@@ -85,22 +85,26 @@ namespace LazyMoon.Class
                 AudioEncoding = AudioEncoding.Mp3,
             };
 
-            if (global.VoiceSettingDictionary.ContainsKey(name) == true)
+            if (global.ttsSetting.ContainsKey(chanel) == true && global.ttsSetting[chanel].VoiceSettingDictionary.ContainsKey(name) == true)
             {
-                if (global.VoiceSettingDictionary[name].Use == false || global.ttsSetting.TTSEnable == false)
+                if (global.ttsSetting[chanel].VoiceSettingDictionary[name].Use == false || global.ttsSetting[chanel].TTSEnable == false)
                 {
                     return;
                 }
-                config.Pitch = global.VoiceSettingDictionary[name].Pitch;
-                config.SpeakingRate = global.ttsSetting.Rate;
-                config.VolumeGainDb = global.ttsSetting.Volume;
-                voice.SsmlGender = (SsmlVoiceGender)global.VoiceSettingDictionary[name].Gender;
+                config.Pitch = global.ttsSetting[chanel].VoiceSettingDictionary[name].Pitch;
+                config.SpeakingRate = global.ttsSetting[chanel].Rate;
+                config.VolumeGainDb = global.ttsSetting[chanel].Volume;
+                voice.SsmlGender = (SsmlVoiceGender)global.ttsSetting[chanel].VoiceSettingDictionary[name].Gender;
             }
             else
             {
+                if (global.ttsSetting.ContainsKey(chanel) == false)
+                {
+                    global.ttsSetting[chanel] = new Global.TTSSetting();
+                }
                 config.Pitch = defaultPitch;
-                config.SpeakingRate = global.ttsSetting.Rate;
-                config.VolumeGainDb = global.ttsSetting.Volume;
+                config.SpeakingRate = global.ttsSetting[chanel].Rate;
+                config.VolumeGainDb = global.ttsSetting[chanel].Volume;
             }
 
             var response = ttsClient.SynthesizeSpeech(new SynthesizeSpeechRequest
