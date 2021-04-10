@@ -10,7 +10,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using LazyMoon.Class;
-using LazyMoon.Data;
 using LazyMoon.Server.Hubs;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,15 +33,8 @@ namespace LazyMoon
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<MyAppDbContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddIdentityCore<IdentityUser>()
-                .AddEntityFrameworkStores<MyAppDbContext>();
-
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddSingleton<WeatherForecastService>();
             services.AddSignalR(e =>
             {
                 e.MaximumReceiveMessageSize = 102400000;
@@ -56,7 +48,6 @@ namespace LazyMoon
 
             services.AddTransient<LazyMoon.Services.BlazorTimer>();
             services.AddSingleton<TwitchBot>();
-            services.AddTransient<ValorantRank>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

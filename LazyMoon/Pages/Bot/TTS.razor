@@ -1,5 +1,6 @@
-﻿@page "/Bot/TTS"
+﻿@page "/Bot/TTS/{text}"
 @inject Class.TwitchBot Bot
+@inject NavigationManager NavigationManager
 
 <div id="messagesList">
     @foreach (var message in _Messages)
@@ -21,8 +22,11 @@
     }
 }
 
-@code 
+@code
 {
+    [Parameter]
+    public string Text { get; set; }
+
     class SoundDataList
     {
         public string _SoundData = "";
@@ -37,14 +41,20 @@
 
     private List<string> _Messages = new List<string>();
 
+    private Class.TwitchBot.Bot bot;
 
     protected override void OnInitialized()
     {
+        Text = Encryption.Encryption.Decrypt(Text);
+        bot = Bot.GetBot(Text);
+        if (bot == null)
+            NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
+
         for (int i = 0; i < max; i++)
         {
             soundDataList.Add(new SoundDataList());
         }
-        Bot.OnMessage += OnMessageEvent;
+        bot.OnMessage += OnMessageEvent;
         Bot.tts.OnSpeak += OnTTS;
     }
 

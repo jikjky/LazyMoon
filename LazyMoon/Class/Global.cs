@@ -29,9 +29,9 @@ namespace LazyMoon
             if (userInfo.Exists == false)
             {
                 userInfo.Create().Close();
-                SaveUserInfo();
+                SaveUserInfoConfig();
             }
-            LoadUserInfo();
+            LoadUserInfoConfig();
             FileInfo ttsConfig = new FileInfo("ttsconfig.json");
             if (ttsConfig.Exists == false)
             {
@@ -48,7 +48,70 @@ namespace LazyMoon
             LoadRankInfo();
         }
 
+        public class TwitchUser
+        {
+            public string Id;
+            public string Name;
+        }
+
+        public Dictionary<string, TwitchUser> UserInfo = new Dictionary<string, TwitchUser>(); 
+
+        public void SaveUserInfoConfig()
+        {
+            try
+            {
+                string jsonString;
+                jsonString = JsonConvert.SerializeObject(UserInfo);
+                File.WriteAllText("userinfo.json", jsonString);
+
+                Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Save UserInfo Config : " + jsonString);
+            }
+            catch (Exception e)
+            {
+                Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Save UserInfo Config Error : " + e.Message);
+            }
+        }
+
+        public void LoadUserInfoConfig()
+        {
+            try
+            {
+                string jsonString;
+                jsonString = File.ReadAllText("userinfo.json");
+                UserInfo = JsonConvert.DeserializeObject<Dictionary<string, TwitchUser>>(jsonString);
+
+                Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Load UserInfo Config : " + jsonString);
+            }
+            catch (Exception e)
+            {
+                Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Load UserInfo Config Error : " + e.Message);
+            }
+        }
+
+        public TwitchUser SetUserInfo(string name, string id)
+        {
+            if (UserInfo.ContainsKey(name) == false)
+            {
+                UserInfo[name] = new Global.TwitchUser() { Id = id, Name = name };
+                SaveUserInfoConfig();
+            }
+            return UserInfo[name];
+        }
+
         #region TTSConfig
+        public class VoiceSetting
+        {
+            public EGender Gender = EGender.Female;
+            public double Pitch = 0;
+            public bool Use = true;
+        }
+
+        public enum EGender
+        {
+            Male = 1,
+            Female = 2,
+        }
+
         public class TTSSetting
         {
             private double Rate_ = 1;
@@ -88,6 +151,8 @@ namespace LazyMoon
                 }
             }
 
+            public Dictionary<string, VoiceSetting> VoiceSettingDictionary = new Dictionary<string, VoiceSetting>();
+
             public void SetDefault()
             {
                 Volume = 0;
@@ -95,7 +160,7 @@ namespace LazyMoon
             }
         }
 
-        public TTSSetting ttsSetting = new TTSSetting();
+        public Dictionary<string,TTSSetting> ttsSetting = new Dictionary<string, TTSSetting>();
 
         public void SaveTTSConfig()
         {
@@ -119,7 +184,7 @@ namespace LazyMoon
             {
                 string jsonString;
                 jsonString = File.ReadAllText("ttsconfig.json");
-                ttsSetting = JsonConvert.DeserializeObject<TTSSetting>(jsonString);
+                ttsSetting = JsonConvert.DeserializeObject<Dictionary<string, TTSSetting>>(jsonString);
 
                 Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Load TTS Config : " + jsonString);
             }
@@ -129,87 +194,48 @@ namespace LazyMoon
             }
         }
 
-        public void SetTTSEnable(bool enabled)
+        public void SetTTSEnable(string chanel, bool enabled)
         {
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSEnable : " + enabled.ToString());
-            ttsSetting.TTSEnable = enabled;
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSEnable Chanel : " + chanel + " Value : " + enabled.ToString());
+            if (ttsSetting.ContainsKey(chanel) == false)
+            {
+                ttsSetting[chanel] = new TTSSetting();
+            }
+            ttsSetting[chanel].TTSEnable = enabled;
             SaveTTSConfig();
         }
 
-        public void SetTTSRate(double rate)
+        public void SetTTSRate(string chanel, double rate)
         {
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSRate : " + rate.ToString());
-            ttsSetting.Rate = rate;
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSRate Chanel : " + chanel + " Value : " + rate.ToString());
+            if (ttsSetting.ContainsKey(chanel) == false)
+            {
+                ttsSetting[chanel] = new TTSSetting();
+            }
+            ttsSetting[chanel].Rate = rate;
             SaveTTSConfig();
         }
 
-        public void SetTTSVolume(double volume)
+        public void SetTTSVolume(string chanel, double volume)
         {
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSVolume : " + volume.ToString());
-            ttsSetting.Volume = volume;
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Set TTSVolume Chanel : " + chanel + " Value : " + volume.ToString());
+            if (ttsSetting.ContainsKey(chanel) == false)
+            {
+                ttsSetting[chanel] = new TTSSetting();
+            }
+            ttsSetting[chanel].Volume = volume;
             SaveTTSConfig();
         }
 
-        public void SetTTSDefault()
+        public void SetTTSDefault(string chanel)
         {
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetTTSDefault");
-            ttsSetting.SetDefault();
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetTTSDefault Chanel : " + chanel);
+            if (ttsSetting.ContainsKey(chanel) == false)
+            {
+                ttsSetting[chanel] = new TTSSetting();
+            }
+            ttsSetting[chanel].SetDefault();
             SaveTTSConfig();
-        }
-
-        #endregion
-
-        #region User
-        public class VoiceSetting
-        {
-            public EGender Gender = EGender.Female;
-            public double Pitch = 0;
-            public bool Use = true;
-        }
-        public enum EGender
-        {
-            Male = 1,
-            Female = 2,
-        }
-
-        public Dictionary<string, VoiceSetting> VoiceSettingDictionary = new Dictionary<string, VoiceSetting>();
-
-        /// <summary>
-        /// 유저 목소리 정보 저장
-        /// </summary>
-        public void SaveUserInfo()
-        {
-            try
-            {
-                string jsonString;
-                jsonString = JsonConvert.SerializeObject(VoiceSettingDictionary);
-                File.WriteAllText("userinfo.json", jsonString);
-
-                Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Save User Config : " + jsonString);
-            }
-            catch (Exception e)
-            {
-                Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Save User Config Error : " + e.Message);
-            }
-        }
-
-        /// <summary>
-        /// 유저 목소리 정보 불러오기
-        /// </summary>
-        public void LoadUserInfo()
-        {
-            try
-            {
-                string jsonString;
-                jsonString = File.ReadAllText("userinfo.json");
-                VoiceSettingDictionary = JsonConvert.DeserializeObject<Dictionary<string, VoiceSetting>>(jsonString);
-
-                Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Load User Config : " + jsonString);
-            }
-            catch (Exception e)
-            {
-                Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Load User Config Error : " + e.Message);
-            }
         }
 
         /// <summary>
@@ -217,18 +243,19 @@ namespace LazyMoon
         /// </summary>
         /// <param name="name"></param>
         /// <param name="gender"></param>
-        public void SetVoiceGender(string name, EGender gender)
+        public void SetVoiceGender(string chanel, string name, EGender gender)
         {
-            if (VoiceSettingDictionary.ContainsKey(name) == true)
+            if (ttsSetting.ContainsKey(chanel) == false)
             {
-                VoiceSettingDictionary[name].Gender = gender;
+                ttsSetting[chanel] = new TTSSetting();
             }
-            else
+            if (ttsSetting[chanel].VoiceSettingDictionary.ContainsKey(name) == false)
             {
-                VoiceSettingDictionary.Add(name, new VoiceSetting() { Gender = gender });
+                ttsSetting[chanel].VoiceSettingDictionary.Add(name, new VoiceSetting());
             }
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetVoiceGender User : " + name + " Value : " + gender.ToString());
-            SaveUserInfo();
+            ttsSetting[chanel].VoiceSettingDictionary[name].Gender = gender;
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetVoiceGender Chanel : " + chanel + "  User : " + name + " Value : " + gender.ToString());
+            SaveTTSConfig();
         }
 
         /// <summary>
@@ -236,18 +263,19 @@ namespace LazyMoon
         /// </summary>
         /// <param name="name"></param>
         /// <param name="pitch"></param>
-        public void SetVoicePitch(string name, double pitch)
+        public void SetVoicePitch(string chanel, string name, double pitch)
         {
-            if (VoiceSettingDictionary.ContainsKey(name) == true)
+            if (ttsSetting.ContainsKey(chanel) == false)
             {
-                VoiceSettingDictionary[name].Pitch = pitch;
+                ttsSetting[chanel] = new TTSSetting();
             }
-            else
+            if (ttsSetting[chanel].VoiceSettingDictionary.ContainsKey(name) == false)
             {
-                VoiceSettingDictionary.Add(name, new VoiceSetting() { Pitch = pitch });
+                ttsSetting[chanel].VoiceSettingDictionary.Add(name, new VoiceSetting());
             }
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetVoicePitch User : " + name + " Value : " + pitch.ToString());
-            SaveUserInfo();
+            ttsSetting[chanel].VoiceSettingDictionary[name].Pitch = pitch;
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetVoicePitch Chanel : " + chanel + "  User : " + name + " Value : " + pitch.ToString());
+            SaveTTSConfig();
         }
 
         /// <summary>
@@ -255,18 +283,19 @@ namespace LazyMoon
         /// </summary>
         /// <param name="name"></param>
         /// <param name="on"></param>
-        public void SetTTS(string name, bool on)
+        public void SetTTS(string chanel, string name, bool on)
         {
-            if (VoiceSettingDictionary.ContainsKey(name) == true)
+            if (ttsSetting.ContainsKey(chanel) == false)
             {
-                VoiceSettingDictionary[name].Use = on;
+                ttsSetting[chanel] = new TTSSetting();
             }
-            else
+            if (ttsSetting[chanel].VoiceSettingDictionary.ContainsKey(name) == false)
             {
-                VoiceSettingDictionary.Add(name, new VoiceSetting() { Use = on });
+                ttsSetting[chanel].VoiceSettingDictionary.Add(name, new VoiceSetting());
             }
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetTTS User : " + name + " Value : " + on.ToString());
-            SaveUserInfo();
+            ttsSetting[chanel].VoiceSettingDictionary[name].Use = on;
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetTTS Chanel : " + chanel + " User : " + name + " Value : " + on.ToString());
+            SaveTTSConfig();
         }
 
         /// <summary>
@@ -274,18 +303,19 @@ namespace LazyMoon
         /// </summary>
         /// <param name="name"></param>
         /// <returns></returns>
-        public VoiceSetting GetVoiceInfo(string name)
+        public VoiceSetting GetVoiceInfo(string chanel, string name)
         {
             VoiceSetting returnValue;
-            if (VoiceSettingDictionary.ContainsKey(name) == true)
+            if (ttsSetting.ContainsKey(chanel) == false)
             {
-                returnValue = VoiceSettingDictionary[name];
+                ttsSetting[chanel] = new TTSSetting();
             }
-            else
+            if (ttsSetting[chanel].VoiceSettingDictionary.ContainsKey(name) == false)
             {
                 returnValue = new VoiceSetting();
             }
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "GetVoiceInfo User : " + name);
+            returnValue = ttsSetting[chanel].VoiceSettingDictionary[name];
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "GetVoiceInfo Chanel : " + chanel + "  User : " + name);
             return returnValue;
         }
 
