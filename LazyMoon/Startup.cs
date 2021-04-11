@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using System.Net;
 using System.Net.Http;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace LazyMoon
 {
@@ -39,6 +40,11 @@ namespace LazyMoon
             {
                 e.MaximumReceiveMessageSize = 102400000;
             });
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
+                    new[] { "application/octet-stream" });
+            });
             services.Configure<ForwardedHeadersOptions>(options =>
             {
                 options.KnownProxies.Add(IPAddress.Parse("bot.lazymoon.net"));
@@ -53,6 +59,8 @@ namespace LazyMoon
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            app.UseResponseCompression();
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

@@ -92,13 +92,14 @@ namespace LazyMoon.Class
             return global.SetUserInfo(user.Name, user.Id);
         }
 
-        public Bot GetBot(string chanel)
+        public Bot GetBot(string chanel, bool ttsUse = false)
         {
             var bot = botList.Find(x => x.chanel == chanel);
             if (bot == null)
             {
                 return null;
             }
+            bot.IsOnTTSWakeUp = ttsUse;
             return bot;
         }
 
@@ -109,6 +110,8 @@ namespace LazyMoon.Class
             public event OnMessage OnMessage;
 
             public bool IsTTSOn = true;
+
+            public bool IsOnTTSWakeUp = false;
 
             private string mLastMessage = "";
 
@@ -417,7 +420,7 @@ namespace LazyMoon.Class
                                     twitchBot.global.SetVoicePitch(chanel, e.ChatMessage.Username, temp);
                                     isError = false;
                                     var tempInfo = twitchBot.global.GetVoiceInfo(chanel, e.ChatMessage.Username);
-                                    SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nGender : {tempInfo.Gender.ToString()} \r\nPicth : {tempInfo.Pitch}");
+                                    SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nGender : {tempInfo.Voice.ToString()} \r\nPicth : {tempInfo.Pitch}");
                                 }
                             }
                         }
@@ -426,29 +429,43 @@ namespace LazyMoon.Class
                             SendMessage("!pitch [-20, 20]");
                         }
                     }
-                    else if (splitText[0].ToLower() == "!gender")
+                    else if (splitText[0].ToLower() == "!voice")
                     {
                         bool isError = true;
                         if (splitText.Length > 1)
                         {
-                            if (splitText[1].ToLower() == "male")
+                            if (splitText[1].ToLower() == "a")
                             {
-                                twitchBot.global.SetVoiceGender(chanel, e.ChatMessage.Username, Global.EGender.Male);
+                                twitchBot.global.SetVoice(chanel, e.ChatMessage.Username, Global.EVoice.A);
                                 isError = false;
                                 var tempInfo = twitchBot.global.GetVoiceInfo(chanel, e.ChatMessage.Username);
-                                SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nGender : {tempInfo.Gender.ToString()} \r\nPicth : {tempInfo.Pitch}");
+                                SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.Voice.ToString()} \nPicth : {tempInfo.Pitch}");
                             }
-                            else if (splitText[1].ToLower() == "female")
+                            else if (splitText[1].ToLower() == "b")
                             {
-                                twitchBot.global.SetVoiceGender(chanel, e.ChatMessage.Username, Global.EGender.Female);
+                                twitchBot.global.SetVoice(chanel, e.ChatMessage.Username, Global.EVoice.B);
                                 isError = false;
                                 var tempInfo = twitchBot.global.GetVoiceInfo(chanel, e.ChatMessage.Username);
-                                SendMessage($"{e.ChatMessage.Username} Your Setting is \nGender : {tempInfo.Gender.ToString()} \nPicth : {tempInfo.Pitch}");
+                                SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.Voice.ToString()} \nPicth : {tempInfo.Pitch}");
+                            }
+                            else if (splitText[1].ToLower() == "c")
+                            {
+                                twitchBot.global.SetVoice(chanel, e.ChatMessage.Username, Global.EVoice.C);
+                                isError = false;
+                                var tempInfo = twitchBot.global.GetVoiceInfo(chanel, e.ChatMessage.Username);
+                                SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.Voice.ToString()} \nPicth : {tempInfo.Pitch}");
+                            }
+                            else if (splitText[1].ToLower() == "d")
+                            {
+                                twitchBot.global.SetVoice(chanel, e.ChatMessage.Username, Global.EVoice.D);
+                                isError = false;
+                                var tempInfo = twitchBot.global.GetVoiceInfo(chanel, e.ChatMessage.Username);
+                                SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.Voice.ToString()} \nPicth : {tempInfo.Pitch}");
                             }
                         }
                         if (isError == true)
                         {
-                            SendMessage("!gender [male, female]");
+                            SendMessage("!Voice [a, b, c, d]");
                         }
                     }
                     else if (splitText[0].ToLower() == "!tts")
@@ -585,7 +602,9 @@ namespace LazyMoon.Class
                 {
                     speechText = speechText.Remove(25);
                 }
-                TTSQueue.Enqueue(new TTSQueueInfo() { message = speechText, name = e.ChatMessage.Username });
+                //speechText = ConvertEnglish.Instance.ConvertToEnglish(speechText);
+                if (IsOnTTSWakeUp == true)
+                    TTSQueue.Enqueue(new TTSQueueInfo() { message = speechText, name = e.ChatMessage.Username });
                 if (OnMessage != null)
                     OnMessage(e.ChatMessage.Message);
             }
