@@ -101,15 +101,17 @@ namespace LazyMoon
         #region TTSConfig
         public class VoiceSetting
         {
-            public EGender Gender = EGender.Female;
+            public EVoice Voice = EVoice.A;
             public double Pitch = 0;
             public bool Use = true;
         }
 
-        public enum EGender
+        public enum EVoice
         {
-            Male = 1,
-            Female = 2,
+            A = 1,
+            B = 2,
+            C = 3,
+            D = 4,
         }
 
         public class TTSSetting
@@ -242,8 +244,8 @@ namespace LazyMoon
         /// 유저 정보 변경 (성별)
         /// </summary>
         /// <param name="name"></param>
-        /// <param name="gender"></param>
-        public void SetVoiceGender(string chanel, string name, EGender gender)
+        /// <param name="voice"></param>
+        public void SetVoice(string chanel, string name, EVoice voice)
         {
             if (ttsSetting.ContainsKey(chanel) == false)
             {
@@ -253,8 +255,8 @@ namespace LazyMoon
             {
                 ttsSetting[chanel].VoiceSettingDictionary.Add(name, new VoiceSetting());
             }
-            ttsSetting[chanel].VoiceSettingDictionary[name].Gender = gender;
-            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetVoiceGender Chanel : " + chanel + "  User : " + name + " Value : " + gender.ToString());
+            ttsSetting[chanel].VoiceSettingDictionary[name].Voice = voice;
+            Log.FileLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SetVoice Chanel : " + chanel + "  User : " + name + " Value : " + voice.ToString());
             SaveTTSConfig();
         }
 

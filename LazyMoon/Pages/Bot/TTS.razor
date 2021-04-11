@@ -1,6 +1,7 @@
 ﻿@page "/Bot/TTS/{text}"
 @inject Class.TwitchBot Bot
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
 <div id="messagesList">
     @foreach (var message in _Messages)
@@ -46,7 +47,7 @@
     protected override void OnInitialized()
     {
         Text = Encryption.Encryption.Decrypt(Text);
-        bot = Bot.GetBot(Text);
+        bot = Bot.GetBot(Text, true);
         if (bot == null)
             NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
 
@@ -58,8 +59,10 @@
         Bot.tts.OnSpeak += OnTTS;
     }
 
-    void OnTTS(string audioBase64)
+    void OnTTS(string audioBase64, string chanel)
     {
+        if (chanel != bot.chanel)
+            return;
         if (i == max)
             i = 0;
         soundDataList[i]._SoundData = $"data:audio/mpeg;base64,{audioBase64}";
@@ -77,5 +80,10 @@
             _Messages.RemoveAt(0);
         }
         this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+    }
+
+    public void Dispose()
+    {
+        bot.IsOnTTSWakeUp = false;
     }
 }
