@@ -22,6 +22,7 @@
                 <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/Time/@user_name' ">Time</button>
                 <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/ValorantRanks/@user_name' ">ValorantRanks</button>
                 <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/TTS/@user_name' ">TTS</button>
+                <h1 class="text-dark">@chanel</h1>
                 <button type="submit" class="btn btn-dark" @onclick="OnLogout">LogOut</button>
             </div>
         }
@@ -34,6 +35,7 @@
     string redirect_uri;
     string client_id;
     string user_name;
+    string chanel;
     bool is_first = false;
 
     protected override async Task OnInitializedAsync()
@@ -69,6 +71,10 @@
         if (firstRender == true)
         {
             user_name = await localStorage.GetItemAsync<string>("name");
+            if (string.IsNullOrEmpty(user_name) == false)
+            {
+                chanel = Encryption.Encryption.Decrypt(user_name);
+            }
             is_first = true;
             await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
         }
@@ -77,6 +83,7 @@
     async void OnLogout()
     {
         await localStorage.SetItemAsync("name", "");
+        chanel = "";
         user_name = await localStorage.GetItemAsync<string>("name");
         NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
 

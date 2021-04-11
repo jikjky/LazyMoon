@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 
 namespace LazyMoon.Class
 {
-    public delegate void TTSSpeakEvent(string memoryStream);
+    public delegate void TTSSpeakEvent(string memoryStream, string chanel);
 
     public class TTS
     {
@@ -64,21 +64,18 @@ namespace LazyMoon.Class
 
         public void Speak(string setText, string name, string chanel)
         {
-            int gender = 3;
-            if (setText[setText.Length - 1] == '`')
-            {
-                gender = 1;
-            }
-
             SynthesisInput input = new SynthesisInput
             {
                 Text = setText
             };
 
+            Random rd = new Random();
+
+            Global.EVoice eVoice = (Global.EVoice)rd.Next(1, 5);
             VoiceSelectionParams voice = new VoiceSelectionParams
             {
                 LanguageCode = "ko-KR",
-                SsmlGender = (SsmlVoiceGender)gender
+                Name = "ko-KR-Standard-" + eVoice.ToString(),
             };
             AudioConfig config = new AudioConfig
             {
@@ -94,7 +91,7 @@ namespace LazyMoon.Class
                 config.Pitch = global.ttsSetting[chanel].VoiceSettingDictionary[name].Pitch;
                 config.SpeakingRate = global.ttsSetting[chanel].Rate;
                 config.VolumeGainDb = global.ttsSetting[chanel].Volume;
-                voice.SsmlGender = (SsmlVoiceGender)global.ttsSetting[chanel].VoiceSettingDictionary[name].Gender;
+                voice.Name = "ko-KR-Standard-" + global.ttsSetting[chanel].VoiceSettingDictionary[name].Voice.ToString();
             }
             else
             {
@@ -114,12 +111,12 @@ namespace LazyMoon.Class
                 AudioConfig = config
             });
 
-            NotifyTTSSpeakEvent(response.AudioContent.ToBase64());
+            NotifyTTSSpeakEvent(response.AudioContent.ToBase64(), chanel);
         }
 
-        private void NotifyTTSSpeakEvent(string audioBase64)
+        private void NotifyTTSSpeakEvent(string audioBase64,string chanel)
         {
-            OnSpeak?.Invoke(audioBase64);
+            OnSpeak?.Invoke(audioBase64, chanel);
         }
     }
 }
