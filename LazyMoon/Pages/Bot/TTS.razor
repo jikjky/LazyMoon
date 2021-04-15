@@ -1,6 +1,7 @@
 ﻿@page "/Bot/TTS/{text}"
 @inject Class.TwitchBot Bot
 @inject NavigationManager NavigationManager
+@using System.Threading
 @implements IDisposable
 
 <div id="messagesList">
@@ -44,6 +45,8 @@
 
     private Class.TwitchBot.Bot bot;
 
+    private bool threadStop = false;
+
     protected override void OnInitialized()
     {
         Text = Encryption.Encryption.Decrypt(Text);
@@ -57,6 +60,15 @@
         }
         bot.OnMessage += OnMessageEvent;
         Bot.tts.OnSpeak += OnTTS;
+        new Thread(() =>
+        {
+            while (threadStop == false)
+            {
+                bot.IsOnTTSWakeUp = true;
+                Thread.Sleep(100);
+            }
+            bot.IsOnTTSWakeUp = false;
+        });
     }
 
     void OnTTS(string audioBase64, string chanel)
@@ -84,6 +96,6 @@
 
     public void Dispose()
     {
-        bot.IsOnTTSWakeUp = false;
+        threadStop = true;
     }
 }
