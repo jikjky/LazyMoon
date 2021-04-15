@@ -72,11 +72,21 @@ namespace LazyMoon.Class
             Random rd = new Random();
 
             Global.EVoice eVoice = (Global.EVoice)rd.Next(1, 5);
-            VoiceSelectionParams voice = new VoiceSelectionParams
-            {
-                LanguageCode = "ko-KR",
-                Name = "ko-KR-Standard-" + eVoice.ToString(),
-            };
+            VoiceSelectionParams voice;
+
+            if (chanel != "jikjky")
+                voice = new VoiceSelectionParams
+                {
+                    LanguageCode = "ko-KR",
+                    Name = "ko-KR-Standard-" + eVoice.ToString(),
+                };
+            else
+                voice = new VoiceSelectionParams
+                {
+                    LanguageCode = "ja-JP",
+                    Name = "ja-JP-Standard-" + eVoice.ToString(),
+                };
+
             AudioConfig config = new AudioConfig
             {
                 AudioEncoding = AudioEncoding.Mp3,
@@ -91,7 +101,10 @@ namespace LazyMoon.Class
                 config.Pitch = global.ttsSetting[chanel].VoiceSettingDictionary[name].Pitch;
                 config.SpeakingRate = global.ttsSetting[chanel].Rate;
                 config.VolumeGainDb = global.ttsSetting[chanel].Volume;
-                voice.Name = "ko-KR-Standard-" + global.ttsSetting[chanel].VoiceSettingDictionary[name].Voice.ToString();
+                if (chanel != "jikjky")
+                    voice.Name = "ko-KR-Standard-" + global.ttsSetting[chanel].VoiceSettingDictionary[name].Voice.ToString();
+                else
+                    voice.Name = "ja-JP-Standard-" + global.ttsSetting[chanel].VoiceSettingDictionary[name].Voice.ToString();
             }
             else
             {

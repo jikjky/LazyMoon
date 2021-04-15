@@ -1,0 +1,9 @@
+﻿@inherits LazyMoon.Class.Component.Slime.SlimeModel
+
+<style type="text/css">
+    .slime {
+        position: absolute;
+    }
+</style>
+
+<img class="slime" src="@Image" style="top: @($"{Position.x}%"); left: @($"{Position.y}%");" data-dx="@direction" />

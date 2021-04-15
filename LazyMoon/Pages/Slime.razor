@@ -1,0 +1,12 @@
+﻿@page "/Slime"
+@inject NavigationManager NavigationManager
+@inject Class.TwitchBot Bot
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+@using System.Security.Cryptography
+
+<body>
+    <div style="width:100vw;height:100vh">
+        <LazyMoon.Class.Component.Slime.SlimeComponet X="90" Y="90" Speed="3" frameDelay="30" />
+    </div>
+</body>

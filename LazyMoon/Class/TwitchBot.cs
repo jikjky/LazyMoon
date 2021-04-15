@@ -420,7 +420,7 @@ namespace LazyMoon.Class
                                     twitchBot.global.SetVoicePitch(chanel, e.ChatMessage.Username, temp);
                                     isError = false;
                                     var tempInfo = twitchBot.global.GetVoiceInfo(chanel, e.ChatMessage.Username);
-                                    SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nGender : {tempInfo.Voice.ToString()} \r\nPicth : {tempInfo.Pitch}");
+                                    SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nVoice : {tempInfo.Voice.ToString()} \r\nPicth : {tempInfo.Pitch}");
                                 }
                             }
                         }
@@ -499,20 +499,20 @@ namespace LazyMoon.Class
                 // 문자 처리
                 List<char> stringList = new List<char>();
                 stringList.Add('ㄱ');
-                stringList.Add('ㄳ');
-                stringList.Add('ㄷ');
-                stringList.Add('ㅅ');
-                stringList.Add('ㅋ');
-                stringList.Add('ㅎ');
-                stringList.Add('ㅂ');
-                stringList.Add('ㅈ');
                 stringList.Add('ㄴ');
-                stringList.Add('ㅇ');
+                stringList.Add('ㄷ');
                 stringList.Add('ㄹ');
-                stringList.Add('ㅌ');
-                stringList.Add('ㅊ');
-                stringList.Add('ㅍ');
                 stringList.Add('ㅁ');
+                stringList.Add('ㅂ');
+                stringList.Add('ㅅ');
+                stringList.Add('ㅇ');
+                stringList.Add('ㅈ');
+                stringList.Add('ㅊ');
+                stringList.Add('ㅋ');
+                stringList.Add('ㅍ');
+                stringList.Add('ㅌ');
+                stringList.Add('ㅎ');
+                stringList.Add('ㄳ');
 
                 //자음 2글자 이상이면 2글자만 재생되게
                 foreach (var item in stringList)
@@ -558,20 +558,20 @@ namespace LazyMoon.Class
                 speechText = speechText.Replace("병신", "모자란아이");
                 speechText = speechText.Replace("못한다", "잘한다");
                 speechText = speechText.Replace("ㅈㄴ", "엄청");
-                speechText = speechText.Replace("ㅅ", "샷");
                 speechText = speechText.Replace("ㄱ", "고");
-                speechText = speechText.Replace("ㄷ", "덜");
-                speechText = speechText.Replace("ㅋ", "키");
-                speechText = speechText.Replace("ㅎ", "히");
-                speechText = speechText.Replace("ㅂ", "바");
-                speechText = speechText.Replace("ㅈ", "지");
                 speechText = speechText.Replace("ㄴ", "노");
-                speechText = speechText.Replace("ㅇ", "응");
+                speechText = speechText.Replace("ㄷ", "덜");
                 speechText = speechText.Replace("ㄹ", "리");
-                speechText = speechText.Replace("ㅌ", "튀");
-                speechText = speechText.Replace("ㅊ", "추");
-                speechText = speechText.Replace("ㅍ", "팜");
                 speechText = speechText.Replace("ㅁ", "미");
+                speechText = speechText.Replace("ㅂ", "바");
+                speechText = speechText.Replace("ㅅ", "샷");
+                speechText = speechText.Replace("ㅇ", "응");
+                speechText = speechText.Replace("ㅈ", "지");
+                speechText = speechText.Replace("ㅊ", "추");
+                speechText = speechText.Replace("ㅋ", "키");
+                speechText = speechText.Replace("ㅌ", "튀");
+                speechText = speechText.Replace("ㅍ", "팜");
+                speechText = speechText.Replace("ㅎ", "히");
 
                 speechText = speechText.Replace("***", "나쁜말");
 
