@@ -29,6 +29,7 @@
         if(bot == null)
             NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
 
+        OnTimerCallback();
         timer.Elapsed += (sender, eventArgs) => OnTimerCallback();
         timer.Start();
     }

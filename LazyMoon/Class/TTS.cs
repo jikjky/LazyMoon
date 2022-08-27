@@ -14,7 +14,6 @@ using TwitchLib.Client.Models;
 using TwitchLib.Communication.Clients;
 using TwitchLib.Api;
 using TwitchLib.Api.Helix.Models.Users;
-using TwitchLib.Api.V5.Models.Subscriptions;
 using TwitchLib.Communication.Models;
 using Google.Cloud.TextToSpeech.V1;
 using System.Text.RegularExpressions;
@@ -83,8 +82,8 @@ namespace LazyMoon.Class
             else
                 voice = new VoiceSelectionParams
                 {
-                    LanguageCode = "ja-JP",
-                    Name = "ja-JP-Standard-" + eVoice.ToString(),
+                    LanguageCode = "ko-KR",
+                    Name = "ko-KR-Standard-" + eVoice.ToString(),
                 };
 
             AudioConfig config = new AudioConfig
@@ -104,7 +103,7 @@ namespace LazyMoon.Class
                 if (chanel != "jikjky")
                     voice.Name = "ko-KR-Standard-" + global.ttsSetting[chanel].VoiceSettingDictionary[name].Voice.ToString();
                 else
-                    voice.Name = "ja-JP-Standard-" + global.ttsSetting[chanel].VoiceSettingDictionary[name].Voice.ToString();
+                    voice.Name = "ko-KR-Standard-" + global.ttsSetting[chanel].VoiceSettingDictionary[name].Voice.ToString();
             }
             else
             {

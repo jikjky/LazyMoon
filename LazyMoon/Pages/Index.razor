@@ -4,7 +4,6 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 @using System.Security.Cryptography
-
 <body>
     <style type="text/css">
         .jumbotron {
@@ -19,12 +18,18 @@
                     <h1 class="text-center"><b>LazyMoon</b></h1>
                     <p class="text-center">Hello My WebPage</p>
                     <p class="text-center"><a class="btn btn-primary btn-lg" href="/Bot" role="button">Bot</a></p>
-
                 </div>
             </div>
         </div>
     </div>
     <div class="py-5 bg-light" id="Infomation">
+        <div class="container-fluid">
+            <div class="jumbotron">
+                <div>
+                    <h3 class="text-center mt-5"><b>Portfolio</b></h3>
+                </div>
+            </div>
+        </div>
         <div class="container-fluid">
             <div class="jumbotron">
                 <div>
@@ -34,7 +39,6 @@
                     <p class="text-center">Developer</p>
                 </div>
             </div>
-
             <div class="row">
                 <div class="col-md-4">
                     <a href="https://www.youtube.com/channel/UCjeyFRwDpdyev_HmiABTvGg">
@@ -43,10 +47,6 @@
                     </a>
                 </div>
                 <div class="col-md-4">
-                    <a href="https://www.twitch.tv/jikjky">
-                        <img src="Image/Twitch.png" alt="" height="50" class="my-2 mx-auto d-block">
-                        <h3 class="text-center">Twitch</h3>
-                    </a>
                 </div>
                 <div class="col-md-4">
                     <a href="https://github.com/jikjky">
@@ -56,13 +56,12 @@
                 </div>
             </div>
         </div>
-
     </div>
 </body>
 
 @code{
     protected override void OnInitialized()
     {
-        
+
     }
 }
