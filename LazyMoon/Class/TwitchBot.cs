@@ -14,17 +14,18 @@ using TwitchLib.Client.Models;
 using TwitchLib.Communication.Clients;
 using TwitchLib.Api;
 using TwitchLib.Api.Helix.Models.Users;
-using TwitchLib.Api.V5.Models.Subscriptions;
 using TwitchLib.Communication.Models;
 using Google.Cloud.TextToSpeech.V1;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Components;
+using TwitchLib.Communication.Events;
+using System.Net;
 
 namespace LazyMoon.Class
 {
     public delegate void OnMessage(string TTSMessage);
-
+    public delegate void OnHook();
     public class TwitchBot
     {
         Log4NetManager Log = Log4NetManager.GetInstance();
@@ -34,7 +35,7 @@ namespace LazyMoon.Class
         {
             public string OAuth;
             public string ClientId;
-            public string AccessToken;
+            public string ClientSecret;
 
             public TwitchOAuth(FileInfo OAuthFile)
             {
@@ -45,7 +46,7 @@ namespace LazyMoon.Class
                 var text = OAuthFile.OpenText();
                 OAuth = text.ReadLine();
                 ClientId = text.ReadLine();
-                AccessToken = text.ReadLine();
+                ClientSecret = text.ReadLine();
                 text.Close();
                 return;
             }
@@ -59,7 +60,32 @@ namespace LazyMoon.Class
 
         List<Bot> botList = new List<Bot>();
 
-        //생성자
+        protected string GetAccessTokken(TwitchOAuth twitchOAuth)
+        {
+            String callUrl = "https://id.twitch.tv/oauth2/token";
+
+            String postData = $"client_id={twitchOAuth.ClientId}&client_secret={twitchOAuth.ClientSecret}&grant_type=client_credentials";
+
+            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(callUrl);
+            // 인코딩 UTF-8
+            byte[] sendData = UTF8Encoding.UTF8.GetBytes(postData);
+            httpWebRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
+            httpWebRequest.Method = "POST";
+            httpWebRequest.ContentLength = sendData.Length;
+            Stream requestStream = httpWebRequest.GetRequestStream();
+            requestStream.Write(sendData, 0, sendData.Length);
+            requestStream.Close();
+            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
+            string readData = streamReader.ReadToEnd();
+            var parameter = readData.Split(',');
+            var value = parameter[0].Split(':');
+            var returnValue = value[1].Replace("\"","");
+            streamReader.Close();
+            httpWebResponse.Close();
+            return returnValue;
+        }
+
         public TwitchBot()
         {
             tts = new TTS();
@@ -68,28 +94,39 @@ namespace LazyMoon.Class
             Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create Api");
             api = new TwitchAPI();
             api.Settings.ClientId = twitchOauth.ClientId;
-            api.Settings.AccessToken = twitchOauth.AccessToken;
-            Encryption.Encryption.SetDefaultPassword(twitchOauth.AccessToken);
+            api.Settings.AccessToken = GetAccessTokken(twitchOauth);
+            Encryption.Encryption.SetDefaultPassword(twitchOauth.ClientSecret);
 
             foreach (var item in global.UserInfo.ToList())
             {
                 var bot = new Bot();
-                bot.SetBot(this, item.Value.Name);
+                bot.SetBot(this, item.Value.Name ,item.Value.Id);
                 botList.Add(bot);
             }
+
+            new Thread(() =>
+            {
+                while (true)
+                {
+                    GC.Collect();
+                    Thread.Sleep(60000);
+                }
+            })
+            { IsBackground = true }
+            .Start();
         }
 
         public Global.TwitchUser Login(string authToken)
         {
-            var user = api.V5.Users.GetUserAsync(authToken).Result;
-
-            if (botList.Find(x => x.chanel == user.Name) == null)
+            var users = api.Helix.Users.GetUsersAsync(accessToken: authToken).Result;
+            var user = users.Users.FirstOrDefault();
+            if (botList.Find(x => x.chanel == user.Login) == null)
             {
                 var bot = new Bot();
-                bot.SetBot(this, user.Name);
+                bot.SetBot(this, user.Login, user.Id);
                 botList.Add(bot);
             }
-            return global.SetUserInfo(user.Name, user.Id);
+            return global.SetUserInfo(user.Login, user.Id);
         }
 
         public Bot GetBot(string chanel, bool ttsUse = false)
@@ -108,6 +145,8 @@ namespace LazyMoon.Class
             public bool isRunning;
 
             public event OnMessage OnMessage;
+
+            public event OnHook OnHook;
 
             public bool IsTTSOn = true;
 
@@ -128,6 +167,7 @@ namespace LazyMoon.Class
             Queue<TTSQueueInfo> TTSQueue = new Queue<TTSQueueInfo>();
 
             public string chanel = "";
+            public string id = "";
 
             public TimeSpan tempTimeSpan = TimeSpan.FromSeconds(0);
 
@@ -137,14 +177,16 @@ namespace LazyMoon.Class
             {
                 get
                 {
+                    GetUptime();
                     return tempTimeSpan;
                 }
             }
 
-            public void SetBot(TwitchBot twitchBot, string chanel)
+            public void SetBot(TwitchBot twitchBot, string chanel, string id)
             {
                 isRunning = true;
                 this.chanel = chanel;
+                this.id = id;
                 this.twitchBot = twitchBot;
                 twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Create TwitchBot Instance");
                 valorantRank = new Class.ValorantRank();
@@ -165,6 +207,8 @@ namespace LazyMoon.Class
                 client.Initialize(credentials, chanel);
 
                 client.OnMessageReceived += Client_OnMessageReceived;
+                client.OnError += Client_OnError;
+                client.OnDisconnected += Client_OnDisconnected;
 
                 twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Client Connetct");
                 client.Connect();
@@ -173,64 +217,62 @@ namespace LazyMoon.Class
                 {
                     while (true)
                     {
-                        if (TTSQueue.Count > 0)
+                        try
                         {
-                            if (TTSQueue.Count < 10)
+                            if (TTSQueue.Count > 0)
                             {
-                                if (IsTTSOn == true)
+                                if (TTSQueue.Count < 10)
                                 {
-                                    var ttsInfo = TTSQueue.Dequeue();
-                                    twitchBot.tts.Speak(ttsInfo.message, ttsInfo.name, chanel);
+                                    if (IsTTSOn == true)
+                                    {
+                                        var ttsInfo = TTSQueue.Dequeue();
+                                        twitchBot.tts.Speak(ttsInfo.message, ttsInfo.name, chanel);
+                                    }
+                                    else
+                                    {
+                                        TTSQueue.Dequeue();
+                                    }
                                 }
                                 else
                                 {
                                     TTSQueue.Dequeue();
+                                    continue;
                                 }
-                            }
-                            else
-                            {
-                                TTSQueue.Dequeue();
-                                continue;
-                            }
 
+                            }
+                            Thread.Sleep(100);
                         }
-                        Thread.Sleep(100);
-                    }
-                })
-                { IsBackground = true }
-                .Start();
-
-                new Thread(() =>
-                {
-                    TimeSpan lastTime = TimeSpan.FromMilliseconds(0);
-                    try
-                    {
-                        var foundChannelResponse = twitchBot.api.V5.Users.GetUserByNameAsync(chanel).Result;
-                        while (true)
+                        catch (Exception e)
                         {
-
-                            var foundChannel = foundChannelResponse.Matches.FirstOrDefault();
-                            var a = twitchBot.api.V5.Streams.GetUptimeAsync(foundChannel.Id).Result;
-
-                            if (a != null)
-                            {
-                                tempTimeSpan = a.Value;
-                                lastTime = tempTimeSpan;
-                            }
-                            else
-                            {
-                                tempTimeSpan = lastTime;
-                            }
-                            Thread.Sleep(300);
+                            twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "tts error : " + e.Message);
                         }
-                    }
-                    catch (Exception e)
-                    {
-                        twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Uptime Update Error : " + e.Message);
                     }
                 })
                 { IsBackground = true }
                 .Start();
+            }
+
+            public void GetUptime()
+            {
+                TimeSpan lastTime = TimeSpan.FromMilliseconds(0);
+                try
+                {
+                    var a = twitchBot.api.Helix.Streams.GetStreamsAsync(userIds: new List<string>() { id }).Result;
+
+                    if (a.Streams.Length > 0)
+                    {
+                        tempTimeSpan = DateTime.Now.ToUniversalTime() - a.Streams[0].StartedAt;
+                        lastTime = tempTimeSpan;
+                    }
+                    else
+                    {
+                        tempTimeSpan = lastTime;
+                    }
+                }
+                catch (Exception e)
+                {
+                    twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, this.chanel + "Uptime Update Error : " + e.Message);
+                }
             }
 
             /// <summary>
@@ -241,6 +283,8 @@ namespace LazyMoon.Class
             {
                 try
                 {
+                    twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "SendMessage Chanel : " + chanel + " Message : " + message);
+                    twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Info, "Client Connected: " + client.IsConnected.ToString());
                     if (mLastMessage != message)
                     {
                         client.SendMessage(chanel, message);
@@ -262,6 +306,28 @@ namespace LazyMoon.Class
                 mLastMessage = message;
             }
 
+            private void Client_OnDisconnected(object sender, OnDisconnectedEventArgs e)
+            {
+
+                twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Disconnected Chanel : " + chanel);
+                while (true)
+                {
+                    client.Connect();
+                    if (client.IsConnected == true)
+                    {
+                        client.JoinChannel(chanel);
+                        twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Reconnected Chanel : " + chanel);
+                        break;
+                    }
+                    Thread.Sleep(100);
+                }
+            }
+
+            private void Client_OnError(object sender, OnErrorEventArgs e)
+            {
+                twitchBot.Log.TwitchBotLog.SetLog(LogManager.Log4NetBase.eLogType.Error, "Error Chanel : " + chanel + " Message : " + e.Exception.Message);
+            }
+        
             private void Client_OnMessageReceived(object sender, OnMessageReceivedArgs e)
             {
                 string speechText = e.ChatMessage.Message;
@@ -495,6 +561,9 @@ namespace LazyMoon.Class
                     }
                     return;
                 }
+
+                if(e.ChatMessage.Message == "?")
+                    OnHook?.Invoke();
 
                 // 문자 처리
                 List<char> stringList = new List<char>();

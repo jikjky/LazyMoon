@@ -1,21 +1,31 @@
-﻿<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top" style="background-color: #e3f2fd;">
-    <a class="navbar-brand" href="#">
-        <img class="d-inline-block align-top" width="25" height="25" src="Image/moon.png" alt="">
-        <b>LazyMoon</b>
-    </a>
-    <button class="navbar-toggler" @onclick="ToggleNavMenu">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+﻿<style type="text/css">
 
-    <div class="@NavMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
-        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-            <li class="nav-item px-3">
-                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-            </li>
-            <li class="nav-item px-3">
-                <a class="nav-link" href="Bot">Bot</a>
-            </li>
-        </ul>
+.navbar{
+ background-color:#F7ECDE !important;
+}
+
+</style>
+
+<nav class="navbar navbar-expand-md navbar-light bg-light fixed-top" style="background-color: #F7ECDE">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img class="d-inline-block align-top" width="25" height="25" src="Image/moon.png" alt="">
+            <b>LazyMoon</b>
+        </a>
+        <button class="navbar-toggler" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="@NavMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item px-3">
+                    <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item px-3">
+                    <a class="nav-link" href="Bot">Bot</a>
+                </li>
+            </ul>
+        </div>
     </div>
 </nav>
 
