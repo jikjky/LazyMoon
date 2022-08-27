@@ -1,0 +1,99 @@
+﻿@page "/Bot/Hook/{text}"
+@inject Class.TwitchBot Bot
+@inject NavigationManager NavigationManager
+@using System.Threading
+
+<div style="text-align : center;">
+
+    @if (visible)
+    {
+        <h2>갈고리수집 @hookCount</h2>
+        if (change)
+        {
+            <img src="@image" />
+        }
+        else
+        {
+            <img src="@image2" />
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Text { get; set; }
+
+    string image;
+    string image2;
+    bool    visible;
+    bool    change;
+    int hookCount = 0;
+
+    List<int> count = new List<int>();
+
+    private Class.TwitchBot.Bot bot;
+
+    public class ValorantRating
+    {
+        public string MarkName;
+        public string MarkImage;
+    }
+
+    public int ranking;
+
+    public List<ValorantRating> valorantRatings = new List<ValorantRating>();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        Text = Encryption.Encryption.Decrypt(Text);
+        bot = Bot.GetBot(Text);
+        if (bot == null)
+            NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
+
+        bot.OnHook += OnHook;
+        await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+
+        image = "Image\\Hook\\hook.gif";
+        image2 = "Image\\Hook\\hook2.gif";
+
+        new Thread(() =>
+        {
+            while (true)
+            {
+                if (count.Count > 0)
+                {
+                    hookCount++;
+                    image = "Image\\Hook\\hook.gif";
+                    image2 = "Image\\Hook\\hook2.gif";
+                    change = !change;
+                    visible = true;
+                    this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+                    Thread.Sleep(1800);
+                    image = "";
+                    image2 = "";
+                    this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+
+                    count.RemoveAt(0);
+                    this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+                }
+                else
+                {
+                    if (visible == true)
+                    {
+                        visible = false;
+                        this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+                    }
+                }
+                Thread.Sleep(100);
+            }
+
+        })
+        { IsBackground = true }.Start();
+    }
+
+    protected void OnHook()
+    {
+        count.Add(0);
+    }
+}
