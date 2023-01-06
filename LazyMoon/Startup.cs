@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +18,12 @@ using System.Net;
 using System.Net.Http;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.ResponseCompression;
+using LazyMoon.Model;
+using LazyMoon.Service;
+using TwitchLib.Api;
+using MudBlazor.Services;
+using LazyMoon.Service.DBService;
+using Microsoft.AspNetCore.Hosting.StaticWebAssets;
 
 namespace LazyMoon
 {
@@ -34,6 +40,7 @@ namespace LazyMoon
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add services to the container.
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddSignalR(e =>
@@ -50,15 +57,36 @@ namespace LazyMoon
                 options.KnownProxies.Add(IPAddress.Parse("bot.lazymoon.net"));
             });
 
+            #region DataBase
+            services.AddDbContextFactory<AppDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DBConnection")));
+            services.AddDBService();
+            #endregion
+
             services.AddBlazoredLocalStorage();
 
-            services.AddTransient<LazyMoon.Services.BlazorTimer>();
-            services.AddSingleton<TwitchBot>();
+            #region Twitch Api
+            string oAuth = Configuration.GetValue<string>("TwitchOAuth:OAuth");
+            string clientId = Configuration.GetValue<string>("TwitchOAuth:ClientId");
+            string clientSecret = Configuration.GetValue<string>("TwitchOAuth:ClientSecret");
+            Encryption.Encryption.SetDefaultPassword(clientSecret);
+
+            services.AddTransient<TwitchAPI>();
+            #endregion
+            services.AddTransient<TwitchService>();
+
+            services.AddTransient<LazyMoon.Service.BlazorTimerService>();
+            services.AddMudServices();
+            services.AddSingleton<TwitchBotService>();
+            services.AddTransient<TTSService>();
+            services.AddTransient<ValorantRankService>();
+            services.AddSingleton<Abot>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            StaticWebAssetsLoader.UseStaticWebAssets(env, Configuration);
+
             app.UseResponseCompression();
 
             if (env.IsDevelopment())

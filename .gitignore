@@ -366,3 +366,6 @@ FodyWeavers.xsd
 LazyMoon/ttsconfig.json
 LazyMoon/userinfo.json
 LazyMoon/valorantrank.json
+LazyMoon/appsettings.Development.json
+LazyMoon/appsettings.json
+LazyMoon/wwwroot/google.json

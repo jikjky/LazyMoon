@@ -1,5 +1,6 @@
 ﻿@page "/Bot/Time/{text}"
-@inject Class.TwitchBot Bot
+@layout EmptyLayout
+@inject TwitchService TwitchService
 @inject NavigationManager NavigationManager
 @using System.Timers
 @implements IDisposable
@@ -15,20 +16,19 @@
     [Parameter]
     public string Text { get; set; }
 
+    private string id;
+
     private string _Time = "0000-00-00 00:00:00";
     private string _Uptime = "Uptime : 00:00:00";
 
     private Timer timer = new Timer(1000);
 
-    private Class.TwitchBot.Bot bot;
-
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
         Text = Encryption.Encryption.Decrypt(Text);
-        bot = Bot.GetBot(Text);
-        if(bot == null)
+        if (await TwitchService.ExistUser(Text) == null)
             NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
-
+        id = await TwitchService.GetUserId(Text);
         OnTimerCallback();
         timer.Elapsed += (sender, eventArgs) => OnTimerCallback();
         timer.Start();
@@ -37,7 +37,7 @@
     private void OnTimerCallback()
     {
         _Time = DateTime.Now.ToString("yyyy-MM-dd hh\\:mm\\:ss");
-        _Uptime = "Uptime : " + bot.Uptime.ToString("hh\\:mm\\:ss");
+        _Uptime = "Uptime : " + TwitchService.GetUptime(id).ToString("hh\\:mm\\:ss");
         this.InvokeAsync(new Action(() => { StateHasChanged(); }));
     }
 

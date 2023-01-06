@@ -1,0 +1,25 @@
+﻿@page "/loa"
+
+@inject NavigationManager NavigationManager
+
+<MudContainer>
+    <h3>Loa</h3>
+    <MudTextField @bind-Value="TextValue" Label="캐릭터이름" Adornment="Adornment.End" AdornmentIcon="@Icons.Filled.Search" AdornmentColor="Color.Secondary" Variant="Variant.Outlined" Margin="Margin.Dense" OnKeyUp="KeyDownClick" OnAdornmentClick="SerchClick"></MudTextField>
+</MudContainer>
+
+@code {
+    public string TextValue { get; set; }
+
+    void SerchClick()
+    {
+        NavigationManager.NavigateTo($"loa/info/{TextValue}");
+    }
+    void KeyDownClick(KeyboardEventArgs e)
+    {
+        if(e.Key == "Enter")
+        {
+            StateHasChanged();
+            SerchClick();
+        }
+    }
+}

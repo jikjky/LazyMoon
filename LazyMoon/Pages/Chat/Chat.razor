@@ -58,7 +58,6 @@
 
     public async Task Enter()
     {
-        Log4NetManager.GetInstance().TTSLog.SetLog(LogManager.Log4NetBase.eLogType.Error, hubConnection.State.ToString());
         await Send();
     }
 

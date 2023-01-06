@@ -1,31 +1,28 @@
 ﻿@page "/Bot"
+
 @inject NavigationManager NavigationManager
-@inject Class.TwitchBot Bot
+@inject TwitchService TwitchService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 @using System.Security.Cryptography
 
-<NavMenu />
-
 <body>
     @if (is_first)
     {
-        @if (string.IsNullOrEmpty(user_name))
-        {
-            <div class="container" style="margin-top:70px">
+        <MudContainer style="margin-top:70px">
+            @if (string.IsNullOrEmpty(user_name))
+            {
                 <a type="submit" class="btn btn-dark" href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=@client_id&redirect_uri=@redirect_uri&scope=user_read">Login</a>
-            </div>
-        }
-        else
-        {
-            <div class="container" style="margin-top:70px">
+            }
+            else
+            {
                 <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/Time/@user_name' ">Time</button>
                 <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/ValorantRanks/@user_name' ">ValorantRanks</button>
                 <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/TTS/@user_name' ">TTS</button>
                 <h1 class="text-dark">@chanel</h1>
                 <button type="submit" class="btn btn-dark" @onclick="OnLogout">LogOut</button>
-            </div>
-        }
+            }
+        </MudContainer>
     }
 </body>
 
@@ -41,11 +38,11 @@
     protected override async Task OnInitializedAsync()
     {
         redirect_uri = NavigationManager.BaseUri + "bot";
-        client_id = Bot.twitchOauth.ClientId;
+        client_id = TwitchService.ClientId;
 
         if (NavigationManager.Uri.IndexOf("access_token") != -1)
         {
-            string code = NavigationManager.Uri.Remove(0,NavigationManager.Uri.IndexOf("access_token"));
+            string code = NavigationManager.Uri.Remove(0, NavigationManager.Uri.IndexOf("access_token"));
             List<string> list = code.Split("&").ToList();
             foreach (var item in list)
             {
@@ -54,7 +51,7 @@
                 {
                     if (value[0] == "access_token")
                     {
-                        var user = Bot.Login(value[1]);
+                        var user = await TwitchService.LoginAsync(value[1]);
 
                         user_name = Encryption.Encryption.Encrypt(user.Name);
 
@@ -65,9 +62,14 @@
             }
         }
     }
+    public class Test
+    {
+
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        var a = System.Text.Json.JsonSerializer.Deserialize<Test>("123");
         if (firstRender == true)
         {
             user_name = await localStorage.GetItemAsync<string>("name");
