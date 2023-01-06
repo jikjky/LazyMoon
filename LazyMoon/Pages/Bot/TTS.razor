@@ -1,8 +1,9 @@
 ﻿@page "/Bot/TTS/{text}"
-@inject Class.TwitchBot Bot
+@layout EmptyLayout
+
 @inject NavigationManager NavigationManager
-@using System.Threading
-@implements IDisposable
+@inject TwitchService TwitchService
+@inject TTSService TTSService
 
 <div id="messagesList">
     @foreach (var message in _Messages)
@@ -43,45 +44,38 @@
 
     private List<string> _Messages = new List<string>();
 
-    private Class.TwitchBot.Bot bot;
 
-    private bool threadStop = false;
-
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
         Text = Encryption.Encryption.Decrypt(Text);
-        bot = Bot.GetBot(Text, true);
-        if (bot == null)
+        if (await TwitchService.ExistUser(Text) == null)
             NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
 
         for (int i = 0; i < max; i++)
         {
             soundDataList.Add(new SoundDataList());
         }
-        bot.OnMessage += OnMessageEvent;
-        Bot.tts.OnSpeak += OnTTS;
-        new Thread(() =>
-        {
-            while (threadStop == false)
-            {
-                bot.IsOnTTSWakeUp = true;
-                Thread.Sleep(100);
-            }
-            bot.IsOnTTSWakeUp = false;
-        });
+        TTSService.SetBot(Text);
+        TTSService.OnMessage += OnMessageEvent;
+        TTSService.OnSpeak += OnTTS;
     }
 
     void OnTTS(string audioBase64, string chanel)
     {
-        if (chanel != bot.chanel)
-            return;
-        if (i == max)
-            i = 0;
-        soundDataList[i]._SoundData = $"data:audio/mpeg;base64,{audioBase64}";
-        soundDataList[i].hidden = !soundDataList[i].hidden;
-        i++;
+        try
+        {
+            if (i == max)
+                i = 0;
+            soundDataList[i]._SoundData = $"data:audio/mpeg;base64,{audioBase64}";
+            soundDataList[i].hidden = !soundDataList[i].hidden;
+            i++;
+            this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+        }
+        catch
+        {
 
-        this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+        }
+
     }
 
     private void OnMessageEvent(string message)
@@ -92,10 +86,5 @@
             _Messages.RemoveAt(0);
         }
         this.InvokeAsync(new Action(() => { StateHasChanged(); }));
-    }
-
-    public void Dispose()
-    {
-        threadStop = true;
     }
 }
