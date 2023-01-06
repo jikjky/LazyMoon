@@ -1,14 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <UserSecretsId>8afe8f0f-c822-4314-9fd4-928ae8e006e2</UserSecretsId>
     <AssemblyName>LazyMoon</AssemblyName>
     <RootNamespace>LazyMoon</RootNamespace>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+	<DebugType>portable</DebugType>
+	<Configurations>Debug;Release;Remote</Configurations>
+	<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Remote|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Optimize>False</Optimize>
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,17 +32,31 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
-    <PackageReference Include="Google.Cloud.TextToSpeech.V1" Version="2.0.0" />
-    <PackageReference Include="log4net" Version="2.0.12" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="3.1.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.1.2">
+    <Compile Remove="Service\GoggleTtsService.cs" />
+    <Compile Remove="Service\TtsDBService.cs" />
+    <Compile Remove="Service\UserService.cs" />
+    <Compile Remove="Service\Voice.Service.cs" />
+    <Compile Remove="Service\VoiceService.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Service\TTSService" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Abot" Version="2.0.70" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
+    <PackageReference Include="Google.Cloud.TextToSpeech.V1" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.10" />
+    <PackageReference Include="MudBlazor" Version="6.0.16" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
     <PackageReference Include="TwitchLib" Version="3.4.1" />    
   </ItemGroup>
 
@@ -50,12 +73,35 @@
     <Content Update="wwwroot\Image\Slime\jump.gif">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\twitch.oauth">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <Content Update="wwwroot\js\bootstrap.js">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="wwwroot\Image\Slime\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <UpToDateCheckInput Remove="Pages\LostArk\LoaIndex.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\LostArk\LoaIndex.razor" />
   </ItemGroup>
 </Project>
