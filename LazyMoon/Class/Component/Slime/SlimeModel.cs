@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,6 +26,10 @@ namespace LazyMoon.Class.Component.Slime
         private long lastTime;
         private long lastJumpTime;
 
+        public class Test
+        {
+
+        }
         private async Task<bool> StartAnimation()
         {
 

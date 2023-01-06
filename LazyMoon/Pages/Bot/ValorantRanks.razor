@@ -1,5 +1,7 @@
 ﻿@page "/Bot/ValorantRanks/{text}"
-@inject Class.TwitchBot Bot
+@layout EmptyLayout
+@inject ValorantRankService valorantRankService
+@inject TwitchService TwitchService
 @inject NavigationManager NavigationManager
 
 <div style="text-align : center;">
@@ -12,11 +14,9 @@
     [Parameter]
     public string Text { get; set; }
 
-    string image;
-    string markName;
-    string score;
-
-    private Class.TwitchBot.Bot bot;
+    string image = "";
+    string markName = "";
+    string score = "";
 
     public class ValorantRating
     {
@@ -32,12 +32,12 @@
     {
 
         Text = Encryption.Encryption.Decrypt(Text);
-        bot = Bot.GetBot(Text);
-        if (bot == null)
+        if (await TwitchService.ExistUser(Text) == null)
             NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
+        await valorantRankService.SetBot(Text);
 
-        bot.valorantRank.OnChangeRank += OnChangeRank;
-        bot.valorantRank.GetRank();
+        valorantRankService.OnChangeRank += OnChangeRank;
+        valorantRankService.GetRank();
         await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
     }
 

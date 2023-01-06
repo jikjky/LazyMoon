@@ -1,67 +1,62 @@
 ﻿@page "/"
 @inject NavigationManager NavigationManager
-@inject Class.TwitchBot Bot
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Abot Abot
 
 @using System.Security.Cryptography
 <body>
-    <style type="text/css">
-        .jumbotron {
-        }
-    </style>
-    <NavMenu />
+    <MudContainer>
+        <div class="d-flex align-items-center section-aquamarine py-5 cover" style="background-image: url(&quot;Image/darksky.jpg&quot;);">
+            <div class="container mt-5">
+                <div class="jumbotron">
+                    <div>
+                        <h1 class="text-center"><b>LazyMoon</b></h1>
+                        <p class="text-center">Hello My WebPage</p>
+                        <p class="text-center"><a class="btn btn-primary btn-lg" href="/Bot" role="button">Bot</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <div class="d-flex align-items-center section-aquamarine py-5 cover" style="background-image: url(&quot;Image/darksky.jpg&quot;);">
-        <div class="container mt-5">
-            <div class="jumbotron">
-                <div>
-                    <h1 class="text-center"><b>LazyMoon</b></h1>
-                    <p class="text-center">Hello My WebPage</p>
-                    <p class="text-center"><a class="btn btn-primary btn-lg" href="/Bot" role="button">Bot</a></p>
+        <div class="py-5 bg-light" id="Infomation">
+            <div class="container-fluid">
+                <div class="jumbotron">
+                    <div>
+                        <h3 class="text-center mt-5"><b>Portfolio</b></h3>
+                    </div>
+                </div>
+            </div>
+            <div class="container-fluid">
+                <div class="jumbotron">
+                    <div>
+                        <h3 class="text-center mt-5"><b>Create By</b></h3>
+                        <img src="Image/dsBuffer.png" alt="" class="rounded-circle mx-auto d-block" style="max-width : 20%;">
+                        <h3 class="text-center"><b>Jung Gwang Young</b></h3>
+                        <p class="text-center">Developer</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="https://www.youtube.com/channel/UCjeyFRwDpdyev_HmiABTvGg">
+                            <img src="Image/YouTube.png" alt="" height="50" class="my-2 mx-auto d-block">
+                            <h3 class="text-center">Youtube</h3>
+                        </a>
+                    </div>
+                    <div class="col-md-6">
+                        <a href="https://github.com/jikjky">
+                            <img src="Image/Github.png" alt="" height="50" class="my-2 mx-auto d-block">
+                            <h3 class="text-center">Github</h3>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="py-5 bg-light" id="Infomation">
-        <div class="container-fluid">
-            <div class="jumbotron">
-                <div>
-                    <h3 class="text-center mt-5"><b>Portfolio</b></h3>
-                </div>
-            </div>
-        </div>
-        <div class="container-fluid">
-            <div class="jumbotron">
-                <div>
-                    <h3 class="text-center mt-5"><b>Create By</b></h3>
-                    <img src="Image/dsBuffer.png" alt="" class="rounded-circle mx-auto d-block" style="max-width : 20%;">
-                    <h3 class="text-center"><b>Jung Gwang Young</b></h3>
-                    <p class="text-center">Developer</p>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4">
-                    <a href="https://www.youtube.com/channel/UCjeyFRwDpdyev_HmiABTvGg">
-                        <img src="Image/YouTube.png" alt="" height="50" class="my-2 mx-auto d-block">
-                        <h3 class="text-center">Youtube</h3>
-                    </a>
-                </div>
-                <div class="col-md-4">
-                </div>
-                <div class="col-md-4">
-                    <a href="https://github.com/jikjky">
-                        <img src="Image/Github.png" alt="" height="50" class="my-2 mx-auto d-block">
-                        <h3 class="text-center">Github</h3>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+    </MudContainer>
 </body>
 
-@code{
-    protected override void OnInitialized()
+@code {
+    protected async override Task OnInitializedAsync()
     {
-
+        
     }
 }

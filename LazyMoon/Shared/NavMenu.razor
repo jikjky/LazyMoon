@@ -1,41 +1,5 @@
-﻿<style type="text/css">
-
-.navbar{
- background-color:#F7ECDE !important;
-}
-
-</style>
-
-<nav class="navbar navbar-expand-md navbar-light bg-light fixed-top" style="background-color: #F7ECDE">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-            <img class="d-inline-block align-top" width="25" height="25" src="Image/moon.png" alt="">
-            <b>LazyMoon</b>
-        </a>
-        <button class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="@NavMenuCssClass navbar-collapse" @onclick="ToggleNavMenu">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item px-3">
-                    <a class="nav-link" href="#">Home</a>
-                </li>
-                <li class="nav-item px-3">
-                    <a class="nav-link" href="Bot">Bot</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
-
-@code {
-    private bool collapseNavMenu = true;
-
-    private string NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
+﻿<MudNavMenu>
+    <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Home</MudNavLink>
+    <MudNavLink Href="Bot" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Add">Bot</MudNavLink>
+    <MudNavLink Href="Loa" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Games">Loa</MudNavLink>
+</MudNavMenu>
