@@ -1,0 +1,3 @@
+# LazyMoon
+
+https://lazymoon.net/
