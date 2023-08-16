@@ -80,6 +80,7 @@ namespace LazyMoon
             services.AddTransient<TTSService>();
             services.AddTransient<ValorantRankService>();
             services.AddSingleton<Abot>();
+            services.AddHttpClient();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

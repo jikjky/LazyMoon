@@ -1,0 +1,342 @@
+﻿@page "/Portfolio"
+
+@using LazyMoon.Component
+@using static LazyMoon.UIUtil;
+@inject IJSRuntime JSRuntime
+@inject BlazorTimerService BlazorTimer
+@inject NavigationManager NavigationManager
+
+<PageTitle>Lazymoon</PageTitle>
+<section id="@ESectionId.Main.ToDispalyName()">
+    <!--Main-->
+    <div id="Main-">
+        <MudContainer Class="pl-3 pt-16 pb-16">
+            <Animation AnimationType="Component.Animation.EAnimations.FadeInLeft">
+                <div class="box">
+                    <div class="inner-box">
+                        <div class="pl-7 pt-6 display-flex">
+                            <MudText Typo="Typo.h4">@Title</MudText>
+                            <MudText Class="text-cursor mb-5" Typo="Typo.h4">|</MudText>
+                        </div>
+                    </div>
+                </div>
+            </Animation>
+            <Animation AnimationType="Component.Animation.EAnimations.FadeInLeft" Delay="300">
+                <MudText Typo="Typo.body1">
+                    프론트엔드 웹 개발자를 꿈꾸는 입니다.
+                    디자인을 공부하다 욕심이 생겨 개발까지 하게되었습니다. 반복적인 일을 싫어하고, 새롭고 빠른 방법으로 문제를 해결하기 위해 고민합니다.
+                    현재는 이노베이션 아카데미 42서울에서 개발을 공부중입니다. 끊임없이 성장하며 도전하는 개발자가 되고자 합니다
+                </MudText>
+            </Animation>
+            <MudSpacer />
+        </MudContainer>
+        <StikerComponent OnClick="@(()=>{System.Diagnostics.Debug.WriteLine("Click");})" Position="StikerComponent.EPosition.Bottom" Witdh="200" Height="200" Rotation="15" BaseId="Main-" Top="-80" Left="40" class="class" imgSrc="Image/lz.png" />
+        <StikerComponent OnClick="@(()=>{string url = "https://github.com/jikjky"; NavigationManager.NavigateTo($"javascript:window.open('{url}','_blank')");})" Position="StikerComponent.EPosition.Bottom" Witdh="100" Height="100" Rotation="15" BaseId="Main-" Top="-100" Left="-10" class="class" imgSrc="Image/github-icon.png" />
+        <StikerComponent Position="StikerComponent.EPosition.Bottom" Rotation="15" BaseId="Main-" Top="-200" Left="-40" class="class" imgSrc="Image/star.png" />
+
+    </div>
+
+    <div>
+        <Animation AnimationType="Component.Animation.EAnimations.FadeIn" Delay="300">
+            <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="false">
+                <img class="rounded-circle demonstration demonstration-sm" src="Image/dsBuffer.png" />
+            </MudHidden>
+            <MudHidden Breakpoint="Breakpoint.MdAndUp" Invert="true">
+                <div class="graphic-wrapper">
+                    <img class="rounded-circle demonstration" src="Image/dsBuffer.png" />
+                </div>
+            </MudHidden>
+        </Animation>
+        <div class="index-background skew stripe" />
+    </div>
+    <div id="Career-">
+        <StikerComponent Position="StikerComponent.EPosition.Top" Rotation="-15" BaseId="Career-" Top="0" Left="10" class="class" imgSrc="Image/star.png"></StikerComponent>
+
+        <MudContainer class="pt-16 pb-16">
+            <Animation AnimationType="Component.Animation.EAnimations.FadeInDown">
+                <MudText Align="Align.Center" Class="pt-16 pb-10" Typo="Typo.h4">Career</MudText>
+            </Animation>
+            <MudGrid Justify="Justify.Center">
+                <MudItem Class="image-logo">
+                    <Animation AnimationType="Component.Animation.EAnimations.FadeInDown" Delay="300">
+                        <a href="http://www.enctech.co.kr/kr/">
+                            <img src="Image/enc.png" />
+                            <div class="text-logo">
+                                <MudText Class="pb-1" Typo="Typo.h5" Align="Align.Center">Enc Technology</MudText>
+                                <MudText Typo="Typo.body2" Class="" Align="Align.Center">2017.2 ~ 2020.4</MudText>
+                            </div>
+                        </a>
+                    </Animation>
+                </MudItem>
+                <MudItem Class="image-logo">
+
+                    <Animation AnimationType="Component.Animation.EAnimations.FadeInDown" Delay="600">
+                        <a href="https://42seoul.kr">
+                            <img src="Image/42.png" />
+                            <MudText Class="pb-1" Typo="Typo.h5" Align="Align.Center">42 Seoul</MudText>
+                            <MudText Typo="Typo.body2" Class="" Align="Align.Center">2020.9 ~ 2022.6</MudText>
+                        </a>
+                    </Animation>
+                </MudItem>
+                <MudItem Class="image-logo">
+                    <Animation AnimationType="Component.Animation.EAnimations.FadeInDown" Delay="900">
+                        <a href="https://corp.twosun.com/">
+                            <img src="Image/twosun.png" />
+                            <MudText Class="pb-1" Typo="Typo.h5" Align="Align.Center">Twosun</MudText>
+                            <MudText Typo="Typo.body2" Class="" Align="Align.Center">2022.9 ~ </MudText>
+                        </a>
+                    </Animation>
+                </MudItem>
+            </MudGrid>
+        </MudContainer>
+    </div>
+</section>
+<!--Enc Career-->
+<section id="@ESectionId.Enc.ToDispalyName()">
+    <div id="Career-Enc">
+        <StikerComponent Position="StikerComponent.EPosition.Top" Rotation="50" BaseId="Career-Enc" Top="20" Left="-20" class="class" imgSrc="Image/star.png"></StikerComponent>
+        <div class="index-project-background">
+            <MudContainer class="">
+                <div class="display-flex-center">
+                    <img src="Image/enc.png" />
+                </div>
+                <MudText Typo="Typo.body1" Class="" Align="Align.Center">Display 검사/계측/평가 장비회사</MudText>
+                <MudText Typo="Typo.body2" Class="" Align="Align.Center">C++Builder/Winform/WPF/CIM/TCP/Serial/ModBus</MudText>
+                <MudCarousel Class="index-carousel" TData="object">
+                    <MudCarouselItem Class="pb-16" Transition="Transition.Slide" Color="@Color.Primary">
+                        <div class="display-flex-center">
+                            <img class="pt-16" src="Image/1-1.png" />
+                        </div>
+                        <MudText Align="Align.Center" Typo="Typo.h3">SVI</MudText>
+                        <MudText Align="Align.Center" Typo="Typo.body1">휴대폰 디스플레이 표면 검사장비</MudText>
+                        <MudText Align="Align.Center" Typo="Typo.body1">C++,C#</MudText>
+                    </MudCarouselItem>
+                    <MudCarouselItem Class="pb-16" Transition="Transition.Slide" Color="@Color.Secondary">
+                        <div class="display-flex-center">
+                            <img class="pt-16" src="Image/1-2.png" />
+                        </div>
+                        <MudText Align="Align.Center" Typo="Typo.h3">IVL / LTS</MudText>
+                        <MudText Align="Align.Center" Typo="Typo.body1">휴대폰 디스플레이 휘도,수명 측정장비</MudText>
+                        <MudText Align="Align.Center" Typo="Typo.body1">C++,C#</MudText>
+                    </MudCarouselItem>
+                </MudCarousel>
+            </MudContainer>
+        </div>
+    </div>
+</section>
+<!--42Seoul Career-->
+<section id="@ESectionId.C42Seoul.ToDispalyName()">
+    <div class="index-bg-container index-bg">
+        <div class="index-bg color-black"></div>
+        <MudHidden Breakpoint="Breakpoint.LgAndUp" Invert="false">
+            <video class="index-bg-video md" src="video/42_Cube3D_1080pFHR_.mp4" autoplay loop muted></video>
+        </MudHidden>
+        <MudHidden Breakpoint="Breakpoint.LgAndUp" Invert="true">
+            <video class="index-bg-video" src="video/42_FDF Project_1080pFHR_.mp4" autoplay loop muted></video>
+        </MudHidden>
+    </div>
+    <div class="index-section">
+        <div class="index-bg-container">
+            <div class="reverse skew stripe index-background color-blue" />
+            <div class="stripe index-background color-blue index-bg-abs-position">
+            </div>
+            <div class="display-flex-center">
+                <MudImage Style="margin-top: -150px;" Src="Image/42.png" />
+            </div>
+            <MudText Typo="Typo.body2" Class="" Align="Align.Center">새로운것에 도전하고 싶어</MudText>
+            <MudGrid Justify="Justify.Center">
+                <MudImage Class="rounded-lg index-42-size" Width="null" Src="Image/42/a.png" />
+            </MudGrid>
+
+        </div>
+    </div>
+</section>
+<!--Twosun Career-->
+<section id="@ESectionId.Twosun.ToDispalyName()">
+    <div class="index-project-background">
+        <div class="display-flex-center">
+            <MudImage Src="Image/twosun.png" />
+        </div>
+
+        <MudText Typo="Typo.body2" Class="" Align="Align.Center">Postgress Database API</MudText>
+        <div style="height:900px;" class="slideshow-container" oncontextmenu="return false;">
+            <div class="Slidesbackground">
+                <div class="mySlides-1 slides-database fade">
+                    <img src="Image/twosun/database.png" class="slideshow-image" />
+                </div>
+                <div class="mySlides-1 slides-database fade">
+                    <img src="Image/twosun/api.png" class="slideshow-image" />
+                </div>
+            </div>
+        </div>
+
+        <MudText Typo="Typo.body2" Class="" Align="Align.Center">Web Backoffice</MudText>
+        <div style="height:400px;" class="slideshow-container" oncontextmenu="return false;">
+            <div class="Slidesbackground">
+                <div class="mySlides-2 slides-web fade">
+                    <img src="Image/twosun/admin1.png" class="slideshow-image" />
+                </div>
+                <div class="mySlides-2 slides-web fade">
+                    <img src="Image/twosun/admin2.png" class="slideshow-image" />
+                </div>
+                <div class="mySlides-2 slides-web fade">
+                    <img src="Image/twosun/gallery_web1.png" class="slideshow-image" />
+                </div>
+                <div class="mySlides-2 slides-web fade">
+                    <img src="Image/twosun/gallery_web2.png" class="slideshow-image" />
+                </div>
+            </div>
+        </div>
+
+        <MudText Typo="Typo.body2" Class="" Align="Align.Center">Maui Mobile</MudText>
+        <div class="slideshow-container" oncontextmenu="return false;">
+            <div class="Slidesbackground">
+                <div class="mySlides-3 slides-mobile fade">
+                    <img src="Image/twosun/gallery_mobile1.jpg" class="slideshow-image" />
+                </div>
+                <div class="mySlides-3 slides-mobile fade">
+                    <img src="Image/twosun/gallery_mobile2.jpg" class="slideshow-image" />
+                </div>
+                <div class="mySlides-3 slides-mobile fade">
+                    <img src="Image/twosun/gallery_mobile3.jpg" class="slideshow-image" />
+                </div>
+                <div class="mySlides-3 slides-mobile fade">
+                    <img src="Image/twosun/gallery_mobile4.jpg" class="slideshow-image" />
+                </div>
+                <div class="mySlides-3 slides-mobile fade">
+                    <img src="Image/twosun/gallery_mobile5.jpg" class="slideshow-image" />
+                </div>
+                <div class="mySlides-3 slides-mobile fade">
+                    <img src="Image/twosun/gallery_mobile6.jpg" class="slideshow-image" />
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!--Tech Career-->
+<section id="@ESectionId.Tech.ToDispalyName()">
+    <MudText Typo="Typo.h3">My markdown</MudText>
+    <MudImage Src="Image/42.png" />
+</section>
+<div class="section-manager">
+    @{
+        foreach (ESectionId item in Enum.GetValues(typeof(ESectionId)))
+        {
+            <a class="ml-3 md-1" href="@($"javascript:gotoScroll(\'{item.ToDispalyName()}\')")">
+                <MudStack Row="true">
+                    @if (lastId == item.ToDispalyName())
+                    {
+                        <div class="circle @($"{(isFirst?"":"ok size-up")}")" />
+                    }
+                    else
+                    {
+                        <div class="circle @($"{(isFirst?"ok":"size-down")}")" />
+                    }
+                    <MudText class="text-bg" Color="Color.Primary"><b>@item.ToDispalyName()</b></MudText>
+                </MudStack>
+            </a>
+        }
+    }
+</div>
+<MudScrollToTop>
+    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.ArrowDropUp" />
+</MudScrollToTop>
+
+@code
+{
+    bool isFirst = true;
+    string Title { get; set; } = "";
+    string Section { get; set; } = "";
+    bool IsWrite { get; set; } = true;
+    int WriteIndex { get; set; } = 0;
+    object CountLock = 0;
+    int Count { get; set; } = 0;
+
+    protected override void OnInitialized()
+    {
+        JavaScript.OnFindPosition += ChangeAddress;
+        BlazorTimer.SetTimer(100);
+        BlazorTimer.OnElapsed += OnElapsed;
+    }
+
+    async void Write(string text, int nextIndex)
+    {
+        if (IsWrite)
+        {
+            Random rd = new Random();
+            await Task.Delay(1 + rd.Next(50));
+            lock (CountLock)
+            {
+                Title += text[Count];
+                Count++;
+                if (Title == text)
+                {
+                    Count = 0;
+                    IsWrite = false;
+                }
+            }
+        }
+        else
+        {
+            lock (CountLock)
+            {
+                Count++;
+                if (Count > 20)
+                {
+                    Title = Title.Remove(Title.Length - 1);
+                    if (string.IsNullOrEmpty(Title))
+                    {
+                        Count = 0;
+                        IsWrite = true;
+                        WriteIndex = nextIndex;
+                    }
+                }
+            }
+        }
+        await InvokeAsync(() => StateHasChanged());
+    }
+
+    void OnElapsed()
+    {
+        string name = "Jung Gwang Young";
+        string hello = "Hello World!";
+        string lazymoon = "Lazymoon.net";
+        switch (WriteIndex)
+        {
+            case 0: Write(name, 1); break;
+            case 1: Write(hello, 2); break;
+            case 2: Write(lazymoon, 0); break;
+            default: break;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("onReady");
+            isFirst = false;
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    string lastId = "";
+
+    async Task ChangeAddress(string id)
+    {
+        if (lastId != id)
+        {
+            lastId = id;
+            Section = id;
+            await InvokeAsync(() => StateHasChanged());
+        }
+        return;
+    }
+
+    [JSInvokable]
+    public static void FindPosition(string id)
+    {
+        JavaScript.OnFindPosition?.Invoke(id);
+        return;
+    }
+}

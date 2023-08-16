@@ -2,6 +2,7 @@
 
 @inject NavigationManager NavigationManager
 @inject TwitchService TwitchService
+@inject ValorantRankService valorantRankService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
 @using System.Security.Cryptography
@@ -17,8 +18,13 @@
             else
             {
                 <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/Time/@user_name' ">Time</button>
-                <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/ValorantRanks/@user_name' ">ValorantRanks</button>
                 <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/TTS/@user_name' ">TTS</button>
+                <MudPaper Class="pa-16 ma-2" Outlined="true" Square="true">
+                    <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/ValorantRanks/@user_name' ">ValorantRanks</button>
+                    <MudTextField @bind-Value="nick_name" Label="Valorant NickName" Variant="Variant.Text" />
+                    <MudTextField @bind-Value="tag" Label="Valorant Tag" Variant="Variant.Text" />
+                    <button type="submit" class="mt-5 btn btn-dark" @onclick="ChangeValorantNickName">Change</button>
+                </MudPaper>
                 <h1 class="text-dark">@chanel</h1>
                 <button type="submit" class="btn btn-dark" @onclick="OnLogout">LogOut</button>
             }
@@ -34,6 +40,9 @@
     string user_name;
     string chanel;
     bool is_first = false;
+
+    string nick_name;
+    string tag;
 
     protected override async Task OnInitializedAsync()
     {
@@ -54,7 +63,6 @@
                         var user = await TwitchService.LoginAsync(value[1]);
 
                         user_name = Encryption.Encryption.Encrypt(user.Name);
-
                         await localStorage.SetItemAsync("name", user_name);
                         NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
                     }
@@ -62,24 +70,28 @@
             }
         }
     }
-    public class Test
-    {
-
-    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        var a = System.Text.Json.JsonSerializer.Deserialize<Test>("123");
         if (firstRender == true)
         {
             user_name = await localStorage.GetItemAsync<string>("name");
             if (string.IsNullOrEmpty(user_name) == false)
             {
                 chanel = Encryption.Encryption.Decrypt(user_name);
+                await valorantRankService.SetBot(chanel);
+                nick_name = valorantRankService.NickName;
+                tag = valorantRankService.Tag;
             }
+
             is_first = true;
             await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
         }
+    }
+
+    private async Task ChangeValorantNickName()
+    {
+        await valorantRankService.ChangeRank(nick_name, tag);
     }
 
     async void OnLogout()

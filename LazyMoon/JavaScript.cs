@@ -1,9 +1,15 @@
 ﻿using Microsoft.JSInterop;
+using System.Threading.Tasks;
+using System;
 
 namespace LazyMoon
 {
     public static class JavaScript
     {
+        public static Func<string, Task>? OnFindPosition;
+
+        public static Func<string, Task>? OnMarkDownTextChange;
+
         public delegate void GetValueChange(double lineWidth, string strokeStyle);
 
         public static GetValueChange? GetValueChangeEvent;

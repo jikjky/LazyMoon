@@ -49,8 +49,16 @@ namespace LazyMoon.Service
         public void SetBot(string chanel)
         {
             Chanel = chanel;
-            _twitchBotService.OnMessageReceived += async (o, s) => await Client_OnMessageReceived(o, s);
             _twitchBotService.SetBot(chanel, TwitchBotService.EBotUseService.TTS);
+            var eventList = _twitchBotService.OnMessageReceived?.GetInvocationList();
+            if (eventList != null)
+            {
+                foreach (var item in eventList)
+                {
+                    _twitchBotService.OnMessageReceived -= (EventHandler<OnMessageReceivedArgs>)item;
+                }
+            }
+            _twitchBotService.OnMessageReceived += async (o, s) => await Client_OnMessageReceived(o, s);
             _twitchBotService.OnMessageReceived += async (o, s) => await OnMessageReceived(o, s);
         }
 

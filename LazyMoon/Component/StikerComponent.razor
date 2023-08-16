@@ -1,0 +1,166 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div class="@Class">
+    <div id="lazy-stiker" class="lazy-stiker " style="@style">
+        <div style="@($"transform: rotate({Rotation}deg);")">
+            <img @onclick="OnClickButton" id="lazy-img" style="object-fit: cover;" width="@($"{(Witdh==0?"":Witdh.ToString())+"px"}")" height="@($"{(Height==0?"":Height.ToString()+"px")}")" draggable="false" src="@imgSrc" @onmousedown="OnStikerClick" @onmouseup="OnStikerUp" />
+        </div>
+    </div>
+</div>
+
+@code {
+
+    public enum EPosition
+    {
+        Top,
+        Bottom
+    }
+
+    [Parameter]
+    public string imgSrc { get; set; } = "";
+
+    [Parameter]
+    public string Class { get; set; } = "";
+
+    [Parameter]
+    public double Top { get; set; } = 0;
+
+    [Parameter]
+    public double Left { get; set; } = 0;
+
+    [Parameter]
+    public string BaseId { get; set; } = "";
+
+    [Parameter]
+    public int Witdh { get; set; } = 0;
+
+    [Parameter]
+    public int Height { get; set; } = 0;
+
+    [Parameter]
+    public EPosition Position { get; set; } = EPosition.Top;
+
+    [Parameter]
+    public double Rotation { get; set; } = 0;
+
+    [Parameter]
+    public Action OnClick { get; set; }
+
+    private bool isFirst = true;
+
+    private double x = 0;
+    private double y = 0;
+
+    private DateTime mouseDownTime;
+    private (double _x, double _y) mouseDownPoint;
+
+    private string style
+    {
+        get
+        {
+            string value = "";
+
+            if (isFirst)
+            {
+                value = $"top: {Top}px; left: {Left}%;";
+            }
+            else
+            {
+                value = $"top: {y}px; left: {x}px;";
+            }
+
+            return value;
+        }
+
+    }
+
+    private bool isMoving = false;
+
+    protected override void OnInitialized()
+    {
+        UIUtil.OnMousePositionChanged += OnMousePositionChanged;
+        return;
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (string.IsNullOrEmpty(BaseId) == false)
+            {
+                await JSRuntime.InvokeVoidAsync("setId", BaseId, Enum.GetName(Position));
+            }
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    public void OnStikerClick(MouseEventArgs e)
+    {
+        if (e.Buttons == 1)
+        {
+            mouseDownTime = DateTime.Now;
+            mouseDownPoint = (x, y);
+            isMoving = true;
+        }
+        else
+        {
+            isMoving = false;
+        }
+    }
+
+    public double DiffAbs(double a, double b)
+    {
+        if (a > b)
+        {
+            return a - b;
+        }
+        else
+        {
+            return b - a;
+        }
+    }
+
+    public void OnClickButton()
+    {
+        if (DateTime.Now - mouseDownTime < TimeSpan.FromMilliseconds(300))
+        {
+            if (DiffAbs(x, mouseDownPoint._x) < 50 && DiffAbs(y, mouseDownPoint._y) < 50)
+            {
+                if (OnClick != null)
+                {
+                    OnClick.Invoke();
+                }
+            }
+        }
+    }
+
+    public void OnStikerUp(MouseEventArgs e)
+    {
+        isMoving = false;
+    }
+
+    public async void OnMousePositionChanged()
+    {
+        try
+        {
+            if (isMoving)
+            {
+                await Dispatcher.CreateDefault().InvokeAsync(async () =>
+                {
+                    if (UIUtil.IdSizeDictionry.ContainsKey(BaseId))
+                    {
+                        x = UIUtil.MouseX - (UIUtil.IdSizeDictionry[BaseId].Width / 2);
+                        y = UIUtil.MouseY - (UIUtil.IdSizeDictionry[BaseId].Height);
+
+                        await this.InvokeAsync(() => StateHasChanged());
+                        isFirst = false;
+                    }
+                });
+            }
+        }
+        catch (JSDisconnectedException ex)
+        {
+            // Ignore
+        }
+    }
+}

@@ -3,7 +3,7 @@
     public class ValorantRank
     {
         public int Id { get; set; }
-        public int currentRank { get; set; }
-        public int currentScore { get; set; }
+        public string NickName { get; set; }
+        public string Tag { get; set; }
     }
 }
