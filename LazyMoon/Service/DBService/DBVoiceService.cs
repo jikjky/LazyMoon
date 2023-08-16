@@ -4,6 +4,7 @@ using LazyMoon.Model.DTO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Internal;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
@@ -37,13 +38,27 @@ namespace LazyMoon.Service
             if (tts == null)
                 return null;
             var context = await _contextFactory.CreateDbContextAsync();
-            var voice = tts.Voices.FirstOrDefault(x => x.Name == name);
+
+            Voice voice = null;
+            if (tts.Voices != null)
+            {
+                voice = tts.Voices.FirstOrDefault(x => x.Name == name);
+            }
             if (voice == null)
             {
                 voice = SetVoiceDefault(voice, name);
             }
-            tts.Voices.Add(voice);
-            await context.SaveChangesAsync();
+            var existingTTS = context.TTS.FirstOrDefault(x => x.Id == tts.Id);
+            if (existingTTS != null)
+            {
+                if (existingTTS.Voices == null)
+                {
+                    existingTTS.Voices = new List<Voice>();
+                }
+
+                existingTTS.Voices.Add(voice);
+                await context.SaveChangesAsync();
+            }
             return voice;
         }
 

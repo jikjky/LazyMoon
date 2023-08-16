@@ -104,4 +104,9 @@
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Pages\LostArk\LoaIndex.razor" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Component\Animation.razor" />
+    <None Include="Component\StikerComponent.razor" />
+  </ItemGroup>
 </Project>

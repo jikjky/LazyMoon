@@ -55,16 +55,16 @@ namespace LazyMoon.Migrations
                     b.Property<string>("Key")
                         .HasColumnType("text");
 
-                    b.Property<string>("LoginId")
-                        .HasColumnType("text");
-
                     b.Property<string>("Name")
                         .HasColumnType("text");
 
-                    b.Property<int>("TTSId")
+                    b.Property<int?>("TTSId")
                         .HasColumnType("integer");
 
-                    b.Property<int>("ValorantRankId")
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ValorantRankId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -84,11 +84,11 @@ namespace LazyMoon.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("currentRank")
-                        .HasColumnType("integer");
+                    b.Property<string>("NickName")
+                        .HasColumnType("text");
 
-                    b.Property<int>("currentScore")
-                        .HasColumnType("integer");
+                    b.Property<string>("Tag")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -102,6 +102,9 @@ namespace LazyMoon.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.Property<double>("Pitch")
                         .HasColumnType("double precision");
@@ -126,15 +129,11 @@ namespace LazyMoon.Migrations
                 {
                     b.HasOne("LazyMoon.Model.TTS", "TTS")
                         .WithMany()
-                        .HasForeignKey("TTSId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TTSId");
 
                     b.HasOne("LazyMoon.Model.ValorantRank", "ValorantRank")
                         .WithMany()
-                        .HasForeignKey("ValorantRankId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ValorantRankId");
 
                     b.Navigation("TTS");
 

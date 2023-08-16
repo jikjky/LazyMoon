@@ -8,6 +8,9 @@ using TwitchLib.Client;
 using TwitchLib.Communication.Clients;
 using TwitchLib.Communication.Models;
 using System.Threading.Tasks;
+using System.Net.Http;
+using System.Linq;
+using System.Diagnostics;
 
 namespace LazyMoon.Service
 {
@@ -15,9 +18,9 @@ namespace LazyMoon.Service
     {
         public Action<int, string, string> OnChangeRank;
 
-        public int currentRank;
+        public string NickName = "";
 
-        public int currentScore;
+        public string Tag = "";
 
         public class ValorantRating
         {
@@ -47,6 +50,9 @@ namespace LazyMoon.Service
             new ValorantRating() { MarkName = "Diamond1", MarkImage = "ValorantRanks\\Diamond1.png" },
             new ValorantRating() { MarkName = "Diamond2", MarkImage = "ValorantRanks\\Diamond2.png" },
             new ValorantRating() { MarkName = "Diamond3", MarkImage = "ValorantRanks\\Diamond3.png" },
+            new ValorantRating() { MarkName = "Ascendant1", MarkImage = "ValorantRanks\\Ascendant1.png" },
+            new ValorantRating() { MarkName = "Ascendant2", MarkImage = "ValorantRanks\\Ascendant2.png" },
+            new ValorantRating() { MarkName = "Ascendant3", MarkImage = "ValorantRanks\\Ascendant3.png" },
             new ValorantRating() { MarkName = "Immortal", MarkImage = "ValorantRanks\\Immortal.png" },
             new ValorantRating() { MarkName = "Radiant", MarkImage = "ValorantRanks\\Radiant.png" }
         };
@@ -56,12 +62,15 @@ namespace LazyMoon.Service
 
         private readonly TwitchBotService twitchBotService;
         private readonly DBValorantRankService dbValorantRankService;
+        private readonly IHttpClientFactory clientFactory;
 
 
-        public ValorantRankService(TwitchBotService _twitchBotService, DBValorantRankService dbValorantRankService)
+
+        public ValorantRankService(TwitchBotService _twitchBotService, DBValorantRankService dbValorantRankService, IHttpClientFactory _clientFactory)
         {
             this.twitchBotService = _twitchBotService;
             this.dbValorantRankService = dbValorantRankService;
+            this.clientFactory = _clientFactory;
         }
 
         private async Task LoadData(string chanel)
@@ -70,180 +79,47 @@ namespace LazyMoon.Service
             var rank = await dbValorantRankService.GetValorantRankOrNullAsync(chanel);
             if (rank != null)
             {
-                currentRank = rank.currentRank;
-                currentScore = rank.currentScore;
+                NickName = rank.NickName;
+                Tag = rank.Tag;
+                await GetRank();
             }
         }
 
         public async Task<bool> SetBot(string chanel)
         {
-            twitchBotService.OnMessageReceived += Client_OnMessageReceived;
-            twitchBotService.OnMessageReceived += OnMessageReceived;
-
-            var result = twitchBotService.SetBot(chanel,TwitchBotService.EBotUseService.ValorantRank);
+            var result = twitchBotService.SetBot(chanel, TwitchBotService.EBotUseService.ValorantRank);
             await LoadData(chanel);
             return result;
         }
 
-        public void ChangeRank(int score, string rank)
+        public async Task ChangeRank(string nickName, string tag)
         {
-            if (score != 0)
-            {
-                int temp = currentScore + score;
+            await dbValorantRankService.SetValorantRankOrNullAsync(chanel, nickName, tag);
+            await GetRank();
+        }
 
-                if (temp < 0)
-                {
-                    if (currentRank != 0)
-                    {
-                        currentRank--;
-                        currentScore = 90;
-                    }
-                    else
-                        currentScore = 0;
-
-                }
-                else if (temp >= 100)
-                {
-                    if (currentRank < 18)
-                    {
-                        currentRank++;
-                        currentScore = 10;
-                    }
-                    else
-                        currentScore = temp;
-                }
-                else
-                    currentScore = temp;
-            }
-            if (rank != "")
+        public async Task GetRank()
+        {
+            try
             {
-                int i = 0;
-                foreach (var name in valorantRatings)
+                if (!string.IsNullOrEmpty(NickName) && !string.IsNullOrEmpty(Tag))
                 {
-                    if (name.MarkName.ToLower() == rank.ToLower())
-                    {
-                        currentRank = i;
-                        break;
-                    }
-                    i++;
+                    var httpClient = clientFactory.CreateClient();
+                    var text = await httpClient.GetStringAsync($"https://api.yash1441.repl.co/valorant/kr/{NickName}/{Tag}?onlyRank=true");
+                    if (text == "null - null RR" || text == "Error 404")
+                        return;
+                    text = text.Replace("RR", "");
+                    text = text.Replace(" ", "");
+                    var splitList = text.Split("-");
+                    var currentRank = valorantRatings.IndexOf(valorantRatings.Single(x => x.MarkName == splitList[0]));
+                    var currentScore = Convert.ToInt32(splitList[1]);
+
+                    OnChangeRank?.Invoke(currentScore, valorantRatings[currentRank].MarkName, valorantRatings[currentRank].MarkImage);
                 }
             }
-            dbValorantRankService.SetValorantRankOrNullAsync(chanel, currentRank, currentScore);
-            GetRank();
-        }
-
-        public void GetRank()
-        {
-            OnChangeRank?.Invoke(currentScore, valorantRatings[currentRank].MarkName, valorantRatings[currentRank].MarkImage);
-        }
-
-        private void SendMessage(string message)
-        {
-            twitchBotService.SendMessage(chanel, message);
-        }
-
-        private void OnMessageReceived(object sender, OnMessageReceivedArgs e)
-        {
-            if (e.ChatMessage.Channel != chanel)
-                return;
-            if (e.ChatMessage.Username == chanel)
+            catch (Exception e)
             {
-                if (e.ChatMessage.Message[0] == '!')
-                {
-                    var splitText = e.ChatMessage.Message.Split(' ');
-
-                    int score;
-                    if (splitText[0].ToLower() == "!add")
-                    {
-                        if (splitText.Length > 1)
-                        {
-                            if (int.TryParse(splitText[1], out score))
-                            {
-                                this.ChangeRank(score, "");
-                            }
-                        }
-                    }
-                    else if (splitText[0].ToLower() == "!sub")
-                    {
-                        if (splitText.Length > 1)
-                        {
-                            if (int.TryParse(splitText[1], out score))
-                            {
-                                this.ChangeRank(score * -1, "");
-                            }
-                        }
-                    }
-                    else if (splitText[0].ToLower() == "!setrank")
-                    {
-                        if (splitText.Length > 1)
-                        {
-                            this.ChangeRank(0, splitText[1]);
-                        }
-                    }
-                }
-            }
-        }
-
-        private void Client_OnMessageReceived(object sender, OnMessageReceivedArgs e)
-        {
-            if (e.ChatMessage.Channel != chanel)
-                return;
-            if (e.ChatMessage.Username == chanel)
-            {
-                if (e.ChatMessage.Message[0] == '!')
-                {
-                    var splitText = e.ChatMessage.Message.Split(' ');
-                    bool isError = false;
-
-                    int score;
-                    if (splitText[0].ToLower() == "!add")
-                    {
-                        if (splitText.Length > 1)
-                        {
-                            if (int.TryParse(splitText[1], out score))
-                            {
-                                
-                            }
-                            else
-                                isError = true;
-                        }
-                        else
-                            isError = true;
-                        if (isError)
-                            SendMessage($"!add [0~2147483647]");
-                    }
-                    else if (splitText[0].ToLower() == "!sub")
-                    {
-                        if (splitText.Length > 1)
-                        {
-                            if (int.TryParse(splitText[1], out score))
-                            {
-                                
-                            }
-                            else
-                                isError = true;
-                        }
-                        else
-                            isError = true;
-                        if (isError)
-                            SendMessage($"!sub [0~2147483647]");
-                    }
-                    else if (splitText[0].ToLower() == "!setrank")
-                    {
-                        if (splitText.Length > 1)
-                        {
-                            
-                        }
-                        else
-                            isError = true;
-                        if (isError)
-                            SendMessage($"!setrank [rank name]");
-                    }
-                    else if (splitText[0].ToLower() == "!help")
-                    {
-                        SendMessage($"add, sub, setrank");
-                    }
-                }
+                Debug.WriteLine(e.Message);
             }
         }
     }

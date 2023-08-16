@@ -18,9 +18,9 @@ namespace LazyMoon.Service
             _context = context;
         }
 
-        public async Task<ValorantRank> GetValorantRankOrNullAsync(string name)
+        public async Task<ValorantRank?> GetValorantRankOrNullAsync(string name)
         {
-            var user = await _context.Users.Include(x=>x.ValorantRank).FirstOrDefaultAsync(x => x.Name == name);
+            var user = await _context.Users.Include(x => x.ValorantRank).FirstOrDefaultAsync(x => x.Name == name);
             if (user == null)
                 return null;
             if (user.ValorantRank == null)
@@ -28,22 +28,29 @@ namespace LazyMoon.Service
             return user.ValorantRank;
         }
 
-        public async Task<ValorantRank> SetValorantRankOrNullAsync(string name, int rank, int score)
+        public async Task<ValorantRank?> SetValorantRankOrNullAsync(string name, string nickName, string tag)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Name == name);
+
             if (user == null)
                 return null;
-            if (user.ValorantRank == null)
-                SetDefaultRank(user);
-            user.ValorantRank.currentRank = rank;
-            user.ValorantRank.currentScore = score;
+
+            var valorantRank = user.ValorantRank;
+
+            if (valorantRank == null)
+                valorantRank = SetDefaultRank(user);
+
+            valorantRank.NickName = nickName;
+            valorantRank.Tag = tag;
+
             _context.SaveChanges();
-            return user.ValorantRank;
+
+            return valorantRank;
         }
 
-        private ValorantRank? SetDefaultRank(User user)
+        private ValorantRank SetDefaultRank(User user)
         {
-            user.ValorantRank = new ValorantRank() { currentRank = 0, currentScore = 0 };
+            user.ValorantRank = new ValorantRank() { NickName = string.Empty, Tag = string.Empty };
             _context.SaveChanges();
             return user.ValorantRank;
         }
