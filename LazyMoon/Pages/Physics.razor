@@ -1,0 +1,28 @@
+﻿@page "/physics"
+
+@inject NavigationManager NavigationManager
+
+
+
+<h3>Physics Simulation with Matter.js</h3>
+<MudTextField @bind-Value="twitch_Channel" Label="Twitch Channel" Variant="Variant.Text" />
+<button class="btn btn-dark" @onclick="OnMoveClick">Move</button>
+
+@code {
+    public string twitch_Channel;
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            
+        }
+    }
+
+    public void OnMoveClick()
+    {
+        NavigationManager.NavigateTo($"/physics/{twitch_Channel}", true);
+    }
+
+}

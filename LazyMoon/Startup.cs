@@ -79,6 +79,7 @@ namespace LazyMoon
             services.AddSingleton<TwitchBotService>();
             services.AddTransient<TTSService>();
             services.AddTransient<ValorantRankService>();
+            services.AddTransient<TextToImage>();            
             services.AddSingleton<Abot>();
             services.AddHttpClient();
         }

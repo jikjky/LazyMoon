@@ -22,7 +22,8 @@ namespace LazyMoon.Service
         public enum EBotUseService
         {
             TTS,
-            ValorantRank
+            ValorantRank,
+            Other
         }
         public EventHandler<OnMessageReceivedArgs> OnMessageReceived;
         public string Chanel { get; set; } = "";
@@ -47,50 +48,47 @@ namespace LazyMoon.Service
         }
         public bool SetBot(string chanel, EBotUseService eBotUseService)
         {
-            if (client == null)
+            switch (eBotUseService)
             {
-                switch (eBotUseService)
-                {
-                    case EBotUseService.TTS:
-                        ExistTTS = true;
-                        break;
-                    case EBotUseService.ValorantRank:
-                        ExistValorantRank = true;
-                        break;
-                    default:
-                        break;
-                }
-                if (Chanel == chanel)
-                    return false;
-                Chanel = chanel;
-
-                try
-                {
-                    ConnectionCredentials credentials = new ConnectionCredentials(chanel, OAuth);
-                    var clientOptions = new ClientOptions
-                    {
-                        MessagesAllowedInPeriod = 750,
-                        ThrottlingPeriod = TimeSpan.FromSeconds(30)
-                    };
-                    WebSocketClient customClient = new WebSocketClient(clientOptions);
-                    client = new TwitchClient(customClient);
-                    client.Initialize(credentials, this.Chanel);
-                    client.OnMessageReceived += async (s, e) => { await Client_OnMessageReceived(s, e); };
-                    client.OnDisconnected += Client_OnDisconnected;
-                    client.Connect();
-                    return true;
-                }
-                catch
-                {
-                    return false;
-                }
+                case EBotUseService.TTS:
+                    ExistTTS = true;
+                    break;
+                case EBotUseService.ValorantRank:
+                    ExistValorantRank = true;
+                    break;
+                default:
+                    break;
             }
+            if (Chanel == chanel)
             {
                 if (client.IsConnected == false)
                     client.Connect();
                 client.JoinChannel(chanel);
+                return false;
             }
-            return true;
+            Chanel = chanel;
+
+            try
+            {
+                ConnectionCredentials credentials = new ConnectionCredentials(chanel, OAuth);
+                var clientOptions = new ClientOptions
+                {
+                    MessagesAllowedInPeriod = 750,
+                    ThrottlingPeriod = TimeSpan.FromSeconds(30)
+                };
+                WebSocketClient customClient = new WebSocketClient(clientOptions);
+                client?.Disconnect();
+                client = new TwitchClient(customClient);
+                client.Initialize(credentials, this.Chanel);
+                client.OnMessageReceived += async (s, e) => { await Client_OnMessageReceived(s, e); };
+                client.OnDisconnected += Client_OnDisconnected;
+                client.Connect();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         class ChanelTime

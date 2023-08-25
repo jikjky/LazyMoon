@@ -1,0 +1,56 @@
+﻿@page "/physics/{channel}"
+
+@layout EmptyLayout
+
+@inject IJSRuntime JSRuntime
+@inject TextToImage TextToImage
+@inject TwitchBotService TwitchBotService
+
+
+<div id="container"></div>
+
+@code {
+    [Parameter]
+    public string Channel { get; set; }
+
+    public string twitch_Channel;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (!string.IsNullOrEmpty(Channel))
+            {
+                // Load Matter.js library
+                await JSRuntime.InvokeVoidAsync("loadMatterJS");
+
+                // Initialize the physics simulation
+                await JSRuntime.InvokeVoidAsync("initializeSimulation", "container");
+
+                // Load images and add bodies (similar to the previous JavaScript example)
+                // You'll need to define this logic in JavaScript and use JSInterop to call it.
+                TwitchBotService.SetBot(Channel, TwitchBotService.EBotUseService.Other);
+                TwitchBotService.OnMessageReceived += addText;
+            }
+        }
+    }
+
+    public async void addText(object sender, TwitchLib.Client.Events.OnMessageReceivedArgs e)
+    {
+        var a = TextToImage.ToBase64Image(e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
+
+        var src = "data:image/png;base64," + a.Item1;
+        var width = a.Item2;
+        var height = a.Item3;
+
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("addBox", src, width, height);
+        }
+        catch
+        {
+
+        }
+    }
+}
