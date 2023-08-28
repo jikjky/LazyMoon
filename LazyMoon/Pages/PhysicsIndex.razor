@@ -38,19 +38,20 @@
 
     public async void addText(object sender, TwitchLib.Client.Events.OnMessageReceivedArgs e)
     {
-        var a = TextToImage.ToBase64Image(e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
-
-        var src = "data:image/png;base64," + a.Item1;
-        var width = a.Item2;
-        var height = a.Item3;
-
         try
         {
+            await JSRuntime.InvokeVoidAsync("writeLog", e.ChatMessage.Message);
+            var a = TextToImage.ToBase64Image(e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
+
+            var src = "data:image/png;base64," + a.Item1;
+            var width = a.Item2;
+            var height = a.Item3;
+
             await JSRuntime.InvokeVoidAsync("addBox", src, width, height);
         }
-        catch
+        catch (Exception ex)
         {
-
+            await JSRuntime.InvokeVoidAsync("writeLog", ex.Message);
         }
     }
 }

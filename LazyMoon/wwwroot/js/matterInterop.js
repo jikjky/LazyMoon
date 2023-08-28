@@ -14,6 +14,11 @@ function degrees_to_radians(degrees) {
 
 var engine;
 var render;
+
+window.writeLog = (logText) => {
+    console.log(logText);
+}
+
 window.initializeSimulation = (containerId) => {
     // module aliases
     var Engine = Matter.Engine,

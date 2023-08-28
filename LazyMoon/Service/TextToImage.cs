@@ -16,98 +16,58 @@ namespace LazyMoon.Service
             _webHostEnvironment = webHostEnvironment;
         }
 
-        int clear = 0;
-
         public (string, int, int) ToBase64Image(string text)
         {
-            var fontPath = _webHostEnvironment.WebRootPath + "\\font\\NotoSansKR-Regular-Hestia.otf";
+            var fontPath = Path.Combine(_webHostEnvironment.WebRootPath, "font", "NotoSansKR-Regular-Hestia.otf");
             Random random = new Random();
-            var image = new MagickImage(new MagickColor(5, 5, 5, 100), 3000, 150);
+            var image = new MagickImage(new MagickColor(5, 5, 5, 0), 1000, 100);
             new Drawables()
                 // Draw text on the image
-                .FontPointSize(30)
+                .FontPointSize(25)
                 .Font(fontPath)
                 .StrokeColor(new MagickColor(0, 0, 0))
-                .FillColor(new MagickColor((ushort)random.Next(65536), (ushort)random.Next(65536), (ushort)random.Next(65536)))
+                .FillColor(new MagickColor((byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256)))
                 .TextAlignment(TextAlignment.Left)
-                .Text(0, 75, text)
+                .Text(0, 50, text)
                 .Draw(image);
 
-            var leftTop = FindBlackPixelLeftTop(image);
-            var rightBottom = FindBlackPixelBottomRight(image);
-            var cropImage = CropImage(image, leftTop.X, leftTop.Y, rightBottom.X - leftTop.X, rightBottom.Y - leftTop.Y);
+            var rect = FindNonBackgroundRectangle(image, new MagickColor(5, 5, 5, 0));
+            var cropImage = CropImage(image, rect.X, rect.Y, rect.Width, rect.Height);
 
 
             var result = (ConvertBitmapToBase64(cropImage), cropImage.Width, cropImage.Height);
             image.Dispose();
-            cropImage.Dispose();
-            clear++;
-            if (clear > 100)
-            {
-                GC.Collect();
-                clear = 0;
-            }
+            cropImage.Dispose();           
             return result;
         }
 
-        static Point FindBlackPixelLeftTop(MagickImage image)
+        static Rectangle FindNonBackgroundRectangle(MagickImage image, MagickColor backgroundColor)
         {
-            int left = int.MaxValue;
-            int top = int.MaxValue;
             var pixels = image.GetPixels();
-            
+            int minX = image.Width;
+            int minY = image.Height;
+            int maxX = -1;
+            int maxY = -1;
+
             for (int y = 0; y < image.Height; y++)
             {
                 for (int x = 0; x < image.Width; x++)
                 {
-                    var pixel = pixels[x, y];                    
-                    if (pixel.ToColor().R == 0 && pixel.ToColor().G == 0 && pixel.ToColor().B == 0)
-                    {
-                        if (left > x)
-                        {
-                            left = x;
-                        }
-                        if (top > y)
-                        {
-                            top = y;
-                        }
-
-                    }
-                }
-            }
-            pixels.Dispose();
-            if (left != int.MaxValue && top != int.MaxValue)
-                return new Point(left, top);
-            return Point.Empty; // No black pixel found
-        }
-
-        static Point FindBlackPixelBottomRight(MagickImage image)
-        {
-            int right = int.MinValue;
-            int bottom = int.MinValue;
-            var pixels = image.GetPixels();
-            for (int y = image.Height - 1; y >= 0; y--)
-            {
-                for (int x = image.Width - 1; x >= 0; x--)
-                {
                     var pixel = pixels[x, y];
-                    if (pixel.ToColor().R == 0 && pixel.ToColor().G == 0 && pixel.ToColor().B == 0)
+                    if (!pixel.Equals(backgroundColor))
                     {
-                        if (right < x)
-                        {
-                            right = x;
-                        }
-                        if (bottom < y)
-                        {
-                            bottom = y;
-                        }
+                        minX = Math.Min(minX, x);
+                        minY = Math.Min(minY, y);
+                        maxX = Math.Max(maxX, x);
+                        maxY = Math.Max(maxY, y);
                     }
                 }
             }
+
+            int width = maxX - minX + 1;
+            int height = maxY - minY + 1;
             pixels.Dispose();
-            if (right != int.MinValue && bottom != int.MinValue)
-                return new Point(right, bottom);
-            return Point.Empty; // No black pixel found
+            return new Rectangle(minX, minY, width, height);
         }
 
         static MagickImage CropImage(MagickImage image, int x, int y, int width, int height)
