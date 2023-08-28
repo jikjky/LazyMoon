@@ -5,6 +5,7 @@ using System;
 using System.Drawing;
 using System.IO;
 using System.Runtime.ConstrainedExecution;
+using System.Threading.Tasks;
 
 namespace LazyMoon.Service
 {
@@ -16,7 +17,7 @@ namespace LazyMoon.Service
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public (string, int, int) ToBase64Image(string text)
+        public async Task<(string, int, int)> ToBase64Image(string text)
         {
             var fontPath = Path.Combine(_webHostEnvironment.WebRootPath, "font", "NotoSansKR-Regular-Hestia.otf");
             Random random = new Random();
@@ -35,7 +36,7 @@ namespace LazyMoon.Service
             var cropImage = CropImage(image, rect.X, rect.Y, rect.Width, rect.Height);
 
 
-            var result = (ConvertBitmapToBase64(cropImage), cropImage.Width, cropImage.Height);
+            var result = (await ConvertBitmapToBase64(cropImage), cropImage.Width, cropImage.Height);
             image.Dispose();
             cropImage.Dispose();           
             return result;
@@ -77,13 +78,12 @@ namespace LazyMoon.Service
             return croppedImage;
         }
 
-        string ConvertBitmapToBase64(MagickImage image)
+        async Task<string> ConvertBitmapToBase64(MagickImage image)
         {
             using (MemoryStream memoryStream = new MemoryStream())
             {
-                image.Write(memoryStream, MagickFormat.Png);
-                byte[] byteArray = memoryStream.ToArray();
-                return Convert.ToBase64String(byteArray);
+                await image.WriteAsync(memoryStream, MagickFormat.Png);
+                return Convert.ToBase64String(memoryStream.ToArray());
             }
         }
     }

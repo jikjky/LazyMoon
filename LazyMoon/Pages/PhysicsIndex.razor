@@ -41,7 +41,7 @@
         try
         {
             await JSRuntime.InvokeVoidAsync("writeLog", e.ChatMessage.Message);
-            var a = TextToImage.ToBase64Image(e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
+            var a = await TextToImage.ToBase64Image(e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
 
             var src = "data:image/png;base64," + a.Item1;
             var width = a.Item2;
