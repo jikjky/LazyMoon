@@ -1,5 +1,6 @@
 ﻿@page "/physics/{channel}"
 @using System.Diagnostics
+@using System.Text.Json;
 
 @layout EmptyLayout
 
@@ -29,6 +30,8 @@
                 // Initialize the physics simulation
                 await JSRuntime.InvokeVoidAsync("initializeSimulation", "container");
 
+                await JSRuntime.InvokeVoidAsync("initializeCanvas", "container");
+
                 // Load images and add bodies (similar to the previous JavaScript example)
                 // You'll need to define this logic in JavaScript and use JSInterop to call it.
                 TwitchBotService.SetBot(Channel, TwitchBotService.EBotUseService.Other);
@@ -37,47 +40,34 @@
         }
     }
 
-    private int messageCount = 0;
-    private DateTime lastMessageTime = DateTime.MinValue;
+    public class ResultObject
+    {
+        public string base64 { get; set; }
+        public int width { get; set; }
+        public int height { get; set; }
+    }
 
     public async void addText(object sender, TwitchLib.Client.Events.OnMessageReceivedArgs e)
     {
         try
         {
-            
-            // 1초 동안 메시지 수 계산
-            if (DateTime.Now - lastMessageTime <= TimeSpan.FromSeconds(1))
-            {
-                messageCount++;
-                if (messageCount >= 3)
-                {
-                    await JSRuntime.InvokeVoidAsync("writeLog", $"rm {e.ChatMessage.Message}");
-                    // 1초 내에 3개 이상의 메시지가 도착한 경우 처리하지 않음
-                    return;
-                }
-            }
-            else
-            {
-                // 1초가 경과한 경우 초기화
-                messageCount = 1;
-                lastMessageTime = DateTime.Now;
-            }
-
             Stopwatch sw = new Stopwatch();
-            sw.Start();            
-            var a = await TextToImage.ToBase64Image(e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
+            sw.Start();         
+            var response = await JSRuntime.InvokeAsync<string>("toBase64Image", e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
+            var resultObject = JsonSerializer.Deserialize<ResultObject>(response);
             sw.Stop();
             await JSRuntime.InvokeVoidAsync("writeLog", $"{sw.ElapsedMilliseconds} {e.ChatMessage.Message}");
 
-            var src = "data:image/png;base64," + a.Item1;
-            var width = a.Item2;
-            var height = a.Item3;
-
-            await JSRuntime.InvokeVoidAsync("addBox", src, width, height);
+            await JSRuntime.InvokeVoidAsync("addBox", resultObject.base64, resultObject.width, resultObject.height);
+        }
+        catch (Microsoft.JSInterop.JSDisconnectedException je)
+        {
+            
         }
         catch (Exception ex)
         {
             await JSRuntime.InvokeVoidAsync("writeLog", ex.Message);
         }
+        
     }
 }
