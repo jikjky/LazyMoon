@@ -47,6 +47,9 @@
     <PackageReference Include="Abot" Version="2.0.70" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.2.0" />
     <PackageReference Include="Google.Cloud.TextToSpeech.V1" Version="3.0.0" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.2.0" />
+    <PackageReference Include="Magick.NET.Core" Version="13.2.0" />
+    <PackageReference Include="Magick.NET.SystemDrawing" Version="7.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="6.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
@@ -57,7 +60,6 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.10" />
     <PackageReference Include="MudBlazor" Version="6.0.16" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
-    <PackageReference Include="SkiaSharp" Version="2.88.5" />
     <PackageReference Include="TwitchLib" Version="3.4.1" />    
   </ItemGroup>
 

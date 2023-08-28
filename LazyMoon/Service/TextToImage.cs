@@ -1,91 +1,128 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using SkiaSharp;
+﻿using ImageMagick;
+using Microsoft.AspNetCore.Hosting;
+using MudBlazor;
 using System;
+using System.Drawing;
 using System.IO;
+using System.Runtime.ConstrainedExecution;
 
 namespace LazyMoon.Service
 {
     public class TextToImage
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public TextToImage(IWebHostEnvironment webHostEnvironment) 
+        public TextToImage(IWebHostEnvironment webHostEnvironment)
         {
             _webHostEnvironment = webHostEnvironment;
         }
 
+        int clear = 0;
+
         public (string, int, int) ToBase64Image(string text)
         {
-            using (var paint = new SKPaint())
+            var fontPath = _webHostEnvironment.WebRootPath + "\\font\\NotoSansKR-Regular-Hestia.otf";
+            Random random = new Random();
+            var image = new MagickImage(new MagickColor(5, 5, 5, 100), 3000, 150);
+            new Drawables()
+                // Draw text on the image
+                .FontPointSize(30)
+                .Font(fontPath)
+                .StrokeColor(new MagickColor(0, 0, 0))
+                .FillColor(new MagickColor((ushort)random.Next(65536), (ushort)random.Next(65536), (ushort)random.Next(65536)))
+                .TextAlignment(TextAlignment.Left)
+                .Text(0, 75, text)
+                .Draw(image);
+
+            var leftTop = FindBlackPixelLeftTop(image);
+            var rightBottom = FindBlackPixelBottomRight(image);
+            var cropImage = CropImage(image, leftTop.X, leftTop.Y, rightBottom.X - leftTop.X, rightBottom.Y - leftTop.Y);
+
+
+            var result = (ConvertBitmapToBase64(cropImage), cropImage.Width, cropImage.Height);
+            image.Dispose();
+            cropImage.Dispose();
+            clear++;
+            if (clear > 100)
             {
-                paint.TextSize = 30;
-                paint.IsAntialias = true;
-
-                var textBounds = new SKRect();
-                Random random = new Random();
-                SKColor randomColor = new SKColor((byte)random.Next(256), (byte)random.Next(256), (byte)random.Next(256));
-
-                paint.Color = randomColor;
-                var fontPath = _webHostEnvironment.WebRootPath + "\\font\\NotoSansKR-Regular-Hestia.otf";
-                var font = SKTypeface.FromFile(fontPath);
-
-                paint.Typeface = font;
-
-                // 줄바꿈 적용한 텍스트
-                string[] lines = text.Split('\n');
-
-                int width = 0;
-                int height = 0;
-
-                using (var surface = CreateFormattedSurface(paint, lines, ref width, ref height))
-                {
-                    return (ConvertBitmapToBase64(SKBitmap.FromImage(surface.Snapshot())), width, height);
-                }
+                GC.Collect();
+                clear = 0;
             }
+            return result;
         }
 
-        private SKSurface CreateFormattedSurface(SKPaint paint, string[] lines, ref int width, ref int height)
+        static Point FindBlackPixelLeftTop(MagickImage image)
         {
-            var textBounds = new SKRect();
-
-            // 텍스트의 총 너비와 높이 계산
-            foreach (var line in lines)
+            int left = int.MaxValue;
+            int top = int.MaxValue;
+            var pixels = image.GetPixels();
+            
+            for (int y = 0; y < image.Height; y++)
             {
-
-                paint.MeasureText(line, ref textBounds);
-                width = Math.Max(width, (int)Math.Ceiling(textBounds.Width));
-                height += (int)Math.Ceiling(textBounds.Height) + 15;
-            }
-
-            var info = new SKImageInfo(width, height);
-            var surface = SKSurface.Create(info);
-            var canvas = surface.Canvas;
-            canvas.Clear(SKColors.Transparent);
-            bool bFirst = true;
-
-
-            float y = 0;
-
-            foreach (var line in lines)
-            {
-                paint.MeasureText(line, ref textBounds);
-                if (bFirst)
+                for (int x = 0; x < image.Width; x++)
                 {
-                    y = -textBounds.Top;
-                    bFirst = false;
-                }
-                canvas.DrawText(line, -textBounds.Left, y, paint);
-                y += textBounds.Height;
-            }
+                    var pixel = pixels[x, y];                    
+                    if (pixel.ToColor().R == 0 && pixel.ToColor().G == 0 && pixel.ToColor().B == 0)
+                    {
+                        if (left > x)
+                        {
+                            left = x;
+                        }
+                        if (top > y)
+                        {
+                            top = y;
+                        }
 
-            return surface;
+                    }
+                }
+            }
+            pixels.Dispose();
+            if (left != int.MaxValue && top != int.MaxValue)
+                return new Point(left, top);
+            return Point.Empty; // No black pixel found
         }
 
-        string ConvertBitmapToBase64(SKBitmap bitmap)
+        static Point FindBlackPixelBottomRight(MagickImage image)
         {
-            using (var image = SKImage.FromBitmap(bitmap))
-            using (var data = image.Encode(SKEncodedImageFormat.Png, 100))
+            int right = int.MinValue;
+            int bottom = int.MinValue;
+            var pixels = image.GetPixels();
+            for (int y = image.Height - 1; y >= 0; y--)
             {
-                byte[] byteArray = data.ToArray();
+                for (int x = image.Width - 1; x >= 0; x--)
+                {
+                    var pixel = pixels[x, y];
+                    if (pixel.ToColor().R == 0 && pixel.ToColor().G == 0 && pixel.ToColor().B == 0)
+                    {
+                        if (right < x)
+                        {
+                            right = x;
+                        }
+                        if (bottom < y)
+                        {
+                            bottom = y;
+                        }
+                    }
+                }
+            }
+            pixels.Dispose();
+            if (right != int.MinValue && bottom != int.MinValue)
+                return new Point(right, bottom);
+            return Point.Empty; // No black pixel found
+        }
+
+        static MagickImage CropImage(MagickImage image, int x, int y, int width, int height)
+        {
+            MagickImage croppedImage = (MagickImage)image.Clone(x, y, width, height);
+
+            return croppedImage;
+        }
+
+        string ConvertBitmapToBase64(MagickImage image)
+        {
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                image.Write(memoryStream, MagickFormat.Png);
+                byte[] byteArray = memoryStream.ToArray();
                 return Convert.ToBase64String(byteArray);
             }
         }
