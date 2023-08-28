@@ -76,7 +76,7 @@ namespace LazyMoon
 
             services.AddTransient<LazyMoon.Service.BlazorTimerService>();
             services.AddMudServices();
-            services.AddSingleton<TwitchBotService>();
+            services.AddTransient<TwitchBotService>();
             services.AddTransient<TTSService>();
             services.AddTransient<ValorantRankService>();
             services.AddTransient<TextToImage>();            

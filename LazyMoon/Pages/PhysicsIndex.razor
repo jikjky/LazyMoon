@@ -1,4 +1,5 @@
 ﻿@page "/physics/{channel}"
+@using System.Diagnostics
 
 @layout EmptyLayout
 
@@ -36,12 +37,37 @@
         }
     }
 
+    private int messageCount = 0;
+    private DateTime lastMessageTime = DateTime.MinValue;
+
     public async void addText(object sender, TwitchLib.Client.Events.OnMessageReceivedArgs e)
     {
         try
         {
-            await JSRuntime.InvokeVoidAsync("writeLog", e.ChatMessage.Message);
+            
+            // 1초 동안 메시지 수 계산
+            if (DateTime.Now - lastMessageTime <= TimeSpan.FromSeconds(1))
+            {
+                messageCount++;
+                if (messageCount >= 3)
+                {
+                    await JSRuntime.InvokeVoidAsync("writeLog", $"rm {e.ChatMessage.Message}");
+                    // 1초 내에 3개 이상의 메시지가 도착한 경우 처리하지 않음
+                    return;
+                }
+            }
+            else
+            {
+                // 1초가 경과한 경우 초기화
+                messageCount = 1;
+                lastMessageTime = DateTime.Now;
+            }
+
+            Stopwatch sw = new Stopwatch();
+            sw.Start();            
             var a = await TextToImage.ToBase64Image(e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
+            sw.Stop();
+            await JSRuntime.InvokeVoidAsync("writeLog", $"{sw.ElapsedMilliseconds} {e.ChatMessage.Message}");
 
             var src = "data:image/png;base64," + a.Item1;
             var width = a.Item2;
