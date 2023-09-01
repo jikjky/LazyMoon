@@ -51,23 +51,46 @@
     {
         try
         {
+            List<string> emoteList = new List<string>();
+            bool bEmoteExist = false;
+            foreach (var item in e.ChatMessage.EmoteSet.Emotes)
+            {
+                await JSRuntime.InvokeVoidAsync("addBox", item.ImageUrl, 36, 30);
+                if (string.IsNullOrEmpty(emoteList.FirstOrDefault(x => x == item.Name)))
+                {
+                    emoteList.Add(item.Name);
+                }
+                bEmoteExist = true;
+            }
+
+
+            var message = e.ChatMessage.Message;
+
+            foreach (var item in emoteList)
+            {
+                message = message.Replace(item, "");
+            }
+            if (string.IsNullOrWhiteSpace(message))
+                return;
+
+            e.ChatMessage.EmoteSet.Emotes.Clear();
             Stopwatch sw = new Stopwatch();
-            sw.Start();         
-            var response = await JSRuntime.InvokeAsync<string>("toBase64Image", e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + e.ChatMessage.Message);
+            sw.Start();
+            var response = await JSRuntime.InvokeAsync<string>("toBase64Image", e.ChatMessage.DisplayName + "(" + e.ChatMessage.Username + ")" + "\n" + message);
             var resultObject = JsonSerializer.Deserialize<ResultObject>(response);
             sw.Stop();
-            await JSRuntime.InvokeVoidAsync("writeLog", $"{sw.ElapsedMilliseconds} {e.ChatMessage.Message}");
+            await JSRuntime.InvokeVoidAsync("writeLog", $"{sw.ElapsedMilliseconds} {message}");
 
             await JSRuntime.InvokeVoidAsync("addBox", resultObject.base64, resultObject.width, resultObject.height);
         }
         catch (Microsoft.JSInterop.JSDisconnectedException je)
         {
-            
+
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("writeLog", ex.Message);
+            await JSRuntime.InvokeVoidAsync("writeLog", "Error : " + ex.Message);
         }
-        
+
     }
 }

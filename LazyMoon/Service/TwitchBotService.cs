@@ -133,7 +133,7 @@ namespace LazyMoon.Service
         }
 
         private void Client_OnDisconnected(object sender, OnDisconnectedEventArgs e)
-        {
+        {            
             int tryCount = 0;
             while (tryCount < 100)
             {
