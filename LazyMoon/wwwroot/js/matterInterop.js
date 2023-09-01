@@ -7,19 +7,14 @@ window.loadMatterJS = async () => {
     });
 };
 
-function degrees_to_radians(degrees) {
-    var pi = Math.PI;
-    return degrees * (pi / 180);
-}
-
-var engine;
-var render;
-
 window.writeLog = (logText) => {
     console.log(logText);
 }
 
 window.initializeSimulation = (containerId) => {
+    var engine;
+    var render;
+
     // module aliases
     var Engine = Matter.Engine,
         Render = Matter.Render,
@@ -31,11 +26,16 @@ window.initializeSimulation = (containerId) => {
     // create an engine
     engine = Engine.create();
 
+    var windowWidth = document.documentElement.clientWidth;
+    var windowHeight = document.documentElement.clientHeight;
+
     // create a renderer
     render = Render.create({
         element: document.getElementById(containerId),
         engine: engine,
         options: {
+            width: windowWidth,   
+            height: windowHeight, 
             showAngleIndicator: false,
             wireframes: false,
             background: "Transparent"
@@ -44,14 +44,14 @@ window.initializeSimulation = (containerId) => {
 
 
     engine.gravity.x = 0;
-    engine.gravity.y = 0.5;
+    engine.gravity.y = 0.2;
 
 
     // create two boxes and a ground
-    var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
+    // var ground = Bodies.rectangle(400, 610, 810, 60, { isStatic: true });
 
     // add all of the bodies to the world
-    Composite.add(engine.world, [ground]);
+    Composite.add(engine.world, []);
 
     // run the renderer
     Render.run(render);
@@ -61,42 +61,82 @@ window.initializeSimulation = (containerId) => {
 
     // run the engine
     Runner.run(runner, engine);
-};
 
-window.addBox = (src, w, h) => {
-    // module aliases
-    var Engine = Matter.Engine,
-        Render = Matter.Render,
-        Runner = Matter.Runner,
-        Bodies = Matter.Bodies,
-        Body = Matter.Body,
-        Composite = Matter.Composite;
 
-    const rand = Math.floor(Math.random() * render.bounds.max.x);
+    // Update windowWidth and windowHeight when the window is resized
+    window.addEventListener('resize', function () {
+        windowWidth = document.documentElement.clientWidth;
+        windowHeight = document.documentElement.clientHeight; 
 
-    var boxA = Bodies.rectangle(rand, 0, w, h, {
-        render: {
-            sprite: {
-                texture: src,
-            }
-        }
+        // Update the renderer's canvas size
+        render.options.width = windowWidth;
+        render.options.height = windowHeight;
+
+        render.canvas.width = windowWidth;
+        render.canvas.height = windowHeight;
+
+        // Refresh the canvas
+        Render.world(render);
     });
 
-    Body.rotate(boxA, degrees_to_radians(Math.floor(Math.random() * 90) - 45));
 
-    Composite.add(engine.world, boxA);
-    setTimeout(function () {
-        Composite.remove(engine.world, boxA);
-    }, 20000);
-    for (var i = 1; i <= 199; i++) {
-        setTimeout(function () {
-            Body.scale(boxA, 0.99, 0.99);
-            boxA.render.sprite.xScale *= 0.99;
-            boxA.render.sprite.yScale *= 0.99;
-
-        }, i * 100);
+    function degrees_to_radians(degrees) {
+        var pi = Math.PI;
+        return degrees * (pi / 180);
     }
-}
+
+    //const garvityPower = 0.5;
+    //var gravityDeg = 0;
+
+    //setInterval(() => {
+    //    gravityDeg += 1;
+    //    engine.world.gravity.x =
+    //        garvityPower * Math.cos((Math.PI / 180) * gravityDeg);
+    //    engine.world.gravity.y =
+    //        garvityPower * Math.sin((Math.PI / 180) * gravityDeg);
+    //}, 10);
+
+    window.addBox = (src, w, h) => {
+        // module aliases
+        var Engine = Matter.Engine,
+            Render = Matter.Render,
+            Runner = Matter.Runner,
+            Bodies = Matter.Bodies,
+            Body = Matter.Body,
+            Composite = Matter.Composite;
+
+        var rand = Math.floor(Math.random() * windowWidth);
+        
+        var boxA = Bodies.rectangle(rand, 0, w, h, {
+            render: {
+                sprite: {
+                    texture: src,
+                }
+            }
+        });
+
+        Body.rotate(boxA, degrees_to_radians(Math.floor(Math.random() * 180) - 90));
+        var reverseVelocity = (0 == Math.floor(Math.random() * 2))
+        var torque = Math.random() / 30; // 회전력 크기
+        if (reverseVelocity)
+            torque = torque * -1;
+        
+        Body.setAngularVelocity(boxA, torque);
+
+        Composite.add(engine.world, boxA);
+        setTimeout(function () {
+            Composite.remove(engine.world, boxA);
+        }, 20000);
+        for (var i = 1; i <= 199; i++) {
+            setTimeout(function () {
+                Body.scale(boxA, 0.99, 0.99);
+                boxA.render.sprite.xScale *= 0.99;
+                boxA.render.sprite.yScale *= 0.99;
+
+            }, i * 100);
+        }
+    }
+};
 
 window.initializeCanvas = () => {
 
@@ -123,8 +163,10 @@ window.initializeCanvas = () => {
         var y = 30;
         var lineheight = 30;
         var lines = text.split('\n');
-        for (var i = 0; i < lines.length; i++)
+        for (var i = 0; i < lines.length; i++) {
             ctx.fillText(lines[i], x, y + (i * lineheight));
+            ctx.strokeText(lines[i], x, y + (i * lineheight));
+        }
 
         const rect = findNonBackgroundRectangle(ctx, { r: 5, g: 5, b: 5, a: 0 }); // Update background color
         const cropImage = cropCanvas(ctx, rect.x, rect.y, rect.width, rect.height);

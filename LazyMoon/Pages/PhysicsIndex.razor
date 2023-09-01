@@ -52,15 +52,14 @@
         try
         {
             List<string> emoteList = new List<string>();
-            bool bEmoteExist = false;
+
             foreach (var item in e.ChatMessage.EmoteSet.Emotes)
             {
                 await JSRuntime.InvokeVoidAsync("addBox", item.ImageUrl, 36, 30);
                 if (string.IsNullOrEmpty(emoteList.FirstOrDefault(x => x == item.Name)))
                 {
-                    emoteList.Add(item.Name);
-                }
-                bEmoteExist = true;
+                    emoteList.Add(item.Name);                    
+                }                
             }
 
 
@@ -85,11 +84,11 @@
         }
         catch (Microsoft.JSInterop.JSDisconnectedException je)
         {
-
+            Debug.WriteLine(je.Message);
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("writeLog", "Error : " + ex.Message);
+            Debug.WriteLine(ex.Message);
         }
 
     }

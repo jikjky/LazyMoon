@@ -21,7 +21,7 @@ namespace LazyMoon.Service
         public async Task<(string, int, int)> ToBase64Image(string text)
         {
             var fontPath = Path.Combine(_webHostEnvironment.WebRootPath, "font", "NotoSansKR-Regular-Hestia.otf");
-            Random random = new Random();
+            var random = new Random();
             var image = new MagickImage(new MagickColor(5, 5, 5, 0), 1000, 100);
             new Drawables()
                 // Draw text on the image
@@ -79,13 +79,11 @@ namespace LazyMoon.Service
             return croppedImage;
         }
 
-        async Task<string> ConvertBitmapToBase64(MagickImage image)
+        static async Task<string> ConvertBitmapToBase64(MagickImage image)
         {
-            using (MemoryStream memoryStream = new MemoryStream())
-            {
-                await image.WriteAsync(memoryStream, MagickFormat.Png);
-                return Convert.ToBase64String(memoryStream.ToArray());
-            }
+            using var memoryStream = new MemoryStream();
+            await image.WriteAsync(memoryStream, MagickFormat.Png);
+            return Convert.ToBase64String(memoryStream.ToArray());
         }
     }
 }

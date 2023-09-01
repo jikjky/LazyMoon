@@ -20,9 +20,6 @@ function handleShortcut(event) {
     else if (event.ctrlKey && event.code === 'KeyZ') {
         Undo();
     }
-    else if (event.ctrlKey && event.code === 'KeyZ') {
-        Redo();
-    }
 }
 
 function Push() {

@@ -24,23 +24,19 @@ namespace LazyMoon.Service
         public Action<string, string> OnSpeak;
         public Action<string> OnMessage;
 
-        private double defaultPitch = 1;
-
         private readonly DBTTSService _dbTTSService;
         private readonly DBVoiceService _dbVoiceService;
         private readonly TwitchBotService _twitchBotService;
-        private readonly TwitchAPI _twitchAPI;
         private readonly IConfiguration _configuration;
 
         private string Chanel { get; set; } = "";
 
 
-        public TTSService(DBTTSService dbTTSService, DBVoiceService dbVoiceService, TwitchBotService twitchBotService, TwitchAPI twitchAPI, IConfiguration configuration)
+        public TTSService(DBTTSService dbTTSService, DBVoiceService dbVoiceService, TwitchBotService twitchBotService, IConfiguration configuration)
         {
             _dbTTSService = dbTTSService;
             _dbVoiceService = dbVoiceService;
             _twitchBotService = twitchBotService;
-            _twitchAPI = twitchAPI;
             _configuration = configuration;
 
             SetTTS(_configuration.GetValue<string>("TTS:jsonPath"));
@@ -64,7 +60,7 @@ namespace LazyMoon.Service
 
         private void SetTTS(string jsonPath)
         {
-            TextToSpeechClientBuilder builder = new TextToSpeechClientBuilder
+            var builder = new TextToSpeechClientBuilder
             {
                 CredentialsPath = jsonPath
             };
@@ -76,15 +72,14 @@ namespace LazyMoon.Service
         public async Task SpeakAsync(string setText, string name, string chanel)
         {
             var ttsModel = await _dbTTSService.GetTTSByChanelOrNullAsync(chanel);
-            Model.Voice? voiceModel = null;
-            voiceModel = await _dbVoiceService.GetVoiceOrNullAsync(ttsModel, name);
+            Model.Voice voiceModel = await _dbVoiceService.GetVoiceOrNullAsync(ttsModel, name);
 
-            SynthesisInput input = new SynthesisInput
+            var input = new SynthesisInput
             {
                 Text = setText
             };
 
-            Random rd = new Random();
+            var rd = new Random();
 
             EVoice eVoice = (EVoice)rd.Next(1, 5);
             VoiceSelectionParams voice;
@@ -95,7 +90,7 @@ namespace LazyMoon.Service
                 Name = "ko-KR-Standard-" + eVoice.ToString(),
             };
 
-            AudioConfig config = new AudioConfig
+            var config = new AudioConfig
             {
                 AudioEncoding = AudioEncoding.Mp3,
             };
@@ -166,22 +161,27 @@ namespace LazyMoon.Service
             }
 
             // 문자 처리
-            List<char> stringList = new List<char>();
-            stringList.Add('ㄱ');
-            stringList.Add('ㄴ');
-            stringList.Add('ㄷ');
-            stringList.Add('ㄹ');
-            stringList.Add('ㅁ');
-            stringList.Add('ㅂ');
-            stringList.Add('ㅅ');
-            stringList.Add('ㅇ');
-            stringList.Add('ㅈ');
-            stringList.Add('ㅊ');
-            stringList.Add('ㅋ');
-            stringList.Add('ㅍ');
-            stringList.Add('ㅌ');
-            stringList.Add('ㅎ');
-            stringList.Add('ㄳ');
+            var stringList = new List<char>
+            {
+                'ㄱ',
+                'ㄴ',
+                'ㄷ',
+                'ㄹ',
+                'ㅁ',
+                'ㅂ',
+                'ㅅ',
+                'ㅇ',
+                'ㅈ',
+                'ㅊ',
+                'ㅋ',
+                'ㅍ',
+                'ㅌ',
+                'ㅎ',
+                'ㄳ',
+                'ㅄ',
+                'ㄽ'
+            };
+
 
             //자음 2글자 이상이면 2글자만 재생되게
             foreach (var item in stringList)
@@ -189,7 +189,7 @@ namespace LazyMoon.Service
                 int count = 0;
                 int index = 0;
 
-                List<int> indexList = new List<int>();
+                var indexList = new List<int>();
                 foreach (var text in speechText)
                 {
                     if (text == item)
@@ -223,6 +223,7 @@ namespace LazyMoon.Service
             speechText = speechText.Replace("ㅇㄴ", "아나");
             speechText = speechText.Replace("ㅅㅂ", "야발");
             speechText = speechText.Replace("ㅄ", "모자란아이");
+            speechText = speechText.Replace("ㅂㅅ", "모자란아이");
             speechText = speechText.Replace("시발", "야발");
             speechText = speechText.Replace("병신", "모자란아이");
             speechText = speechText.Replace("못한다", "잘한다");
@@ -245,7 +246,7 @@ namespace LazyMoon.Service
             speechText = speechText.Replace("***", "나쁜말");
 
             // 이메일 문자 변환
-            Regex pattern = new Regex(@"
+            var pattern = new Regex(@"
                                \b                   #begin of word
                                (?<email>            #name for captured value
                                    [A-Z0-9._%+-]+   #capture one or more symboles mentioned in brackets
@@ -291,7 +292,6 @@ namespace LazyMoon.Service
                     var splitText = e.ChatMessage.Message.Split(' ');
                     bool isError = false;
 
-                    int score;
                     if (splitText[0].ToLower() == "!ttsenable")
                     {
                         if (splitText.Length > 1)
@@ -319,8 +319,7 @@ namespace LazyMoon.Service
                     {
                         if (splitText.Length > 1)
                         {
-                            double value;
-                            if (double.TryParse(splitText[1], out value))
+                            if (double.TryParse(splitText[1], out double value))
                             {
                                 await _dbTTSService.SetTTSRateOrNullAsync(chanel, value);
                                 SendMessage($"Set TTS Rate {value} [min : 0.25 , max :4.0]");
@@ -338,8 +337,7 @@ namespace LazyMoon.Service
                     {
                         if (splitText.Length > 1)
                         {
-                            double value;
-                            if (double.TryParse(splitText[1], out value))
+                            if (double.TryParse(splitText[1], out double value))
                             {
                                 await _dbTTSService.SetTTSVolumeOrNullAsync(chanel, value);
                                 SendMessage($"Set TTS Volume {value} [min : -96 , max :16]");
@@ -381,24 +379,21 @@ namespace LazyMoon.Service
                 //Pitch
                 if (splitText[0].ToLower() == "!pitch")
                 {
-                    bool isError = true;
+                    bool isError = false;
                     if (splitText.Length > 1)
                     {
-                        double temp;
-                        if (double.TryParse(splitText[1], out temp) == false)
+                        if (double.TryParse(splitText[1], out double score) == true)
                         {
-
-                        }
-                        else
-                        {
-                            if (temp >= -20 && temp <= 20)
+                            if (score >= -20 && score <= 20)
                             {
-                                await _dbVoiceService.SetVoicePitchOrNullAsync(chanel, e.ChatMessage.Username, temp);
-                                isError = false;
+                                await _dbVoiceService.SetVoicePitchOrNullAsync(chanel, e.ChatMessage.Username, score);
+
                                 var tempInfo = _dbVoiceService.GetVoiceOrNullAsync(chanel, e.ChatMessage.Username).Result;
-                                SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nVoice : {tempInfo.VoiceMode.ToString()} \r\nPicth : {tempInfo.Pitch}");
+                                SendMessage($"{e.ChatMessage.Username} Your Setting is \r\nVoice : {tempInfo.VoiceMode} \r\nPicth : {tempInfo.Pitch}");
                             }
                         }
+                        else
+                            isError = true;
                     }
                     if (isError == true)
                     {
@@ -407,64 +402,55 @@ namespace LazyMoon.Service
                 }
                 else if (splitText[0].ToLower() == "!voice")
                 {
-                    bool isError = true;
+                    bool isError = false;
                     if (splitText.Length > 1)
                     {
                         if (splitText[1].ToLower() == "a")
-                        {
                             await _dbVoiceService.SetVoiceModeOrNullAsync(chanel, e.ChatMessage.Username, EVoice.A);
-                            isError = false;
-                            var tempInfo = await _dbVoiceService.GetVoiceOrNullAsync(chanel, e.ChatMessage.Username);
-                            SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.VoiceMode.ToString()} \nPicth : {tempInfo.Pitch}");
-                        }
                         else if (splitText[1].ToLower() == "b")
-                        {
                             await _dbVoiceService.SetVoiceModeOrNullAsync(chanel, e.ChatMessage.Username, EVoice.B);
-                            isError = false;
-                            var tempInfo = await _dbVoiceService.GetVoiceOrNullAsync(chanel, e.ChatMessage.Username);
-                            SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.VoiceMode.ToString()} \nPicth : {tempInfo.Pitch}");
-                        }
                         else if (splitText[1].ToLower() == "c")
-                        {
                             await _dbVoiceService.SetVoiceModeOrNullAsync(chanel, e.ChatMessage.Username, EVoice.C);
-                            isError = false;
-                            var tempInfo = await _dbVoiceService.GetVoiceOrNullAsync(chanel, e.ChatMessage.Username);
-                            SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.VoiceMode.ToString()} \nPicth : {tempInfo.Pitch}");
-                        }
                         else if (splitText[1].ToLower() == "d")
-                        {
                             await _dbVoiceService.SetVoiceModeOrNullAsync(chanel, e.ChatMessage.Username, EVoice.D);
-                            isError = false;
-                            var tempInfo = await _dbVoiceService.GetVoiceOrNullAsync(chanel, e.ChatMessage.Username);
-                            SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.VoiceMode.ToString()} \nPicth : {tempInfo.Pitch}");
-                        }
+                        else
+                            isError = true;
                     }
                     if (isError == true)
                     {
                         SendMessage("!Voice [a, b, c, d]");
                     }
+                    else
+                    {
+                        var tempInfo = await _dbVoiceService.GetVoiceOrNullAsync(chanel, e.ChatMessage.Username);
+                        SendMessage($"{e.ChatMessage.Username} Your Setting is \nVoice : {tempInfo.VoiceMode} \nPicth : {tempInfo.Pitch}");
+                    }
                 }
                 else if (splitText[0].ToLower() == "!tts")
                 {
-                    bool isError = true;
+                    bool isError = false;
                     if (splitText.Length > 1)
                     {
                         if (splitText[1].ToLower() == "on")
                         {
                             await _dbVoiceService.SetVoiceEnableOrNullAsync(chanel, e.ChatMessage.Username, true);
-                            isError = false;
                             SendMessage($"{e.ChatMessage.Username} TTS On");
                         }
                         else if (splitText[1].ToLower() == "off")
                         {
                             await _dbVoiceService.SetVoiceEnableOrNullAsync(chanel, e.ChatMessage.Username, false);
-                            isError = false;
                             SendMessage($"{e.ChatMessage.Username} TTS Off");
                         }
+                        else
+                            isError = true;
                     }
                     if (isError == true)
                     {
                         SendMessage("!tts [on, off]");
+                    }
+                    else
+                    {
+
                     }
                 }
                 return;

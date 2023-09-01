@@ -10,16 +10,18 @@ namespace LazyMoon.Service
     public class Abot
     {
         private readonly ILogger<Abot> _logger;
-        IWebCrawler _crawler;
+        readonly IWebCrawler _crawler;
 
         public Abot(ILogger<Abot> logger)
         {
             _logger = logger;
-            var crawlConfig = new CrawlConfiguration();
-            crawlConfig.CrawlTimeoutSeconds = 1000;
-            crawlConfig.MaxConcurrentThreads = 10;
-            crawlConfig.MaxPagesToCrawl = 10;
-            crawlConfig.UserAgentString = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0";
+            var crawlConfig = new CrawlConfiguration
+            {
+                CrawlTimeoutSeconds = 1000,
+                MaxConcurrentThreads = 10,
+                MaxPagesToCrawl = 10,
+                UserAgentString = "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:51.0) Gecko/20100101 Firefox/51.0"
+            };
             IWebCrawler crawler = new PoliteWebCrawler(crawlConfig);
             _crawler = crawler;
 
@@ -34,7 +36,7 @@ namespace LazyMoon.Service
             {
                 CrawledPage pg = e.CrawledPage;
 
-                string fn = pg.Uri.Segments[pg.Uri.Segments.Length - 1];
+                string fn = pg.Uri.Segments[^1]; // 마지막 문자
 
                 _logger.LogInformation("Completed : {0}", pg.Uri.AbsoluteUri);
                 _logger.LogInformation(pg.Content.Text);
@@ -45,7 +47,7 @@ namespace LazyMoon.Service
         {
             // 크롤 시작
             string siteUrl = Url;
-            Uri uri = new Uri(siteUrl);
+            var uri = new Uri(siteUrl);
 
            return await _crawler.CrawlAsync(uri);
         }
@@ -53,8 +55,6 @@ namespace LazyMoon.Service
         public async Task<CrawledPage> PageRequest(string Url)
         {
             var pageRequester = new PageRequester(new CrawlConfiguration(), new WebContentExtractor());
-            string siteUrl = Url;
-            Uri uri = new Uri(siteUrl);
             return await pageRequester.MakeRequestAsync(new Uri(Url));
         }
     }

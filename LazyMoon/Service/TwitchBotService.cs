@@ -14,6 +14,7 @@ using TwitchLib.Communication.Events;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 
 namespace LazyMoon.Service
 {
@@ -70,13 +71,13 @@ namespace LazyMoon.Service
 
             try
             {
-                ConnectionCredentials credentials = new ConnectionCredentials(chanel, OAuth);
+                var credentials = new ConnectionCredentials(chanel, OAuth);
                 var clientOptions = new ClientOptions
                 {
                     MessagesAllowedInPeriod = 750,
                     ThrottlingPeriod = TimeSpan.FromSeconds(30)
                 };
-                WebSocketClient customClient = new WebSocketClient(clientOptions);
+                var customClient = new WebSocketClient(clientOptions);
                 client?.Disconnect();
                 client = new TwitchClient(customClient);
                 client.Initialize(credentials, this.Chanel);
@@ -96,7 +97,7 @@ namespace LazyMoon.Service
             public string Chanel { get; set; }
             public DateTime Time { get; set; }
         }
-        List<ChanelTime> ChanelTimeList = new List<ChanelTime>();
+        readonly List<ChanelTime> ChanelTimeList = new ();
 
         public void SendMessage(string chanel, string message)
         {
@@ -115,11 +116,12 @@ namespace LazyMoon.Service
             try
             {
                 if (mLastMessage == message)
-                    message = message + "ㅤ";
+                    message += "ㅤ";
                 client.SendMessage(chanel, message);
             }
             catch (Exception e)
             {
+                Debug.WriteLine(e.Message);
                 client.JoinChannel(Chanel);
                 client.SendMessage(chanel, message);
             }
@@ -133,7 +135,7 @@ namespace LazyMoon.Service
         }
 
         private void Client_OnDisconnected(object sender, OnDisconnectedEventArgs e)
-        {            
+        {
             int tryCount = 0;
             while (tryCount < 100)
             {

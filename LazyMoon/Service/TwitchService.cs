@@ -1,4 +1,5 @@
-﻿using LazyMoon.Class;
+﻿using Google.Apis.Auth.OAuth2;
+using LazyMoon.Class;
 using LazyMoon.Model;
 using LazyMoon.Model.DTO;
 using Microsoft.Extensions.Configuration;
@@ -8,6 +9,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using TwitchLib.Api;
@@ -32,30 +34,26 @@ namespace LazyMoon.Service
         private readonly TwitchAPI _twitchAPI;
         private readonly IConfiguration _configuration;
 
-        private string GetAccessTokken(string ClientId, string ClientSecret)
+        private static async Task<string> GetAccessTokken(string ClientId, string ClientSecret)
         {
-            String callUrl = "https://id.twitch.tv/oauth2/token";
+            string tokenUrl = "https://id.twitch.tv/oauth2/token";
+            string postData = $"client_id={ClientId}&client_secret={ClientSecret}&grant_type=client_credentials";
 
-            String postData = $"client_id={ClientId}&client_secret={ClientSecret}&grant_type=client_credentials";
+            using var httpClient = new HttpClient();
+            var content = new StringContent(postData);
+            content.Headers.Clear();
+            content.Headers.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
-            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(callUrl);
-            // 인코딩 UTF-8
-            byte[] sendData = UTF8Encoding.UTF8.GetBytes(postData);
-            httpWebRequest.ContentType = "application/x-www-form-urlencoded; charset=UTF-8";
-            httpWebRequest.Method = "POST";
-            httpWebRequest.ContentLength = sendData.Length;
-            Stream requestStream = httpWebRequest.GetRequestStream();
-            requestStream.Write(sendData, 0, sendData.Length);
-            requestStream.Close();
-            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
-            string readData = streamReader.ReadToEnd();
-            var parameter = readData.Split(',');
-            var value = parameter[0].Split(':');
-            var returnValue = value[1].Replace("\"", "");
-            streamReader.Close();
-            httpWebResponse.Close();
-            return returnValue;
+            HttpResponseMessage response = await httpClient.PostAsync(tokenUrl, content);
+            string responseContent = await response.Content.ReadAsStringAsync();
+
+            // Parse the response content to extract the access token
+            // Note: For proper JSON parsing, you should consider using a JSON library.
+            string[] parameters = responseContent.Split(',');
+            string[] value = parameters[0].Split(':');
+            string accessToken = value[1].Replace("\"", "").Trim();
+
+            return accessToken;
         }
 
         public TwitchService(TwitchAPI twitchAPI, DBUserService dbUserService, IConfiguration configuration)
@@ -68,7 +66,7 @@ namespace LazyMoon.Service
             string clientId = _configuration.GetValue<string>("TwitchOAuth:ClientId");
             string clientSecret = _configuration.GetValue<string>("TwitchOAuth:ClientSecret");
             _twitchAPI.Settings.ClientId = clientId;
-            _twitchAPI.Settings.AccessToken = GetAccessTokken(clientId, clientSecret);
+            _twitchAPI.Settings.AccessToken = GetAccessTokken(clientId, clientSecret).Result;
             _twitchAPI.Settings.Secret = clientSecret;
             SetOAuth(oAuth, clientId, clientSecret);
         }
