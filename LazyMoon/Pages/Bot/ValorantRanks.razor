@@ -45,6 +45,7 @@
             await valorantRankService.GetRank();
         };
         BlazorTimerService.SetTimer(10000);
+        await valorantRankService.GetRank();
         await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
     }
 

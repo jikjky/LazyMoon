@@ -33,18 +33,20 @@ namespace LazyMoon.Service
         private readonly DBUserService _dbUserService;
         private readonly TwitchAPI _twitchAPI;
         private readonly IConfiguration _configuration;
+        private readonly IHttpClientFactory _httpClientFactory;
 
-        private static async Task<string> GetAccessTokken(string ClientId, string ClientSecret)
+
+        private async Task<string> GetAccessTokken(string ClientId, string ClientSecret)
         {
             string tokenUrl = "https://id.twitch.tv/oauth2/token";
             string postData = $"client_id={ClientId}&client_secret={ClientSecret}&grant_type=client_credentials";
 
-            using var httpClient = new HttpClient();
+            using var httpClient = _httpClientFactory.CreateClient();
             var content = new StringContent(postData);
             content.Headers.Clear();
             content.Headers.Add("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
 
-            HttpResponseMessage response = await httpClient.PostAsync(tokenUrl, content);
+            HttpResponseMessage response = httpClient.PostAsync(tokenUrl, content).Result;
             string responseContent = await response.Content.ReadAsStringAsync();
 
             // Parse the response content to extract the access token
@@ -56,11 +58,12 @@ namespace LazyMoon.Service
             return accessToken;
         }
 
-        public TwitchService(TwitchAPI twitchAPI, DBUserService dbUserService, IConfiguration configuration)
+        public TwitchService(TwitchAPI twitchAPI, DBUserService dbUserService, IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
             _dbUserService = dbUserService;
             _twitchAPI = twitchAPI;
             _configuration = configuration;
+            _httpClientFactory = httpClientFactory;
 
             string oAuth = _configuration.GetValue<string>("TwitchOAuth:OAuth");
             string clientId = _configuration.GetValue<string>("TwitchOAuth:ClientId");
