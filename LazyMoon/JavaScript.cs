@@ -6,6 +6,7 @@ namespace LazyMoon
 {
     public static class JavaScript
     {
+        #nullable enable
         public static Func<string, Task>? OnFindPosition;
 
         public static Func<string, Task>? OnMarkDownTextChange;
@@ -13,6 +14,7 @@ namespace LazyMoon
         public delegate void GetValueChange(double lineWidth, string strokeStyle);
 
         public static GetValueChange? GetValueChangeEvent;
+        #nullable disable
 
         public static double LineWidth { get; set; }
         public static string StrokeStyle { get; set; } = string.Empty;

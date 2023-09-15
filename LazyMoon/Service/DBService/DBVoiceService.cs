@@ -39,7 +39,7 @@ namespace LazyMoon.Service
                 return null;
             var context = await _contextFactory.CreateDbContextAsync();
 
-            Voice voice = null;
+            Voice? voice = null;
             if (tts.Voices != null)
             {
                 voice = tts.Voices.FirstOrDefault(x => x.Name == name);
