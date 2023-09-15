@@ -52,10 +52,6 @@ namespace LazyMoon
                 opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
                     new[] { "application/octet-stream" });
             });
-            services.Configure<ForwardedHeadersOptions>(options =>
-            {
-                options.KnownProxies.Add(IPAddress.Parse("bot.lazymoon.net"));
-            });
 
             #region DataBase
             services.AddDbContextFactory<AppDbContext>(options => options.UseNpgsql(Configuration.GetConnectionString("DBConnection")));

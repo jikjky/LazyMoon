@@ -17,10 +17,10 @@
             }
             else
             {
-                <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/Time/@user_name' ">Time</button>
-                <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/TTS/@user_name' ">TTS</button>
+                <button type="submit" class="btn btn-dark" @onclick="@(()=>{NavigateTo($"Bot/Time/{user_name}");})">Time</button>
+                <button type="submit" class="btn btn-dark" @onclick="@(()=>{NavigateTo($"Bot/TTS/{user_name}");})">TTS</button>
                 <MudPaper Class="pa-16 ma-2" Outlined="true" Square="true">
-                    <button type="submit" class="btn btn-dark" onclick="location.href = 'Bot/ValorantRanks/@user_name' ">ValorantRanks</button>
+                    <button type="submit" class="btn btn-dark" @onclick="@(()=>{NavigateTo($"Bot/ValorantRanks/{user_name}");})">ValorantRanks</button>
                     <MudTextField @bind-Value="nick_name" Label="Valorant NickName" Variant="Variant.Text" />
                     <MudTextField @bind-Value="tag" Label="Valorant Tag" Variant="Variant.Text" />
                     <button type="submit" class="mt-5 btn btn-dark" @onclick="ChangeValorantNickName">Change</button>
@@ -29,6 +29,10 @@
                 <button type="submit" class="btn btn-dark" @onclick="OnLogout">LogOut</button>
             }
         </MudContainer>
+    }
+    else
+    {
+        <p>loading</p>
     }
 </body>
 
@@ -92,6 +96,11 @@
     private async Task ChangeValorantNickName()
     {
         await valorantRankService.ChangeRank(nick_name, tag);
+    }
+
+    private void NavigateTo(string url)
+    {
+        NavigationManager.NavigateTo(NavigationManager.BaseUri + url);
     }
 
     async void OnLogout()

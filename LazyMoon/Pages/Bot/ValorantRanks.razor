@@ -6,9 +6,12 @@
 @inject BlazorTimerService BlazorTimerService
 
 <div style="text-align : center;">
-    <img src="@image" />
-    <h1>@nickName</h1>
-    <h4>@markName - @score RR</h4>
+    @if (!string.IsNullOrEmpty(nickName))
+    {
+        <img src="@image" />
+        <h1>@nickName</h1>
+        <h4>@markName - @score RR</h4>
+    }
 </div>
 
 @code {
@@ -35,22 +38,28 @@
         Text = Encryption.Encryption.Decrypt(Text);
         if (await TwitchService.ExistUser(Text) == null)
             NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
-        await valorantRankService.SetBot(Text);
-        nickName = valorantRankService.NickName;
-
         valorantRankService.OnChangeRank += OnChangeRank;
+        await valorantRankService.SetBot(Text);
+
 
         BlazorTimerService.OnElapsed += async () =>
         {
             await valorantRankService.GetRank();
         };
         BlazorTimerService.SetTimer(10000);
-        await valorantRankService.GetRank();
-        await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+    }
+
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await valorantRankService.GetRank();
+        }
     }
 
     protected void OnChangeRank(int score, string rank, string path)
     {
+        nickName = valorantRankService.NickName;
         image = path;
         markName = rank;
         this.score = score.ToString();

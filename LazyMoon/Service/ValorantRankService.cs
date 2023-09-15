@@ -60,15 +60,13 @@ namespace LazyMoon.Service
 
         public string chanel = "";
 
-        private readonly TwitchBotService twitchBotService;
         private readonly DBValorantRankService dbValorantRankService;
         private readonly IHttpClientFactory clientFactory;
 
 
 
-        public ValorantRankService(TwitchBotService _twitchBotService, DBValorantRankService dbValorantRankService, IHttpClientFactory _clientFactory)
+        public ValorantRankService(DBValorantRankService dbValorantRankService, IHttpClientFactory _clientFactory)
         {
-            this.twitchBotService = _twitchBotService;
             this.dbValorantRankService = dbValorantRankService;
             this.clientFactory = _clientFactory;
         }
@@ -87,9 +85,8 @@ namespace LazyMoon.Service
 
         public async Task<bool> SetBot(string chanel)
         {
-            var result = twitchBotService.SetBot(chanel, TwitchBotService.EBotUseService.ValorantRank);
             await LoadData(chanel);
-            return result;
+            return true;
         }
 
         public async Task ChangeRank(string nickName, string tag)
