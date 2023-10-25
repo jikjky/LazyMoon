@@ -13,14 +13,17 @@
         <MudContainer style="margin-top:70px">
             @if (string.IsNullOrEmpty(user_name))
             {
-                <a type="submit" class="btn btn-dark" href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=@client_id&redirect_uri=@redirect_uri&scope=user_read">Login</a>
+                <a type="submit" class="btn btn-dark"
+                    href="https://id.twitch.tv/oauth2/authorize?response_type=token&client_id=@client_id&redirect_uri=@redirect_uri&scope=user_read">Login</a>
             }
             else
             {
-                <button type="submit" class="btn btn-dark" @onclick="@(()=>{NavigateTo($"Bot/Time/{user_name}");})">Time</button>
+                <button type="submit" class="btn btn-dark"
+                @onclick="@(()=>{NavigateTo($"Bot/Time/{user_name}");})">Time</button>
                 <button type="submit" class="btn btn-dark" @onclick="@(()=>{NavigateTo($"Bot/TTS/{user_name}");})">TTS</button>
                 <MudPaper Class="pa-16 ma-2" Outlined="true" Square="true">
-                    <button type="submit" class="btn btn-dark" @onclick="@(()=>{NavigateTo($"Bot/ValorantRanks/{user_name}");})">ValorantRanks</button>
+                    <button type="submit" class="btn btn-dark"
+                    @onclick="@(()=>{NavigateTo($"Bot/ValorantRanks/{user_name}");})">ValorantRanks</button>
                     <MudTextField @bind-Value="nick_name" Label="Valorant NickName" Variant="Variant.Text" />
                     <MudTextField @bind-Value="tag" Label="Valorant Tag" Variant="Variant.Text" />
                     <button type="submit" class="mt-5 btn btn-dark" @onclick="ChangeValorantNickName">Change</button>
@@ -68,7 +71,8 @@
 
                         user_name = Encryption.Encryption.Encrypt(user.Name);
                         await localStorage.SetItemAsync("name", user_name);
-                        NavigationManager.NavigateTo(NavigationManager.BaseUri + "Bot");
+                        NavigationManager.NavigateTo("bot");
+                        await DataInit();
                     }
                 }
             }
@@ -79,18 +83,23 @@
     {
         if (firstRender == true)
         {
-            user_name = await localStorage.GetItemAsync<string>("name");
-            if (string.IsNullOrEmpty(user_name) == false)
-            {
-                chanel = Encryption.Encryption.Decrypt(user_name);
-                await valorantRankService.SetBot(chanel);
-                nick_name = valorantRankService.NickName;
-                tag = valorantRankService.Tag;
-            }
-
-            is_first = true;
-            await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+            await DataInit();
         }
+    }
+
+    public async Task DataInit()
+    {
+        user_name = await localStorage.GetItemAsync<string>("name");
+        if (string.IsNullOrEmpty(user_name) == false)
+        {
+            chanel = Encryption.Encryption.Decrypt(user_name);
+            await valorantRankService.SetBot(chanel);
+            nick_name = valorantRankService.NickName;
+            tag = valorantRankService.Tag;
+        }
+
+        is_first = true;
+        await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
     }
 
     private async Task ChangeValorantNickName()
@@ -113,4 +122,3 @@
         await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
     }
 }
-
