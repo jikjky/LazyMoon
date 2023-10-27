@@ -62,7 +62,7 @@
         var client = new WebDavClient(clientParams);
         foreach (var item in selectedFile)
         {
-            var stream = item.OpenReadStream(65536000);
+            var stream = item.OpenReadStream(524288000);
             MemoryStream ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             var fileContent = new ByteArrayContent(ms.ToArray());
