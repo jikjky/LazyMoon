@@ -58,9 +58,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.10" />
-    <PackageReference Include="MudBlazor" Version="6.0.16" />
+    <PackageReference Include="MudBlazor" Version="6.11.0" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.7" />
-    <PackageReference Include="TwitchLib" Version="3.4.1" />    
+    <PackageReference Include="TwitchLib" Version="3.4.1" />
+    <PackageReference Include="WebDav.Client" Version="2.8.0" />    
   </ItemGroup>
 
   <ItemGroup>

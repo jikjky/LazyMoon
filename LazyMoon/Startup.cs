@@ -24,6 +24,7 @@ using TwitchLib.Api;
 using MudBlazor.Services;
 using LazyMoon.Service.DBService;
 using Microsoft.AspNetCore.Hosting.StaticWebAssets;
+using WebDav;
 
 namespace LazyMoon
 {
@@ -75,7 +76,7 @@ namespace LazyMoon
             services.AddTransient<TwitchBotService>();
             services.AddTransient<TTSService>();
             services.AddTransient<ValorantRankService>();
-            services.AddTransient<TextToImage>();            
+            services.AddTransient<TextToImage>();        
             services.AddSingleton<Abot>();
             services.AddHttpClient();
         }
