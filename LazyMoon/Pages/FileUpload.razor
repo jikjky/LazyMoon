@@ -4,13 +4,41 @@
 @using Microsoft.Extensions.Configuration;
 @using WebDav;
 @inject IConfiguration Configuration
+@inject IJSRuntime JSRuntime
 
 <h3>FileUpload</h3>
 <MudContainer>
     <div class="role-info" style="height:600px;">
+        
+        <MudText Typo="Typo.h5">@CurrentUri</MudText>
         <MudStack Style="width: 100%">
+            @foreach (var item in WebDavDirectorys)
+            {
+                <MudGrid>
+                    <MudItem xs="9">
+                        <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Surface" @onclick="()=>{ChangeDirectory(item.Uri);}">@item.Name</MudButton>
+                    </MudItem>
+                    <MudItem xs="3">
+                        <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Error" @onclick="()=>{Delete(item);}">Delete</MudButton>
+                    </MudItem>
+                </MudGrid>
+                
+            }
+            <MudTable Items="@WebDavFiles" Dense="true" Striped="true" Bordered="true" Hover="true">
+                <HeaderContent>
+                    <MudTh>File</MudTh>
+                    <MudTh>Download</MudTh>
+                    <MudTh>Delete</MudTh>
+                </HeaderContent>
+                <RowTemplate Context="item">
+                    <MudTd DataLabel="File">@item.Name</MudTd>
+                    <MudTd DataLabel="Download"><MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{Download(item);}">받기</MudButton></MudTd>
+                    <MudTd DataLabel="Delete"><MudButton Variant="Variant.Filled" Color="Color.Error" @onclick="()=>{Delete(item);}">삭제</MudButton></MudTd>
+                </RowTemplate>
+            </MudTable>
+
             <MudFileUpload id="file-input" T="IReadOnlyList<IBrowserFile>" MaximumFileCount="999" OnFilesChanged="HandleFileSelected" Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
-                            @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+            @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
                 <ButtonTemplate>
                     <MudPaper Height="70px" Outlined="true" Class="@DragClass">
                         <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
@@ -27,13 +55,29 @@
                 }
             }
         </div>
-        <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{OnUploadClick();}">업로드</MudButton>
+        <MudStack>
+            <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{OnUploadClick();}">업로드</MudButton>
+
+            <MudStack>
+                <MudTextField @bind-Value="NewDirectory" Label="Directory Name" Variant="Variant.Text"></MudTextField>
+                <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{MakeDirectory(NewDirectory);}">폴더생성</MudButton>
+            </MudStack>
+        </MudStack>
     </div>
 </MudContainer>
 @code {
     private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
 
     private string DragClass = DefaultDragClass;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            Update();
+        }
+        base.OnAfterRender(firstRender);
+    }
 
     private void SetDragClass()
     {
@@ -46,13 +90,21 @@
     }
     List<IBrowserFile> selectedFile = new List<IBrowserFile>();
 
+    List<WebDavItem> WebDavDirectorys = new List<WebDavItem>();
+
+    List<WebDavItem> WebDavFiles = new List<WebDavItem>();
+
+    string CurrentUri = "/";
+    string NewDirectory = "";
+
     void HandleFileSelected(InputFileChangeEventArgs eventArgs)
     {
         selectedFile = eventArgs.GetMultipleFiles(999).ToList();
+        Update();
         // Do something with the files, e.g., read them
     }
 
-    async void OnUploadClick()
+    WebDavClient GetClient()
     {
         var clientParams = new WebDavClientParams
             {
@@ -60,20 +112,140 @@
                 Credentials = new NetworkCredential(Configuration.GetValue<string>("Webdav:Id"), Configuration.GetValue<string>("Webdav:Password"))
             };
         var client = new WebDavClient(clientParams);
+        return client;
+    }
+
+    class WebDavItem
+    {
+        public string Uri { get; set; }
+        public string Name { get; set; }
+        public bool IsDirectory { get; set; }
+    }
+
+    void ChangeDirectory(string Uri)
+    {
+        CurrentUri = Uri;
+        Update();
+    }
+
+    async void Update()
+    {
+        bool bFirst = true;
+
+        WebDavDirectorys = new List<WebDavItem>();
+        if (CurrentUri != "/")
+        {
+            var uriList = CurrentUri.Split("/");
+            var beforeUri = "/";
+            for (int i = 0; i < uriList.Length - 2; i++)
+            {
+                if (string.IsNullOrEmpty(uriList[i]) == false)
+                {
+                    beforeUri += uriList[i] + "/";
+                }
+            }
+            WebDavDirectorys.Add(new WebDavItem()
+                {
+                    IsDirectory = true,
+                    Name = "..",
+                    Uri = beforeUri
+                });
+        }
+        WebDavFiles = new List<WebDavItem>();
+        var client = GetClient();
+        var a = await client.Propfind(CurrentUri);
+        foreach (var item in a.Resources)
+        {
+            if (bFirst)
+            {
+                bFirst = false;
+                continue;
+            }
+            var webDavItem = new WebDavItem();
+            webDavItem.IsDirectory = item.IsCollection;
+            webDavItem.Name = item.DisplayName;
+            webDavItem.Uri = HttpUtility.UrlDecode(item.Uri);
+            if (webDavItem.IsDirectory)
+            {
+                WebDavDirectorys.Add(webDavItem);
+            }
+            else
+            {
+                WebDavFiles.Add(webDavItem);
+            }
+        }
+        await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+    }    
+
+    async void MakeDirectory(string directoryName)
+    {
+        if (string.IsNullOrEmpty(directoryName))
+        {
+            return;
+        }
+        var client = GetClient();
+        await client.Mkcol(CurrentUri + directoryName);
+        NewDirectory = string.Empty;
+        Update();
+    }
+
+    async void Rename(WebDavItem webDavItem,string dest)
+    {
+        var client = GetClient();
+        await client.Move(webDavItem.Uri, CurrentUri + dest);
+        Update();
+    }
+
+    async void Download(WebDavItem webDavItem)
+    {
+        var client = GetClient();
+
+        using (var response = await client.GetRawFile(webDavItem.Uri)) // get a file without processing from the server
+        {
+            if (response.Stream != null)
+            {
+                await JSRuntime.InvokeVoidAsync("saveAsFile", webDavItem.Name, ConvertToBase64(response.Stream));
+            }
+        }
+    }
+
+    async void Delete(WebDavItem webDavItem)
+    {
+        var client = GetClient();
+        await client.Delete(webDavItem.Uri);
+        Update();
+    }
+
+    string ConvertToBase64(Stream stream)
+    {
+        byte[] bytes;
+        using (var memoryStream = new MemoryStream())
+        {
+            stream.CopyTo(memoryStream);
+            bytes = memoryStream.ToArray();
+        }
+
+        string base64 = Convert.ToBase64String(bytes);
+        return base64;
+    }
+
+    async void OnUploadClick()
+    {
+        var client = GetClient();
         foreach (var item in selectedFile)
         {
             var stream = item.OpenReadStream(524288000);
             MemoryStream ms = new MemoryStream();
             await stream.CopyToAsync(ms);
             var fileContent = new ByteArrayContent(ms.ToArray());
-            await client.PutFile(item.Name, fileContent);
+            await client.PutFile(CurrentUri + item.Name, fileContent);
 
             stream.Dispose();
             ms.Dispose();
             fileContent.Dispose();
         }
         selectedFile = new List<IBrowserFile>();
-        await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+        Update();
     }
 
     void SelectedFileClose(MudChip chip)
