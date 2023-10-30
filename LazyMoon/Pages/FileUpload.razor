@@ -188,7 +188,7 @@
             {
                 bDownload = true;
             }
-            DownlodedPercent = args.ProgressPercentage;
+            DownlodedPercent = args.BytesTransferred;
             await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
         };
         HttpClient httpClient = new HttpClient(httpProgressHandler);
