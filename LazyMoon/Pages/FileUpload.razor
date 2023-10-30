@@ -2,14 +2,21 @@
 @using System.Net;
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.Extensions.Configuration;
+@using System.Text;
+@using System.Threading;
+@using System.Diagnostics;
+@using System.Net.Http.Handlers;
+@using System.Net.Http.Headers;
 @using WebDav;
+
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
 
 <h3>FileUpload</h3>
 <MudContainer>
     <div class="role-info" style="height:600px;">
-        
+
         <MudText Typo="Typo.h5">@CurrentUri</MudText>
         <MudStack Style="width: 100%">
             @foreach (var item in WebDavDirectorys)
@@ -22,7 +29,7 @@
                         <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Error" @onclick="()=>{Delete(item);}">Delete</MudButton>
                     </MudItem>
                 </MudGrid>
-                
+
             }
             <MudTable Items="@WebDavFiles" Dense="true" Striped="true" Bordered="true" Hover="true">
                 <HeaderContent>
@@ -56,6 +63,11 @@
             }
         </div>
         <MudStack>
+            @if (bUpload)
+            {
+                <MudText Typo="Typo.h3">@uploadFileName</MudText>
+                <MudText Typo="Typo.h5">@UploadedPercent.ToString("F1")/100</MudText>
+            }
             <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{OnUploadClick();}">업로드</MudButton>
 
             <MudStack>
@@ -70,11 +82,11 @@
 
     private string DragClass = DefaultDragClass;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            Update();
+            await Update();
         }
         base.OnAfterRender(firstRender);
     }
@@ -88,6 +100,15 @@
     {
         DragClass = DefaultDragClass;
     }
+
+    bool bUpload = false;
+
+    string uploadFileName = "";
+
+    long UploadedBytes = 0;
+
+    double UploadedPercent { get; set; }
+
     List<IBrowserFile> selectedFile = new List<IBrowserFile>();
 
     List<WebDavItem> WebDavDirectorys = new List<WebDavItem>();
@@ -97,21 +118,34 @@
     string CurrentUri = "/";
     string NewDirectory = "";
 
-    void HandleFileSelected(InputFileChangeEventArgs eventArgs)
+    async void HandleFileSelected(InputFileChangeEventArgs eventArgs)
     {
         selectedFile = eventArgs.GetMultipleFiles(999).ToList();
-        Update();
+        await Update();
         // Do something with the files, e.g., read them
     }
 
     WebDavClient GetClient()
     {
-        var clientParams = new WebDavClientParams
-            {
-                BaseAddress = new Uri(Configuration.GetValue<string>("Webdav:Uri")),
-                Credentials = new NetworkCredential(Configuration.GetValue<string>("Webdav:Id"), Configuration.GetValue<string>("Webdav:Password"))
-            };
-        var client = new WebDavClient(clientParams);
+        // var clientParams = new WebDavClientParams
+        //     {
+        //         Timeout = TimeSpan.FromSeconds(600),
+        //         BaseAddress = new Uri(Configuration.GetValue<string>("Webdav:Uri")),
+        //         Credentials = new NetworkCredential(Configuration.GetValue<string>("Webdav:Id"), Configuration.GetValue<string>("Webdav:Password"))
+        //     };
+        var httpProgressHandler = new ProgressMessageHandler();
+        httpProgressHandler.InnerHandler = new HttpClientHandler();
+        httpProgressHandler.HttpSendProgress += async (sender, args) =>
+        {
+            UploadedPercent = ((((double)args.BytesTransferred / (double)args.TotalBytes) * 100) / 2) + 50;
+            await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+        };
+        HttpClient httpClient = new HttpClient(httpProgressHandler);
+        var credentials = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{Configuration.GetValue<string>("Webdav:Id")}:{Configuration.GetValue<string>("Webdav:Password")}"));
+        httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Basic", credentials);
+        httpClient.BaseAddress = new Uri(Configuration.GetValue<string>("Webdav:Uri"));
+        httpClient.Timeout = TimeSpan.FromSeconds(1200);
+        var client = new WebDavClient(httpClient);
         return client;
     }
 
@@ -122,16 +156,15 @@
         public bool IsDirectory { get; set; }
     }
 
-    void ChangeDirectory(string Uri)
+    async void ChangeDirectory(string Uri)
     {
         CurrentUri = Uri;
-        Update();
+        await Update();
     }
 
-    async void Update()
+    async Task Update()
     {
         bool bFirst = true;
-
         WebDavDirectorys = new List<WebDavItem>();
         if (CurrentUri != "/")
         {
@@ -152,6 +185,7 @@
                 });
         }
         WebDavFiles = new List<WebDavItem>();
+
         var client = GetClient();
         var a = await client.Propfind(CurrentUri);
         foreach (var item in a.Resources)
@@ -175,7 +209,7 @@
             }
         }
         await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
-    }    
+    }
 
     async void MakeDirectory(string directoryName)
     {
@@ -186,14 +220,14 @@
         var client = GetClient();
         await client.Mkcol(CurrentUri + directoryName);
         NewDirectory = string.Empty;
-        Update();
+        await Update();
     }
 
-    async void Rename(WebDavItem webDavItem,string dest)
+    async void Rename(WebDavItem webDavItem, string dest)
     {
         var client = GetClient();
         await client.Move(webDavItem.Uri, CurrentUri + dest);
-        Update();
+        await Update();
     }
 
     async void Download(WebDavItem webDavItem)
@@ -211,9 +245,12 @@
 
     async void Delete(WebDavItem webDavItem)
     {
-        var client = GetClient();
-        await client.Delete(webDavItem.Uri);
-        Update();
+        if (await DeleteDialog() == true)
+        {
+            var client = GetClient();
+            await client.Delete(webDavItem.Uri);
+            await Update();
+        }
     }
 
     string ConvertToBase64(Stream stream)
@@ -234,18 +271,43 @@
         var client = GetClient();
         foreach (var item in selectedFile)
         {
-            var stream = item.OpenReadStream(524288000);
-            MemoryStream ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            var fileContent = new ByteArrayContent(ms.ToArray());
-            await client.PutFile(CurrentUri + item.Name, fileContent);
+            bUpload = true;
+            uploadFileName = item.Name;
+            UploadedBytes = 0;
+            byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(4096);
+            var stream = item.OpenReadStream(2097152000);
+
+            string filePath = "temp";
+            FileStream fileStream;
+            FileInfo fileInfo = new FileInfo(filePath);
+            fileStream = fileInfo.Open(FileMode.OpenOrCreate);
+            fileStream.Position = 0;
+            while (await stream.ReadAsync(buffer) is int read && read > 0)
+            {
+                UploadedPercent = (((double)UploadedBytes / (double)item.Size) * 100) / 2;
+                UploadedBytes += read;
+                // TODO Do something with the file chunk, such as save it
+                // to a database or a local file system
+                var readData = buffer.AsMemory().Slice(0, read);
+                await fileStream.WriteAsync(readData);
+                await this.InvokeAsync(new Action(() => { StateHasChanged(); }));                
+            }
+            fileStream.Position = 0;
+
+            var streamContent = new StreamContent(fileStream);
+            await client.PutFile(CurrentUri + item.Name, streamContent);
 
             stream.Dispose();
-            ms.Dispose();
-            fileContent.Dispose();
+            fileStream.Close();
+            fileStream.Dispose();
+            fileInfo.Delete();
+            streamContent.Dispose();
+
+            await Update();
         }
+        bUpload = false;
         selectedFile = new List<IBrowserFile>();
-        Update();
+        await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
     }
 
     void SelectedFileClose(MudChip chip)
@@ -259,5 +321,20 @@
             }
         }
         // react to chip closed
+    }
+
+    private async Task<bool> DeleteDialog()
+    {
+        var parameters = new DialogParameters<UseDialog>();
+        parameters.Add(x => x.ContentText, "정말로 삭제하시겠습니까?");
+        parameters.Add(x => x.ButtonText, "Delete");
+        parameters.Add(x => x.Color, Color.Error);
+
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall };
+        var dialog = await DialogService.ShowAsync<UseDialog>("Delete", parameters, options);
+        var result = await dialog.Result;
+
+
+        return await Task.FromResult(!result.Canceled);
     }
 }
