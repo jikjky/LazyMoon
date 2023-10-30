@@ -188,6 +188,7 @@
             {
                 bDownload = true;
             }
+            await JSRuntime.InvokeVoidAsync("writeLog", $"{DownlodedPercent}");
             DownlodedPercent = ((((double)args.BytesTransferred / (double)args.TotalBytes) * 100));
             await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
         };
