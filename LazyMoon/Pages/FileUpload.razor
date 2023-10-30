@@ -1,4 +1,5 @@
-﻿@page "/FileUpload"
+﻿@page "/File"
+@page "/FileUpload"
 @using System.Net;
 @using Microsoft.AspNetCore.Http;
 @using Microsoft.Extensions.Configuration;
@@ -9,11 +10,12 @@
 @using System.Net.Http.Headers;
 @using WebDav;
 
+@inject NavigationManager NavigationManager
 @inject IConfiguration Configuration
 @inject IJSRuntime JSRuntime
 @inject IDialogService DialogService
 
-<h3>FileUpload</h3>
+<h3>@Title</h3>
 <MudContainer>
     <div class="role-info" style="height:600px;">
 
@@ -25,9 +27,12 @@
                     <MudItem xs="9">
                         <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Surface" @onclick="()=>{ChangeDirectory(item.Uri);}">@item.Name</MudButton>
                     </MudItem>
-                    <MudItem xs="3">
-                        <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Error" @onclick="()=>{Delete(item);}">Delete</MudButton>
+                    @if (bAdmin)
+                    {
+                        <MudItem xs="3">
+                            <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Error" @onclick="()=>{Delete(item);}">Delete</MudButton>
                     </MudItem>
+                    }
                 </MudGrid>
 
             }
@@ -35,57 +40,81 @@
                 <HeaderContent>
                     <MudTh>File</MudTh>
                     <MudTh>Download</MudTh>
-                    <MudTh>Delete</MudTh>
+                    @if (bAdmin)
+                    {
+                        <MudTh>Delete</MudTh>
+                    }
                 </HeaderContent>
                 <RowTemplate Context="item">
                     <MudTd DataLabel="File">@item.Name</MudTd>
                     <MudTd DataLabel="Download"><MudButton Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{Download(item);}">받기</MudButton></MudTd>
-                    <MudTd DataLabel="Delete"><MudButton Variant="Variant.Filled" Color="Color.Error" @onclick="()=>{Delete(item);}">삭제</MudButton></MudTd>
+                    @if (bAdmin)
+                    {
+                        <MudTd DataLabel="Delete"><MudButton Variant="Variant.Filled" Color="Color.Error" @onclick="()=>{Delete(item);}">삭제</MudButton></MudTd>
+                    }
                 </RowTemplate>
             </MudTable>
-
-            <MudFileUpload id="file-input" T="IReadOnlyList<IBrowserFile>" MaximumFileCount="999" OnFilesChanged="HandleFileSelected" Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
-            @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
-                <ButtonTemplate>
-                    <MudPaper Height="70px" Outlined="true" Class="@DragClass">
-                        <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
-                    </MudPaper>
-                </ButtonTemplate>
-            </MudFileUpload>
+            @if (bAdmin)
+            {
+                <MudFileUpload id="file-input" T="IReadOnlyList<IBrowserFile>" MaximumFileCount="999" OnFilesChanged="HandleFileSelected" Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
+                @ondragenter="@SetDragClass" @ondragleave="@ClearDragClass" @ondragend="@ClearDragClass">
+                    <ButtonTemplate>
+                        <MudPaper Height="70px" Outlined="true" Class="@DragClass">
+                            <MudText Typo="Typo.h6">Drag and drop files here or click</MudText>
+                        </MudPaper>
+                    </ButtonTemplate>
+                </MudFileUpload>
+            }
         </MudStack>
-        <div>
-            @if (selectedFile != null)
-            {
-                foreach (var file in selectedFile)
+        @if (bAdmin)
+        {
+            <div>
+                @if (selectedFile != null)
                 {
-                    <MudChip Color="Color.Dark" OnClose="SelectedFileClose" Text="@file.Name" />
+                    foreach (var file in selectedFile)
+                    {
+                        <MudChip Color="Color.Dark" OnClose="SelectedFileClose" Text="@file.Name" />
+                    }
                 }
-            }
-        </div>
-        <MudStack>
-            @if (bUpload)
-            {
-                <MudText Typo="Typo.h3">@uploadFileName</MudText>
-                <MudText Typo="Typo.h5">@UploadedPercent.ToString("F1")/100</MudText>
-            }
-            <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{OnUploadClick();}">업로드</MudButton>
+            </div>
 
             <MudStack>
-                <MudTextField @bind-Value="NewDirectory" Label="Directory Name" Variant="Variant.Text"></MudTextField>
-                <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{MakeDirectory(NewDirectory);}">폴더생성</MudButton>
+                @if (bUpload)
+                {
+                    <MudText Typo="Typo.h3">@uploadFileName</MudText>
+                    <MudText Typo="Typo.h5">@UploadedPercent.ToString("F1")/100</MudText>
+                }
+                <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{OnUploadClick();}">업로드</MudButton>
+
+                <MudStack>
+                    <MudTextField @bind-Value="NewDirectory" Label="Directory Name" Variant="Variant.Text"></MudTextField>
+                    <MudButton Class="mt-5" Variant="Variant.Filled" Color="Color.Primary" @onclick="()=>{MakeDirectory(NewDirectory);}">폴더생성</MudButton>
+                </MudStack>
             </MudStack>
-        </MudStack>
+        }
     </div>
 </MudContainer>
 @code {
     private static string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10";
 
     private string DragClass = DefaultDragClass;
+    private string Title { get; set; } = "";
+    bool bAdmin = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            Title = NavigationManager.Uri.Replace(NavigationManager.BaseUri, "");
+            if (Title.ToLower() == "fileupload")
+            {
+                bAdmin = true;
+                Title = "FileUpload";
+            }
+            else
+            {
+                Title = "File";
+            }
             await Update();
         }
         base.OnAfterRender(firstRender);
@@ -290,7 +319,7 @@
                 // to a database or a local file system
                 var readData = buffer.AsMemory().Slice(0, read);
                 await fileStream.WriteAsync(readData);
-                await this.InvokeAsync(new Action(() => { StateHasChanged(); }));                
+                await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
             }
             fileStream.Position = 0;
 
