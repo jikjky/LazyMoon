@@ -54,6 +54,10 @@
                     }
                 </RowTemplate>
             </MudTable>
+            @if (bDownload)
+            {
+                <MudText Typo="Typo.h5">@DownlodedPercent.ToString("F1")/100</MudText>
+            }
             @if (bAdmin)
             {
                 <MudFileUpload id="file-input" T="IReadOnlyList<IBrowserFile>" MaximumFileCount="999" OnFilesChanged="HandleFileSelected" Hidden="false" Class="flex-1" InputClass="absolute mud-width-full mud-height-full overflow-hidden z-20" InputStyle="opacity:0"
@@ -132,11 +136,16 @@
 
     bool bUpload = false;
 
+    bool bDownload = false;
+
     string uploadFileName = "";
 
     long UploadedBytes = 0;
 
     double UploadedPercent { get; set; }
+
+    double DownlodedPercent { get; set; }
+
 
     List<IBrowserFile> selectedFile = new List<IBrowserFile>();
 
@@ -167,6 +176,19 @@
         httpProgressHandler.HttpSendProgress += async (sender, args) =>
         {
             UploadedPercent = ((((double)args.BytesTransferred / (double)args.TotalBytes) * 100) / 2) + 50;
+            await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
+        };
+        httpProgressHandler.HttpReceiveProgress += async (sender, args) =>
+        {
+            if (args.ProgressPercentage == 100)
+            {
+                bDownload = false;
+            }
+            else
+            {
+                bDownload = true;
+            }
+            DownlodedPercent = args.ProgressPercentage;
             await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
         };
         HttpClient httpClient = new HttpClient(httpProgressHandler);
