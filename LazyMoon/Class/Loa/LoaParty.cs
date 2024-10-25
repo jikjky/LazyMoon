@@ -408,7 +408,14 @@ namespace LazyMoon.Class.Loa
                             index++;
                         }
                         weekSupoterFindAll = Players.FindAll(x => x.SupoterCount != 0 && (x.SupoterCount > x.UsedSupoterCount));
-                        weekSupoter = weekSupoterFindAll[weekSupoterFindAll.Count - 1];
+                        if (tempDepartureOrder == 0)
+                        {
+                            weekSupoter = weekSupoterFindAll[0];
+                        }
+                        else
+                        {
+                            weekSupoter = weekSupoterFindAll[weekSupoterFindAll.Count - 1];
+                        }
                         if (weekSupoter.OrderMessages[index] == "(ㄷ)")
                         {
                             if (tempDepartureOrder == 0)
