@@ -107,14 +107,15 @@
             var index = _items.IndexOf(dropItem.Item);
             if (index != dropItem.IndexInZone)
             {
-                _items.Insert(dropItem.IndexInZone, dropItem.Item ?? new DropItem());
                 if (index < dropItem.IndexInZone)
                 {
+                    _items.Insert(dropItem.IndexInZone+1, dropItem.Item ?? new DropItem());
                     var findfIndex = _items.IndexOf(dropItem.Item);
                     _items.RemoveAt(findfIndex);
                 }
                 else
                 {
+                    _items.Insert(dropItem.IndexInZone, dropItem.Item ?? new DropItem());
                     var findfIndex = _items.LastIndexOf(dropItem.Item);
                     _items.RemoveAt(findfIndex);
                 }
