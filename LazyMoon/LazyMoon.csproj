@@ -69,6 +69,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="wwwroot\Ads.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Update="wwwroot\favicon2.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

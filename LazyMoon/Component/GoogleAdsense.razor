@@ -1,0 +1,19 @@
+﻿@inherits ComponentBase
+
+@{
+    #if DEBUG
+    {
+        
+    }
+    #else
+    {
+        <div class="adsense-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-format="@AdFormat"
+                 data-ad-client="@AdClient"
+                 data-ad-slot="@AdSlot"></ins>
+        </div>
+    }
+    #endif
+}
