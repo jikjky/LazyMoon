@@ -4,7 +4,10 @@
 
 
 <MudItem xs="12" sm="6">
-    <MudText>@($"{Order + 1}파티")</MudText>
+    <MudStack Class="mt-3" Row="true">
+        <MudText Typo="Typo.h5">@($"{Order + 1}파티")</MudText>
+        <MudText Class="mt-1">@($"인원 {LoaParty.MaxCombinations - LoaParty.CurrnetCombinations} / {LoaParty.MaxCombinations} 서폿{LoaParty.MaxSupoter - LoaParty.CurrentSupoter} / {LoaParty.MaxSupoter}")</MudText>
+    </MudStack>
     <MudGrid>
         <MudItem xs="12" sm="12">
             <MudDropContainer @ref="_container" T="DropItem" Items="_items" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
@@ -36,7 +39,7 @@
                         <MudButton OnClick="@(()=>{OnClick("DSSS");})" Disabled="@enabledDSSS" id="dsss" Variant="Variant.Filled" Color="Color.Surface">ㄷㅍㅍㅍ</MudButton>
                     </MudStack>
 
-                </MudItem>                
+                </MudItem>
                 <MudItem xs="6">
                     <MudStack>
                         <MudButton OnClick="@(()=>{OnClick("SDDD");})" Disabled="@enabledSDDD" id="sddd" Variant="Variant.Filled" Color="Color.Surface">ㅍㄷㄷㄷ</MudButton>
@@ -113,7 +116,7 @@
             {
                 if (index < dropItem.IndexInZone)
                 {
-                    _items.Insert(dropItem.IndexInZone+1, dropItem.Item ?? new DropItem());
+                    _items.Insert(dropItem.IndexInZone + 1, dropItem.Item ?? new DropItem());
                     var findfIndex = _items.IndexOf(dropItem.Item);
                     _items.RemoveAt(findfIndex);
                 }
