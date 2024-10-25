@@ -1,4 +1,5 @@
 ﻿using ImageMagick;
+using ImageMagick.Drawing;
 using Microsoft.AspNetCore.Hosting;
 using MudBlazor;
 using System;
@@ -18,7 +19,7 @@ namespace LazyMoon.Service
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<(string, int, int)> ToBase64Image(string text)
+        public async Task<(string, uint, uint)> ToBase64Image(string text)
         {
             var fontPath = Path.Combine(_webHostEnvironment.WebRootPath, "font", "NotoSansKR-Regular-Hestia.otf");
             var random = new Random();
@@ -34,10 +35,10 @@ namespace LazyMoon.Service
                 .Draw(image);
 
             var rect = FindNonBackgroundRectangle(image, new MagickColor(5, 5, 5, 0));
-            var cropImage = CropImage(image, rect.X, rect.Y, rect.Width, rect.Height);
+            var cropImage = CropImage(image, rect.X, rect.Y, (uint)rect.Width, (uint)rect.Height);
 
 
-            var result = (await ConvertBitmapToBase64(cropImage), cropImage.Width, cropImage.Height);
+            var result = (await ConvertBitmapToBase64(cropImage), (uint)cropImage.Width, (uint)cropImage.Height);
             image.Dispose();
             cropImage.Dispose();           
             return result;
@@ -46,8 +47,8 @@ namespace LazyMoon.Service
         static Rectangle FindNonBackgroundRectangle(MagickImage image, MagickColor backgroundColor)
         {
             var pixels = image.GetPixels();
-            int minX = image.Width;
-            int minY = image.Height;
+            int minX = (int)image.Width;
+            int minY = (int)image.Height;
             int maxX = -1;
             int maxY = -1;
 
@@ -72,7 +73,7 @@ namespace LazyMoon.Service
             return new Rectangle(minX, minY, width, height);
         }
 
-        static MagickImage CropImage(MagickImage image, int x, int y, int width, int height)
+        static MagickImage CropImage(MagickImage image, int x, int y, uint width, uint height)
         {
             MagickImage croppedImage = (MagickImage)image.Clone(x, y, width, height);
 

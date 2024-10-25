@@ -1,0 +1,38 @@
+﻿@page "/loa/Party"
+@layout EmptyLayout
+<MudLayout>
+    <MudContainer>
+        <MudGrid>
+            @for (int i = 0; i < 4; i++)
+            {
+                <LoaPartyComponent Order="i"></LoaPartyComponent>
+            }
+        </MudGrid>
+    </MudContainer>
+</MudLayout>
+
+
+@code {
+    private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
+    {
+        if (dropItem.DropzoneIdentifier.ToLower() == "delete")
+        {
+            _items.Remove(dropItem.Item);
+        }
+    }
+
+    private List<DropItem> _items = new()
+    {
+        new DropItem(){ Name = "ㄷㄷㄷㅍ", Identifier = "Item" },
+        new DropItem(){ Name = "ㄷㄷㄷㄷ", Identifier = "Item" },
+        new DropItem(){ Name = "ㄷㄷㅍㅍ", Identifier = "Item" },
+        new DropItem(){ Name = "ㄷㄷㄷㄷ", Identifier = "Item" },
+
+    };
+
+    public class DropItem
+    {
+        public string Name { get; init; }
+        public string Identifier { get; set; }
+    }
+}

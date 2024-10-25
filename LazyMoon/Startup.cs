@@ -70,7 +70,7 @@ namespace LazyMoon
             services.AddTransient<TwitchAPI>();
             #endregion
             services.AddTransient<TwitchService>();
-
+            services.AddScoped<ClipboardService>();
             services.AddTransient<LazyMoon.Service.BlazorTimerService>();
             services.AddMudServices();
             services.AddTransient<TwitchBotService>();
