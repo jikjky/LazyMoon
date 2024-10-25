@@ -72,6 +72,9 @@
     [Parameter]
     public int Order { get; set; }
 
+    [Parameter]
+    public bool IsRaid8 { get; set; }
+
     public LoaParty LoaParty { get; private set; } = new LoaParty();
 
     private List<DropItem> _items = new()
@@ -89,6 +92,7 @@
     {
         if (firstRender)
         {
+            LoaParty.IsRaid8 = IsRaid8;
             LoaParty.DepartureOrder = Order;
             Update();
         }
@@ -163,6 +167,8 @@
 
     public async void Update()
     {
+        LoaParty.IsRaid8 = IsRaid8;
+
         foreach (var item in _items)
         {
             LoaParty.Players.Remove(item.Player);

@@ -2,23 +2,51 @@
 @layout EmptyLayout
 <MudLayout>
     <MudContainer>
-        <MudGrid>
-            @for (int i = 0; i < 4; i++)
-            {
-                <LoaPartyComponent Order="i"></LoaPartyComponent>
-            }
-        </MudGrid>
+        <MudButton OnClick="(e)=>{Raid8Click();}" Variant="Variant.Filled" Color="Color.Error">8인 레이드</MudButton>
+        <MudButton OnClick="(e)=>{Raid16Click();}" Variant="Variant.Filled" Color="Color.Error">16인 레이드</MudButton>
+        @if (Is8Raid == false)
+        {
+            <MudGrid>
+                @for (int i = 0; i < 4; i++)
+                {
+                    <LoaPartyComponent Order="i" IsRaid8="false"></LoaPartyComponent>
+                }
+            </MudGrid>
+        }
+        else
+        {
+            <MudGrid>
+                @for (int i = 0; i < 2; i++)
+                {
+                    <LoaPartyComponent Order="i" IsRaid8="true"></LoaPartyComponent>
+                }
+            </MudGrid>
+        }
     </MudContainer>
 </MudLayout>
 
 
 @code {
+    bool Is8Raid { get; set; } = false;
+
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {
         if (dropItem.DropzoneIdentifier.ToLower() == "delete")
         {
             _items.Remove(dropItem.Item);
         }
+    }
+
+    private void Raid8Click()
+    {
+        Is8Raid = true;
+        StateHasChanged();
+    }
+
+    private void Raid16Click()
+    {
+        Is8Raid = false;
+        StateHasChanged();
     }
 
     private List<DropItem> _items = new()
