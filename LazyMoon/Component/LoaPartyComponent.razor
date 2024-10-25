@@ -105,9 +105,9 @@
         else
         {
             var index = _items.IndexOf(dropItem.Item);
-            _items.Insert(dropItem.IndexInZone, dropItem.Item ?? new DropItem());
             if (index != dropItem.IndexInZone)
             {
+                _items.Insert(dropItem.IndexInZone, dropItem.Item ?? new DropItem());
                 if (index < dropItem.IndexInZone)
                 {
                     var findfIndex = _items.IndexOf(dropItem.Item);
