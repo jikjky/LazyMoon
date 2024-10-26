@@ -1,5 +1,6 @@
 ﻿@page "/loa/Party"
 @layout EmptyLayout
+@inject ServerCounterService ServerCounterService
 <MudLayout>
     <MudContainer>
         <!--
@@ -7,8 +8,12 @@
                        AdClient="ca-pub-4908031663008246"
                        AdSlot="4980598666" />
         -->
-        <MudButton OnClick="(e)=>{Raid8Click();}" Variant="Variant.Filled" Color="Color.Error">8인 레이드</MudButton>
-        <MudButton OnClick="(e)=>{Raid16Click();}" Variant="Variant.Filled" Color="Color.Error">16인 레이드</MudButton>
+        <MudStack Row="true">
+            <MudButton OnClick="(e)=>{Raid8Click();}" Variant="Variant.Filled" Color="Color.Error">8인 레이드</MudButton>
+            <MudButton OnClick="(e)=>{Raid16Click();}" Variant="Variant.Filled" Color="Color.Error">16인 레이드</MudButton>
+            <MudSpacer/>
+            <MudText style="height:100%; text-align:center;">@ServerCounterService.CounterValue</MudText>
+        </MudStack>
         @if (Is8Raid == false)
         {
             <MudGrid>
@@ -33,6 +38,15 @@
 
 @code {
     bool Is8Raid { get; set; } = false;
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ServerCounterService.Add();
+        }
+        base.OnAfterRender(firstRender);
+    }
 
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {

@@ -71,6 +71,7 @@ namespace LazyMoon
             #endregion
             services.AddTransient<TwitchService>();
             services.AddScoped<ClipboardService>();
+            services.AddSingleton<ServerCounterService>();
             services.AddTransient<LazyMoon.Service.BlazorTimerService>();
             services.AddMudServices();
             services.AddTransient<TwitchBotService>();

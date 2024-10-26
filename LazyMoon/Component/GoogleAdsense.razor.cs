@@ -21,6 +21,7 @@ namespace LazyMoon.Component
             if (firstRender)
             {
 #if DEBUG
+                await Task.Delay(0);
 #else
                 _module = await JSRuntime.InvokeAsync<IJSObjectReference>("import", "./js/googleAdsense.js");
                 await InitializeAdsense();

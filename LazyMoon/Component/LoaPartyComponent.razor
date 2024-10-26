@@ -12,7 +12,7 @@
         <MudItem xs="12" sm="12">
             <MudDropContainer @ref="_container" T="DropItem" Items="_items" ItemsSelector="@((item,dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="d-flex flex-wrap flex-grow-1">
                 <ChildContent>
-                    <MudDropZone Style="height:320px" T="DropItem" Identifier="Item" AllowReorder Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
+                    <MudDropZone Style="height:350px" T="DropItem" Identifier="Item" AllowReorder Class="rounded mud-background-gray pa-6 ma-8 flex-grow-1">
 
                     </MudDropZone>
                     <MudDropZone T="DropItem" Identifier="Delete" OnlyZone AllowReorder Class="relative rounded-lg border-danger border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10">

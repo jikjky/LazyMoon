@@ -180,7 +180,7 @@
             UploadedPercent = ((((double)args.BytesTransferred / (double)args.TotalBytes) * 100) / 2) + 50;
             await this.InvokeAsync(new Action(() => { StateHasChanged(); }));
         };
-        httpProgressHandler.HttpReceiveProgress += async (sender, args) =>
+        httpProgressHandler.HttpReceiveProgress += (sender, args) =>
         {
             if (args.ProgressPercentage == 100)
             {
