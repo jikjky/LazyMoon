@@ -1,6 +1,8 @@
 ﻿@page "/loa/Party"
 @layout EmptyLayout
 @inject ServerCounterService ServerCounterService
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
 <MudLayout>
     <MudContainer>
         <!--
@@ -39,11 +41,18 @@
 @code {
     bool Is8Raid { get; set; } = false;
 
-    protected override void OnAfterRender(bool firstRender)
+    protected async override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            ServerCounterService.Add();
+            string guid = await localStorage.GetItemAsStringAsync("GUID");
+            if (string.IsNullOrEmpty(guid))
+            {
+                guid = Guid.NewGuid().ToString();
+                await localStorage.SetItemAsStringAsync("GUID", guid);
+            }
+            ServerCounterService.Add(guid);
+            await this.InvokeAsync(() => { StateHasChanged(); });
         }
         base.OnAfterRender(firstRender);
     }
