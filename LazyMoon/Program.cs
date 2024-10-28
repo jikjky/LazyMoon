@@ -17,8 +17,6 @@ using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.WebHost.UseSetting(WebHostDefaults.DetailedErrorsKey, "true");
-
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
@@ -33,7 +31,6 @@ builder.Services.AddResponseCompression(opts =>
 });
 
 #region DataBase   
-var a = builder.Configuration.GetConnectionString("DBConnection");
 builder.Services.AddDbContextFactory<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DBConnection")));
 builder.Services.AddDBService();
 #endregion

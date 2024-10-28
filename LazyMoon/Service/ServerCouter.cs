@@ -15,7 +15,6 @@ namespace LazyMoon.Service
         public ServerCounterService(DBConnectionHistory _dBConnectionHistory)
         {
             dBConnectionHistory = _dBConnectionHistory;
-            GetCounterValue();
             LastResetDate = GetKoreaTime().Date;
         }
 

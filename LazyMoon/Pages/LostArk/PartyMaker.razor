@@ -19,7 +19,7 @@
             <MudButton OnClick="(e)=>{Raid8Click();}" Variant="Variant.Filled" Color="Color.Error">8인 레이드</MudButton>
             <MudButton OnClick="(e)=>{Raid16Click();}" Variant="Variant.Filled" Color="Color.Error">16인 레이드</MudButton>
             <MudSpacer />
-            <MudText style="height:100%; text-align:center;">@ServerCounterService.CounterValue</MudText>
+            <MudText style="height:100%; text-align:center;">@($"{(ServerCounterService.CounterValue == 0 ? "" : ServerCounterService.CounterValue)}")</MudText>
         </MudStack>
         @if (Is8Raid == false)
         {
@@ -61,6 +61,7 @@
                 await localStorage.SetItemAsStringAsync("GUID", guid);
             }
             ServerCounterService.Add(guid);
+            await ServerCounterService.GetCounterValue();
             await this.InvokeAsync(() => { StateHasChanged(); });
         }
         base.OnAfterRender(firstRender);
