@@ -80,20 +80,6 @@ function gotoScroll(id) {
     });
 }
 
-document.onmousemove = function (e) {
-    for (var key in dictObject) {
-        var client = document.getElementById(key).getBoundingClientRect();
-        if (dictObject[key] == 'Top')
-            DotNet.invokeMethodAsync('LazyMoon', 'GetIdSize', key, client.width, client.top);
-        if (dictObject[key] == 'Bottom')
-            DotNet.invokeMethodAsync('LazyMoon', 'GetIdSize', key, client.width, client.bottom);
-        
-    }
-    var mouseX = e.pageX;
-    var mouseY = e.clientY;
-    DotNet.invokeMethodAsync('LazyMoon', 'MousePosition', mouseX, mouseY);
-}
-
 window.loadKakaoAdScript = function () {
     const script = document.createElement("script");
     script.src = "https://t1.daumcdn.net/kas/static/ba.min.js";

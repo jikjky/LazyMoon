@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
-using TwitchLib.Client.Models;
 
 #nullable enable
 namespace LazyMoon.Service

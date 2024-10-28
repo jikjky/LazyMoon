@@ -8,6 +8,8 @@ namespace LazyMoon.Model
         public DbSet<TTS> TTS { get; set; }
         public DbSet<ValorantRank> ValorantRanks { get; set; }
         public DbSet<Voice> Voices { get; set; }
+        public DbSet<ConnectionHistory> ConnectionHistorys { get; set; }
+
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {

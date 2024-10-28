@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using LazyMoon.Model;
+using Microsoft.Extensions.DependencyInjection;
+using System.Data;
 
 namespace LazyMoon.Service.DBService
 {
@@ -10,6 +12,7 @@ namespace LazyMoon.Service.DBService
             services.AddTransient<DBTTSService>();
             services.AddTransient<DBValorantRankService>();
             services.AddTransient<DBVoiceService>();
+            services.AddTransient<DBConnectionHistory>();
             return services;
         }
     }
