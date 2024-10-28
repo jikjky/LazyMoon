@@ -93,3 +93,11 @@ document.onmousemove = function (e) {
     var mouseY = e.clientY;
     DotNet.invokeMethodAsync('LazyMoon', 'MousePosition', mouseX, mouseY);
 }
+
+window.loadKakaoAdScript = function () {
+    const script = document.createElement("script");
+    script.src = "https://t1.daumcdn.net/kas/static/ba.min.js";
+    script.charset = "utf-8";
+    script.async = true;
+    document.body.appendChild(script);
+};

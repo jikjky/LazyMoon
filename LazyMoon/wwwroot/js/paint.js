@@ -27,8 +27,9 @@ function Push() {
     if (Step < PushArray.length) {
         PushArray.length = Step;
     }
-
-    PushArray.push(canvas.toDataURL());
+    if (canvas) {
+        PushArray.push(canvas.toDataURL());
+    }
 }
 
 async function Undo() {
