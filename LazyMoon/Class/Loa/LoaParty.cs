@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.IdentityModel.Tokens;
+using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace LazyMoon.Class.Loa
         Supporter
     }
 
-    public enum PartyCombinations
+    public enum EPartyCombinations
     {
         DDDD = 0,
         DDDS = 1,
@@ -27,7 +28,7 @@ namespace LazyMoon.Class.Loa
 
     public class Player
     {
-        public List<string> OrderMessages { get; set; } = new List<string>();
+        public List<string> OrderMessages { get; set; }
         public int UsedSupoterCount { get; set; } = 0;
         public int SupoterCount
         {
@@ -52,9 +53,9 @@ namespace LazyMoon.Class.Loa
             }
         }
         public CharacterClass StrongCharacter { get; set; }
-        public List<CharacterClass> WeekCharacter { get; set; } = new List<CharacterClass>();
+        public List<CharacterClass> WeekCharacter { get; set; } = [];
 
-        public PartyCombinations GetPlayerPartyCombinations()
+        public EPartyCombinations GetPlayerPartyCombinations()
         {
             int offset = 0;
             if (WeekCharacter.Where(x => x == CharacterClass.Dealer).Count() == 3)
@@ -69,11 +70,11 @@ namespace LazyMoon.Class.Loa
             {
                 offset = 2;
             }
-            if (WeekCharacter.Where(x => x == CharacterClass.Dealer).Count() == 0)
+            if (!WeekCharacter.Where(x => x == CharacterClass.Dealer).Any())
             {
                 offset = 3;
             }
-            return StrongCharacter == CharacterClass.Dealer ? PartyCombinations.DDDD + offset : PartyCombinations.SDDD + offset;
+            return StrongCharacter == CharacterClass.Dealer ? EPartyCombinations.DDDD + offset : EPartyCombinations.SDDD + offset;
         }
     }
     public class LoaParty
@@ -82,11 +83,11 @@ namespace LazyMoon.Class.Loa
         public int MaxSupoter { get; set; } = 4;
         public int CurrnetCombinations { get; set; } = 0;
         public int MaxCombinations { get; set; } = 16;
-
+        public int DepartureOrder { get; set; } = 0;
         public bool IsRaid8 { get; set; } = false;
 
         public bool StrongSupoter { get; set; } = false;
-        public List<Player> Players { get; set; } = new List<Player>();
+        public List<Player> Players { get; set; } = [];
 
         public Player Add(Player player)
         {
@@ -100,57 +101,57 @@ namespace LazyMoon.Class.Loa
             return player;
         }
 
-        public Player Add(PartyCombinations partyCombinations)
+        public Player Add(EPartyCombinations partyCombinations)
         {
             switch (partyCombinations)
             {
-                case PartyCombinations.DDDD:
+                case EPartyCombinations.DDDD:
                     return Add(new Player()
                     {
                         StrongCharacter = CharacterClass.Dealer,
-                        WeekCharacter = new List<CharacterClass>() { CharacterClass.Dealer, CharacterClass.Dealer, CharacterClass.Dealer }
+                        WeekCharacter = [CharacterClass.Dealer, CharacterClass.Dealer, CharacterClass.Dealer]
                     });
-                case PartyCombinations.DDDS:
+                case EPartyCombinations.DDDS:
                     return Add(new Player()
                     {
                         StrongCharacter = CharacterClass.Dealer,
-                        WeekCharacter = new List<CharacterClass>() { CharacterClass.Dealer, CharacterClass.Dealer, CharacterClass.Supporter }
+                        WeekCharacter = [CharacterClass.Dealer, CharacterClass.Dealer, CharacterClass.Supporter]
                     });
-                case PartyCombinations.DDSS:
+                case EPartyCombinations.DDSS:
                     return Add(new Player()
                     {
                         StrongCharacter = CharacterClass.Dealer,
-                        WeekCharacter = new List<CharacterClass>() { CharacterClass.Dealer, CharacterClass.Supporter, CharacterClass.Supporter }
+                        WeekCharacter = [CharacterClass.Dealer, CharacterClass.Supporter, CharacterClass.Supporter]
                     });
-                case PartyCombinations.DSSS:
+                case EPartyCombinations.DSSS:
                     return Add(new Player()
                     {
                         StrongCharacter = CharacterClass.Dealer,
-                        WeekCharacter = new List<CharacterClass>() { CharacterClass.Supporter, CharacterClass.Supporter, CharacterClass.Supporter }
+                        WeekCharacter = [CharacterClass.Supporter, CharacterClass.Supporter, CharacterClass.Supporter]
                     });
-                case PartyCombinations.SDDD:
+                case EPartyCombinations.SDDD:
                     return Add(new Player()
                     {
                         StrongCharacter = CharacterClass.Supporter,
-                        WeekCharacter = new List<CharacterClass>() { CharacterClass.Dealer, CharacterClass.Dealer, CharacterClass.Dealer }
+                        WeekCharacter = [CharacterClass.Dealer, CharacterClass.Dealer, CharacterClass.Dealer]
                     });
-                case PartyCombinations.SDDS:
+                case EPartyCombinations.SDDS:
                     return Add(new Player()
                     {
                         StrongCharacter = CharacterClass.Supporter,
-                        WeekCharacter = new List<CharacterClass>() { CharacterClass.Dealer, CharacterClass.Dealer, CharacterClass.Supporter }
+                        WeekCharacter = [CharacterClass.Dealer, CharacterClass.Dealer, CharacterClass.Supporter]
                     });
-                case PartyCombinations.SDSS:
+                case EPartyCombinations.SDSS:
                     return Add(new Player()
                     {
                         StrongCharacter = CharacterClass.Supporter,
-                        WeekCharacter = new List<CharacterClass>() { CharacterClass.Dealer, CharacterClass.Supporter, CharacterClass.Supporter }
+                        WeekCharacter = [CharacterClass.Dealer, CharacterClass.Supporter, CharacterClass.Supporter]
                     });
-                case PartyCombinations.SSSS:
+                case EPartyCombinations.SSSS:
                     return Add(new Player()
                     {
                         StrongCharacter = CharacterClass.Supporter,
-                        WeekCharacter = new List<CharacterClass>() { CharacterClass.Supporter, CharacterClass.Supporter, CharacterClass.Supporter }
+                        WeekCharacter = [CharacterClass.Supporter, CharacterClass.Supporter, CharacterClass.Supporter]
                     });
                 default:
                     break;
@@ -174,25 +175,25 @@ namespace LazyMoon.Class.Loa
             return PartyCombinationsToString(player.GetPlayerPartyCombinations());
         }
 
-        public string PartyCombinationsToString(PartyCombinations partyCombinations)
+        public string PartyCombinationsToString(EPartyCombinations partyCombinations)
         {
             switch (partyCombinations)
             {
-                case PartyCombinations.DDDD:
+                case EPartyCombinations.DDDD:
                     return "ㄷㄷㄷㄷ";
-                case PartyCombinations.DDDS:
+                case EPartyCombinations.DDDS:
                     return "ㄷㄷㄷㅍ";
-                case PartyCombinations.DDSS:
+                case EPartyCombinations.DDSS:
                     return "ㄷㄷㅍㅍ";
-                case PartyCombinations.DSSS:
+                case EPartyCombinations.DSSS:
                     return "ㄷㅍㅍㅍ";
-                case PartyCombinations.SDDD:
+                case EPartyCombinations.SDDD:
                     return "ㅍㄷㄷㄷ";
-                case PartyCombinations.SDDS:
+                case EPartyCombinations.SDDS:
                     return "ㅍㄷㄷㅍ";
-                case PartyCombinations.SDSS:
+                case EPartyCombinations.SDSS:
                     return "ㅍㄷㅍㅍ";
-                case PartyCombinations.SSSS:
+                case EPartyCombinations.SSSS:
                     return "ㅍㅍㅍㅍ";
                 default:
                     break;
@@ -200,16 +201,16 @@ namespace LazyMoon.Class.Loa
             return string.Empty;
         }
 
-        public bool OKPartyCombinations(PartyCombinations partyCombinations)
+        public bool OKPartyCombinations(EPartyCombinations partyCombinations)
         {
             var needSupoter = MaxSupoter - CurrentSupoter;
             var needCombinations = MaxCombinations - CurrnetCombinations;
-            int supoter = 0;
+            int supoter;
             if (IsRaid8)
             {
                 switch (partyCombinations)
                 {
-                    case PartyCombinations.DDDD:
+                    case EPartyCombinations.DDDD:
                         supoter = 0;
                         if (needCombinations - 4 == 0)
                         {
@@ -222,7 +223,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needCombinations != 0;
 
-                    case PartyCombinations.DDDS:
+                    case EPartyCombinations.DDDS:
                         supoter = 1;
                         if (needCombinations - 4 == 0)
                         {
@@ -230,7 +231,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.DDSS:
+                    case EPartyCombinations.DDSS:
                         supoter = 2;
                         if (needCombinations - 4 == 0)
                         {
@@ -238,7 +239,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.DSSS:
+                    case EPartyCombinations.DSSS:
                         supoter = 3;
                         if (needCombinations - 4 == 0)
                         {
@@ -246,24 +247,25 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.SDDD:
+                    case EPartyCombinations.SDDD:
                         return false;
 
-                    case PartyCombinations.SDDS:
+                    case EPartyCombinations.SDDS:
                         return false;
 
-                    case PartyCombinations.SDSS:
+                    case EPartyCombinations.SDSS:
                         return false;
 
-                    case PartyCombinations.SSSS:
+                    case EPartyCombinations.SSSS:
                         return false;
                 }
             }
+            //16
             else
             {
                 switch (partyCombinations)
                 {
-                    case PartyCombinations.DDDD:
+                    case EPartyCombinations.DDDD:
                         supoter = 0;
                         if (needCombinations - 4 == 0)
                         {
@@ -271,7 +273,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needCombinations != 0;
 
-                    case PartyCombinations.DDDS:
+                    case EPartyCombinations.DDDS:
                         supoter = 1;
                         if (needCombinations - 4 == 0)
                         {
@@ -279,7 +281,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.DDSS:
+                    case EPartyCombinations.DDSS:
                         supoter = 2;
                         if (needCombinations - 4 == 0)
                         {
@@ -287,7 +289,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.DSSS:
+                    case EPartyCombinations.DSSS:
                         supoter = 3;
                         if (needCombinations - 4 == 0)
                         {
@@ -295,7 +297,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.SDDD:
+                    case EPartyCombinations.SDDD:
                         if (StrongSupoter == true)
                         {
                             return false;
@@ -307,7 +309,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.SDDS:
+                    case EPartyCombinations.SDDS:
                         if (StrongSupoter == true)
                         {
                             return false;
@@ -319,7 +321,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.SDSS:
+                    case EPartyCombinations.SDSS:
                         if (StrongSupoter == true)
                         {
                             return false;
@@ -331,7 +333,7 @@ namespace LazyMoon.Class.Loa
                         }
                         return needSupoter >= supoter;
 
-                    case PartyCombinations.SSSS:
+                    case EPartyCombinations.SSSS:
                         if (StrongSupoter == true)
                         {
                             return false;
@@ -347,227 +349,245 @@ namespace LazyMoon.Class.Loa
             return false;
         }
 
-        public int DepartureOrder { get; set; } = 0;
-
         public string Make()
         {
             if (CurrnetCombinations == MaxCombinations)
             {
                 foreach (var item in Players)
                 {
-                    item.OrderMessages = new List<string>() { "", "", "", "" };
+                    item.OrderMessages = ["", "", "", ""];
                     item.UsedSupoterCount = 0;
                 }
+                return IsRaid8 ? Make8() : Make16();
+            }
+            return string.Empty;
+        }
 
-                if (IsRaid8)
+        private string Make8()
+        {
+            int supoterIndex = DepartureOrder;
+            int tempIndex;
+            tempIndex = DepartureOrder;
+            Random rd = new();
+            while (true)
+            {
+                while (true)
                 {
-                    var weekSupoterFindAll = Players.FindAll(x => x.SupoterCount != 0 && (x.SupoterCount > x.UsedSupoterCount));
-                    var weekSupoter = weekSupoterFindAll[weekSupoterFindAll.Count - 1];
-                    int tempDepartureOrder = DepartureOrder * 2;
-                    weekSupoter.OrderMessages[tempDepartureOrder] = "ㅍ";
-                    weekSupoter.UsedSupoterCount++;
-                    int strongDealerCounter = 0;
-                    if (tempDepartureOrder == 0)
+                    var supotersPlayers = Players.Where(x => x.SupoterCount - x.UsedSupoterCount != 0);
+                    if (supotersPlayers.Any())
                     {
-                        int tempCount = 0;
-                        while (true)
+                        Player supotersPlayer;
+                        if (rd.Next(0, 2) == 0)
                         {
-                            if (weekSupoter.SupoterCount > weekSupoter.UsedSupoterCount + (tempCount++))
-                            {
-                                continue;
-                            }
-                            weekSupoter.OrderMessages[tempDepartureOrder + 1] = "(ㄷ)";
-                            break;
-
-                        }
-                    }
-                    else
-                    {
-                        weekSupoter.OrderMessages[tempDepartureOrder + 1] = "(ㄷ)";
-                    }
-                    foreach (var item in Players)
-                    {
-                        if (!item.Equals(weekSupoter))
-                        {
-                            if (strongDealerCounter == 2)
-                            {
-                                item.OrderMessages[tempDepartureOrder + 1] = "(ㄷ)";
-                            }
-                            else
-                            {
-                                item.OrderMessages[tempDepartureOrder] = "(ㄷ)";
-                            }
-                            strongDealerCounter++;
-                        }
-                    }
-                    for (var i = 0; i < 3; i++)
-                    {
-                        int index = i;
-                        if (tempDepartureOrder <= i)
-                        {
-                            index++;
-                        }
-                        weekSupoterFindAll = Players.FindAll(x => x.SupoterCount != 0 && (x.SupoterCount > x.UsedSupoterCount));
-                        if (tempDepartureOrder == 0)
-                        {
-                            weekSupoter = weekSupoterFindAll[0];
+                            supotersPlayer = supotersPlayers.First();
                         }
                         else
                         {
-                            weekSupoter = weekSupoterFindAll[weekSupoterFindAll.Count - 1];
+                            supotersPlayer = supotersPlayers.Last();
                         }
-                        if (weekSupoter.OrderMessages[index] == "(ㄷ)")
+                        supotersPlayer.OrderMessages[supoterIndex] = "ㅍ";
+                        supotersPlayer.UsedSupoterCount++;
+                        supoterIndex = supoterIndex < 3 ? supoterIndex + 1 : 0;
+                        continue;
+                    }
+                    break;
+                }
+
+                int firstCount = 0;
+                int SecondCount = 0;
+
+                int count = 0;
+                while (true)
+                {
+
+                    var stroingDealers = Players.Where(x => x.StrongCharacter == CharacterClass.Dealer && !x.OrderMessages.Contains("(ㄷ)"));
+                    if (stroingDealers.Any())
+                    {
+                        Player stroingDealer;
+                        if (rd.Next(0, 2) == 0)
                         {
-                            if (tempDepartureOrder == 0)
-                            {
-                                Players[tempDepartureOrder].OrderMessages[index] = "(ㄷ)";
-                                Players[tempDepartureOrder].OrderMessages[index - 1] = "";
-                                weekSupoter.OrderMessages[index - 1] = "(ㄷ)";
-                            }
-                            else
-                            {
-                                Players[tempDepartureOrder - 1].OrderMessages[index] = "(ㄷ)";
-                                Players[tempDepartureOrder - 1].OrderMessages[index - 1] = "";
-                                weekSupoter.OrderMessages[index - 1] = "(ㄷ)";
-                            }
+                            stroingDealer = stroingDealers.First();
                         }
-                        weekSupoter.OrderMessages[index] = "ㅍ";
-                        weekSupoter.UsedSupoterCount++;
-                        foreach (var item in Players)
+                        else
                         {
-                            if (!item.Equals(weekSupoter))
+                            stroingDealer = stroingDealers.Last();
+                        }
+
+                            int index = DepartureOrder * 2;
+                            index += rd.Next(2);
+                            if (index == DepartureOrder * 2)
                             {
-                                if (string.IsNullOrEmpty(item.OrderMessages[index]))
+                                if (string.IsNullOrEmpty(stroingDealer.OrderMessages[index]))
                                 {
-                                    item.OrderMessages[index] = "ㄷ";
+                                    stroingDealer.OrderMessages[index] = "(ㄷ)";
+                                    firstCount++;
+                                }
+                                else if (string.IsNullOrEmpty(stroingDealer.OrderMessages[index + 1]))
+                                {
+                                    stroingDealer.OrderMessages[index + 1] = "(ㄷ)";
+                                    SecondCount++;
                                 }
                             }
-                        }
-                    }
-                    //문자 만듬
-                    string result = string.Empty;
-                    int playerIndex = 1;
-                    foreach (var item in Players)
-                    {
-                        if (playerIndex == 1)
-                        {
-                            result += $"{DepartureOrder + 1}-{playerIndex}";
-                        }
-                        else
-                        {
-                            result += $"  {DepartureOrder + 1}-{playerIndex}";
-                        }
-                        int orderIndex = 1;
-                        foreach (var message in item.OrderMessages)
-                        {
-                            if (string.IsNullOrEmpty(message))
-                            {
-                                result += "ㄷ";
-                            }
                             else
                             {
-                                result += message;
+                                if (string.IsNullOrEmpty(stroingDealer.OrderMessages[index]))
+                                {
+                                    stroingDealer.OrderMessages[index] = "(ㄷ)";
+                                    SecondCount++;
+                                }
+                                else if (string.IsNullOrEmpty(stroingDealer.OrderMessages[index]))
+                                {
+                                    stroingDealer.OrderMessages[index - 1] = "(ㄷ)";
+                                    firstCount++;
+                                }
                             }
-                            orderIndex++;
-                        }
-                        playerIndex++;
                     }
-                    return result;
+                    if (firstCount == 2 && SecondCount == 2)
+                    {
+                        break;
+                    }
+                    if (count++ > 1000 || firstCount + SecondCount > 4)
+                    {
+                        break;
+                    }
+                }
+
+                if (firstCount != 2 || SecondCount != 2)
+                {
+                    foreach (var item in Players)
+                    {
+                        item.OrderMessages = ["", "", "", ""];
+                        item.UsedSupoterCount = 0;
+                    }
+                    tempIndex = tempIndex < 3 ? tempIndex + 1 : 0;
+                    supoterIndex = tempIndex;
+                    continue;
+                }
+                break;
+            }
+
+            foreach (var player in Players)
+            {
+                for (int i = 0; i < player.OrderMessages.Count; i++)
+                {
+                    if (string.IsNullOrEmpty(player.OrderMessages[i]))
+                    {
+                        player.OrderMessages[i] = "ㄷ";
+                    }
+                }
+            }
+
+            string result = string.Empty;
+            int playerIndex = 1;
+            foreach (var item in Players)
+            {
+                if (playerIndex == 1)
+                {
+                    result += $"{DepartureOrder + 1}-{playerIndex}";
                 }
                 else
                 {
-                    var stroingSupoterFindAll = Players.FindAll(x => x.StrongCharacter == CharacterClass.Supporter);
-                    if (stroingSupoterFindAll.Count() == 1)
+                    result += $"  {DepartureOrder + 1}-{playerIndex}";
+                }
+                int orderIndex = 1;
+                foreach (var message in item.OrderMessages)
+                {
+                    if (string.IsNullOrEmpty(message))
                     {
-                        var stroingSupoter = stroingSupoterFindAll[0];
-                        stroingSupoter.OrderMessages[DepartureOrder] = "(ㅍ)";
-                        stroingSupoter.UsedSupoterCount++;
-                        foreach (var item in Players)
-                        {
-                            if (!item.Equals(stroingSupoter))
-                            {
-                                item.OrderMessages[DepartureOrder] = "(ㄷ)";
-                            }
-                        }
+                        result += "ㄷ";
                     }
                     else
                     {
-                        var weekSupoterFindAll = Players.FindAll(x => x.SupoterCount != 0 && (x.SupoterCount > x.UsedSupoterCount));
-                        var weekSupoter = weekSupoterFindAll[weekSupoterFindAll.Count - 1];
-                        weekSupoter.OrderMessages[DepartureOrder] = "ㅍ";
-                        weekSupoter.UsedSupoterCount++;
-                        if (DepartureOrder == 0)
-                        {
-                            int tempCount = 0;
-                            while (true)
-                            {
-                                if (weekSupoter.SupoterCount > weekSupoter.UsedSupoterCount + (tempCount++))
-                                {
-                                    continue;
-                                }
-                                weekSupoter.OrderMessages[DepartureOrder + tempCount] = "(ㄷ)";
-                                break;
+                        result += message;
+                    }
+                    orderIndex++;
+                }
+                playerIndex++;
+            }
+            return result;
+        }
 
-                            }
-                        }
-                        else
-                        {
-                            weekSupoter.OrderMessages[DepartureOrder - 1] = "(ㄷ)";
-                        }
-                        foreach (var item in Players)
-                        {
-                            if (!item.Equals(weekSupoter))
-                            {
-                                item.OrderMessages[DepartureOrder] = "(ㄷ)";
-                            }
-                        }
-                    }
-                    for (var i = 0; i < 3; i++)
+        private string Make16()
+        {
+            var stroingSuppoters = Players.Where(x => x.StrongCharacter == CharacterClass.Supporter);
+            int supoterIndex = DepartureOrder;
+            if (stroingSuppoters.Any())
+            {
+                var stroingSuppoter = stroingSuppoters.First();
+                stroingSuppoter.OrderMessages[supoterIndex] = "(ㅍ)";
+                supoterIndex = supoterIndex < 3 ? supoterIndex + 1 : 0;
+                stroingSuppoter.UsedSupoterCount++;
+            }
+            while (true)
+            {
+                var supotersPlayers = Players.Where(x => x.SupoterCount - x.UsedSupoterCount != 0);
+                if (supotersPlayers.Any())
+                {
+                    var supotersPlayer = supotersPlayers.First();
+                    supotersPlayer.OrderMessages[supoterIndex] = "ㅍ";
+                    supotersPlayer.UsedSupoterCount++;
+                    supoterIndex = supoterIndex < 3 ? supoterIndex + 1 : 0;
+                    continue;
+                }
+                break;
+            }
+
+            var stroingDealers = Players.Where(x => x.StrongCharacter == CharacterClass.Dealer);
+            if (stroingDealers.Any())
+            {
+                foreach (var stroingDealer in stroingDealers)
+                {
+                    int index = DepartureOrder;
+                    while (true)
                     {
-                        int index = i;
-                        if (DepartureOrder <= i)
+                        if (string.IsNullOrEmpty(stroingDealer.OrderMessages[index]))
                         {
-                            index++;
+                            stroingDealer.OrderMessages[index] = "(ㄷ)";
+                            break;
                         }
-                        var weekSupoterFindAll = Players.FindAll(x => x.SupoterCount != 0 && (x.SupoterCount > x.UsedSupoterCount));
-                        var weekSupoter = weekSupoterFindAll[0];
-                        weekSupoter.OrderMessages[index] = "ㅍ";
-                        weekSupoter.UsedSupoterCount++;
-                        foreach (var item in Players)
-                        {
-                            if (!item.Equals(weekSupoter))
-                            {
-                                if (string.IsNullOrEmpty(item.OrderMessages[index]))
-                                {
-                                    item.OrderMessages[index] = "ㄷ";
-                                }
-                            }
-                        }
+                        index = index < 3 ? index + 1 : 0;
                     }
-                    string result = string.Empty;
-                    int playerIndex = 1;
-                    foreach (var item in Players)
-                    {
-                        if (playerIndex == 1)
-                        {
-                            result += $"{DepartureOrder + 1}-{playerIndex}";
-                        }
-                        else
-                        {
-                            result += $"  {DepartureOrder + 1}-{playerIndex}";
-                        }
-                        int orderIndex = 1;
-                        foreach (var message in item.OrderMessages)
-                        {
-                            result += message;
-                            orderIndex++;
-                        }
-                        playerIndex++;
-                    }
-                    return result;
                 }
             }
-            return string.Empty;
+            foreach (var player in Players)
+            {
+                for (int i = 0; i < player.OrderMessages.Count; i++)
+                {
+                    if (string.IsNullOrEmpty(player.OrderMessages[i]))
+                    {
+                        player.OrderMessages[i] = "ㄷ";
+                    }
+                }
+            }
+
+            string result = string.Empty;
+            int playerIndex = 1;
+            foreach (var item in Players)
+            {
+                if (playerIndex == 1)
+                {
+                    result += $"{DepartureOrder + 1}-{playerIndex}";
+                }
+                else
+                {
+                    result += $"  {DepartureOrder + 1}-{playerIndex}";
+                }
+                int orderIndex = 1;
+                foreach (var message in item.OrderMessages)
+                {
+                    if (string.IsNullOrEmpty(message))
+                    {
+                        result += "ㄷ";
+                    }
+                    else
+                    {
+                        result += message;
+                    }
+                    orderIndex++;
+                }
+                playerIndex++;
+            }
+            return result;
         }
     }
 }

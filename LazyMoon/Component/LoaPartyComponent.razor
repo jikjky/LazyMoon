@@ -53,6 +53,7 @@
                         <MudButton OnClick="MakeButtonClick" Variant="Variant.Filled" Color="Color.Primary">Make</MudButton>
                         <MudTextField @bind-Value="ResultValue" Label="파티순서" ReadOnly="true" Variant="Variant.Text" />
                         <MudButton OnClick="CopyButtonClick" Variant="Variant.Filled" Color="Color.Primary">Copy</MudButton>
+                        
                     </MudStack>
                 </MudItem>
             </MudGrid>
@@ -89,6 +90,32 @@
     {
         public Class.Loa.Player Player { get; init; }
         public string Identifier { get; set; }
+    }
+
+    private async void Test()
+    {
+        for (int i = 0; i < 500; i++)
+        {
+            ClearButtonClick();
+            Random rd = new();
+            var values = Enum.GetValues(typeof(EPartyCombinations));
+
+            Random random = new Random();
+
+            // 랜덤 인덱스 선택
+            while (LoaParty.MaxCombinations != LoaParty.CurrnetCombinations)
+            {
+                EPartyCombinations randomValue = (EPartyCombinations)values.GetValue(random.Next(values.Length));
+                if (LoaParty.OKPartyCombinations(randomValue))
+                {
+                    var playerObject = LoaParty.Add(randomValue);
+                    _items.Add(new DropItem() { Player = playerObject, Identifier = "Item" });
+                }
+            }
+            Update();
+            MakeButtonClick();
+            await Task.Delay(1);
+        }
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -134,8 +161,8 @@
 
     private void OnClick(string player)
     {
-        PartyCombinations partyCombinations;
-        if (Enum.TryParse<PartyCombinations>(player, out partyCombinations))
+        EPartyCombinations partyCombinations;
+        if (Enum.TryParse<EPartyCombinations>(player, out partyCombinations))
         {
             if (LoaParty.OKPartyCombinations(partyCombinations))
             {
@@ -178,32 +205,32 @@
             LoaParty.Players.Add(item.Player);
         }
 
-        foreach (PartyCombinations item in Enum.GetValues(typeof(PartyCombinations)))
+        foreach (EPartyCombinations item in Enum.GetValues(typeof(EPartyCombinations)))
         {
             switch (item)
             {
-                case PartyCombinations.DDDD:
+                case EPartyCombinations.DDDD:
                     enabledDDDD = !LoaParty.OKPartyCombinations(item);
                     break;
-                case PartyCombinations.DDDS:
+                case EPartyCombinations.DDDS:
                     enabledDDDS = !LoaParty.OKPartyCombinations(item);
                     break;
-                case PartyCombinations.DDSS:
+                case EPartyCombinations.DDSS:
                     enabledDDSS = !LoaParty.OKPartyCombinations(item);
                     break;
-                case PartyCombinations.DSSS:
+                case EPartyCombinations.DSSS:
                     enabledDSSS = !LoaParty.OKPartyCombinations(item);
                     break;
-                case PartyCombinations.SDDD:
+                case EPartyCombinations.SDDD:
                     enabledSDDD = !LoaParty.OKPartyCombinations(item);
                     break;
-                case PartyCombinations.SDDS:
+                case EPartyCombinations.SDDS:
                     enabledSDDS = !LoaParty.OKPartyCombinations(item);
                     break;
-                case PartyCombinations.SDSS:
+                case EPartyCombinations.SDSS:
                     enabledSDSS = !LoaParty.OKPartyCombinations(item);
                     break;
-                case PartyCombinations.SSSS:
+                case EPartyCombinations.SSSS:
                     enabledSSSS = !LoaParty.OKPartyCombinations(item);
                     break;
                 default:
