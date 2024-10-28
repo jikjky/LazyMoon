@@ -9,16 +9,11 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 #nullable enable
-namespace LazyMoon.Service
+namespace LazyMoon.Service.DBService
 {
-    public class DBVoiceService
+    public class DBVoiceService(IDbContextFactory<AppDbContext> contextFactory)
     {
-        readonly protected IDbContextFactory<AppDbContext> _contextFactory;
-
-        public DBVoiceService(IDbContextFactory<AppDbContext> contextFactory)
-        {
-            _contextFactory = contextFactory;
-        }
+        readonly protected IDbContextFactory<AppDbContext> _contextFactory = contextFactory;
 
         public async Task<Voice?> GetVoiceOrNullAsync(string chanel, string name)
         {
@@ -43,17 +38,11 @@ namespace LazyMoon.Service
             {
                 voice = tts.Voices.FirstOrDefault(x => x.Name == name);
             }
-            if (voice == null)
-            {
-                voice = SetVoiceDefault(voice, name);
-            }
+            voice ??= SetVoiceDefault(name);
             var existingTTS = context.TTS.FirstOrDefault(x => x.Id == tts.Id);
             if (existingTTS != null)
             {
-                if (existingTTS.Voices == null)
-                {
-                    existingTTS.Voices = new List<Voice>();
-                }
+                existingTTS.Voices ??= [];
 
                 existingTTS.Voices.Add(voice);
                 await context.SaveChangesAsync();
@@ -61,12 +50,12 @@ namespace LazyMoon.Service
             return voice;
         }
 
-        public Voice SetVoiceDefault(Voice? voice, string name)
+        public Voice SetVoiceDefault(string name)
         {
-            Random rd = new Random();
+            Random rd = new();
 
             EVoice eVoice = (EVoice)rd.Next(1, 5);
-            voice = new Voice() { Name = name, Pitch = 1, Use = true, VoiceMode = eVoice };
+            var voice = new Voice() { Name = name, Pitch = 1, Use = true, VoiceMode = eVoice };
             return voice;
         }
 

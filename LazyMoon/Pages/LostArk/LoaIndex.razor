@@ -4,22 +4,14 @@
 
 <MudContainer>
     <h3>Loa</h3>
-    <MudTextField @bind-Value="TextValue" Label="캐릭터이름" Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary" Variant="Variant.Outlined" Margin="Margin.Dense" OnKeyUp="KeyDownClick" OnAdornmentClick="SerchClick"></MudTextField>
+    <MudButton Variant="Variant.Filled" Color="Color.Surface" OnClick="PartyClick">본1부3 자동 구성</MudButton>
 </MudContainer>
 
 @code {
     public string TextValue { get; set; }
 
-    void SerchClick()
+    void PartyClick()
     {
-        NavigationManager.NavigateTo($"loa/info/{TextValue}");
-    }
-    void KeyDownClick(KeyboardEventArgs e)
-    {
-        if(e.Key == "Enter")
-        {
-            StateHasChanged();
-            SerchClick();
-        }
+        NavigationManager.NavigateTo($"Loa/Party");
     }
 }

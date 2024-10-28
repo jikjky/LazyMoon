@@ -1,5 +1,4 @@
 ﻿@page "/loa/Party"
-@layout EmptyLayout
 @inject ServerCounterService ServerCounterService
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 
@@ -44,10 +43,6 @@
 
 
 @code {
-
-
-    private MarkupString convertedMarkdown;
-
     bool Is8Raid { get; set; } = false;
 
     protected async override void OnAfterRender(bool firstRender)

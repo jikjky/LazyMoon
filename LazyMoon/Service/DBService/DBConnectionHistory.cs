@@ -9,16 +9,11 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 #nullable enable
-namespace LazyMoon.Service
+namespace LazyMoon.Service.DBService
 {
-    public class DBConnectionHistory
+    public class DBConnectionHistory(IDbContextFactory<AppDbContext> contextFactory)
     {
-        readonly protected IDbContextFactory<AppDbContext> _contextFactory;
-
-        public DBConnectionHistory(IDbContextFactory<AppDbContext> contextFactory)
-        {
-            _contextFactory = contextFactory;
-        }
+        readonly protected IDbContextFactory<AppDbContext> _contextFactory = contextFactory;
 
         public async Task AddCount(string Date)
         {
@@ -34,7 +29,7 @@ namespace LazyMoon.Service
             }
             else
             {
-                dbContext.ConnectionHistorys.Add(new Model.ConnectionHistory() { Date = Date, Count = 1 });
+                dbContext.ConnectionHistorys.Add(new ConnectionHistory() { Date = Date, Count = 1 });
             }
             await dbContext.SaveChangesAsync();
         }

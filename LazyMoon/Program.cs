@@ -27,7 +27,7 @@ builder.Services.AddSignalR(e =>
 builder.Services.AddResponseCompression(opts =>
 {
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
-        new[] { "application/octet-stream" });
+        ["application/octet-stream"]);
 });
 
 #region DataBase   

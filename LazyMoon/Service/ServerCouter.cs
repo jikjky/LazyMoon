@@ -1,22 +1,17 @@
 using LazyMoon.Model;
+using LazyMoon.Service.DBService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 namespace LazyMoon.Service
 {
-    public sealed class ServerCounterService
+    public sealed class ServerCounterService(DBConnectionHistory _dBConnectionHistory)
     {
-        HashSet<string> guids = new HashSet<string>();
+        readonly HashSet<string> guids = [];
         public int CounterValue { get; set; }
-        private DateTime LastResetDate;
+        private DateTime LastResetDate = GetKoreaTime().Date;
 
-        DBConnectionHistory dBConnectionHistory;
-
-        public ServerCounterService(DBConnectionHistory _dBConnectionHistory)
-        {
-            dBConnectionHistory = _dBConnectionHistory;
-            LastResetDate = GetKoreaTime().Date;
-        }
+        readonly DBConnectionHistory dBConnectionHistory = _dBConnectionHistory;
 
         public async Task GetCounterValue()
         {
@@ -33,16 +28,16 @@ namespace LazyMoon.Service
                 guids.Clear();
                 LastResetDate = koreaTime.Date;
             }
-
             if (!guids.Contains(guid))
             {
-                guids.Add(guid);
                 await dBConnectionHistory.AddCount(LastResetDate.ToString("yyyyMMdd"));
             }
+            guids.Add(guid);
+
             await GetCounterValue();
         }
 
-        private DateTime GetKoreaTime()
+        private static DateTime GetKoreaTime()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Korea Standard Time"));
         }

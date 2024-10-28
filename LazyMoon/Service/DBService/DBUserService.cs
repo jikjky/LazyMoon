@@ -6,16 +6,11 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 #nullable enable
-namespace LazyMoon.Service
+namespace LazyMoon.Service.DBService
 {
-    public class DBUserService
+    public class DBUserService(AppDbContext context)
     {
-        readonly protected AppDbContext _context;
-
-        public DBUserService(AppDbContext context)
-        {
-            _context = context;
-        }
+        readonly protected AppDbContext _context = context;
 
         public async Task<User?> GetUserOrNullAsync(string name)
         {

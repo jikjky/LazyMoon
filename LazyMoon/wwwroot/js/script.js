@@ -27,13 +27,6 @@ window.onReady = () => {
         setTimeout(() => { showMySlides(slideIndex, slideClassName) }, 2000);
     }
 
-    $(".image-logo").mouseenter(function () {
-        $("img", this).css('animation', 'shadow 0.05s linear forwards');
-    });
-    $(".image-logo").mouseleave(function () {
-        $("img", this).css('animation', 'none');
-    });
-
     $(window).on('scroll', function () {
         findPosition();
     });
@@ -83,7 +76,6 @@ function gotoScroll(id) {
 window.loadKakaoAdScript = function () {
     const script = document.createElement("script");
     script.src = "https://t1.daumcdn.net/kas/static/ba.min.js";
-    script.charset = "utf-8";
     script.async = true;
     document.body.appendChild(script);
 };

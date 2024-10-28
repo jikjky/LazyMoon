@@ -8,9 +8,9 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 #nullable enable
-namespace LazyMoon.Service
+namespace LazyMoon.Service.DBService
 {
-    public class DBTTSService
+    public class DBTTSService(IDbContextFactory<AppDbContext> contextFactory)
     {
         private double Rate_ = 1;
         private double Volume_ = 0;
@@ -49,12 +49,7 @@ namespace LazyMoon.Service
             }
         }
 
-        readonly protected IDbContextFactory<AppDbContext> _contextFactory;
-
-        public DBTTSService(IDbContextFactory<AppDbContext> contextFactory)
-        {
-            _contextFactory = contextFactory;
-        }
+        readonly protected IDbContextFactory<AppDbContext> _contextFactory = contextFactory;
 
         public async Task<TTS?> SetTTSOrNullAsync(string chanel, double rate, double volume)
         {
@@ -75,14 +70,14 @@ namespace LazyMoon.Service
                 return null;
             if (user.TTS == null)
             {
-                user.TTS = SetTTSDefault(user.TTS);
+                user.TTS = SetTTSDefault();
                 await context.SaveChangesAsync();
             }
             return user.TTS;
         }
-        public TTS SetTTSDefault(TTS? tts)
+        public TTS SetTTSDefault()
         {
-            tts = new TTS() { Volume = 0, TTSEnable = true, Rate = 1 };
+            var tts = new TTS() { Volume = 0, TTSEnable = true, Rate = 1 };
             return tts;
         }
 
@@ -92,10 +87,7 @@ namespace LazyMoon.Service
             var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
-            if (user.TTS == null)
-            {
-                user.TTS = SetTTSDefault(user.TTS);
-            }
+            user.TTS ??= SetTTSDefault();
             user.TTS.TTSEnable = enable;
             await context.SaveChangesAsync();
             return user.TTS;
@@ -107,10 +99,7 @@ namespace LazyMoon.Service
             var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
-            if (user.TTS == null)
-            {
-                user.TTS = SetTTSDefault(user.TTS);
-            }
+            user.TTS ??= SetTTSDefault();
             user.TTS.Rate = Rate;
             await context.SaveChangesAsync();
             return user.TTS;
@@ -123,10 +112,7 @@ namespace LazyMoon.Service
             var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
-            if (user.TTS == null)
-            {
-                user.TTS = SetTTSDefault(user.TTS);
-            }
+            user.TTS ??= SetTTSDefault();
             user.TTS.Volume = Volume;
             await context.SaveChangesAsync();
             return user.TTS;
@@ -138,10 +124,7 @@ namespace LazyMoon.Service
             var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
-            if (user.TTS == null)
-            {
-                user.TTS = SetTTSDefault(user.TTS);
-            }
+            user.TTS ??= SetTTSDefault();
             user.TTS.Rate = 1;
             user.TTS.Volume = 0;
             await context.SaveChangesAsync();

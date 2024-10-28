@@ -6,16 +6,11 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 #nullable enable
-namespace LazyMoon.Service
+namespace LazyMoon.Service.DBService
 {
-    public class DBValorantRankService
+    public class DBValorantRankService(AppDbContext context)
     {
-        readonly protected AppDbContext _context;
-
-        public DBValorantRankService(AppDbContext context)
-        {
-            _context = context;
-        }
+        readonly protected AppDbContext _context = context;
 
         public async Task<ValorantRank?> GetValorantRankOrNullAsync(string name)
         {
@@ -36,8 +31,7 @@ namespace LazyMoon.Service
 
             var valorantRank = user.ValorantRank;
 
-            if (valorantRank == null)
-                valorantRank = SetDefaultRank(user);
+            valorantRank ??= SetDefaultRank(user);
 
             valorantRank.NickName = nickName;
             valorantRank.Tag = tag;
