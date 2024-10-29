@@ -4,19 +4,25 @@
     <ins class="kakao_ad_area"
          style="display:none;"
          data-ad-unit="@AdUnitID"
-         data-ad-width="320"
-         data-ad-height="250"></ins>
+         data-ad-width="@AdWidth"
+         data-ad-height="@AdHeight"></ins>
 </div>
 
 @code {
     [Parameter]
     public string AdUnitID { get; set; }
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    [Parameter]
+    public int AdWidth { get; set; } = 320;
+    [Parameter]
+    public int AdHeight { get; set; } = 250;
+
+    protected async override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
             // link:script.js:loadKakaoAdScript
             await JSRuntime.InvokeVoidAsync("loadKakaoAdScript");
         }
+        base.OnAfterRender(firstRender);
     }
 }
