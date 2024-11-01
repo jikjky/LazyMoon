@@ -14,9 +14,10 @@
                 <AdFit AdUnitID="DAN-wR90sc9rXA7z5nJB" />
             </div>
         </div>
-        <MudStack Row="true">
+        <MudStack AlignItems="AlignItems.Center" Row="true">
             <MudButton OnClick="(e)=>{Raid8Click();}" Variant="Variant.Filled" Color="Color.Error">8인 레이드</MudButton>
             <MudButton OnClick="(e)=>{Raid16Click();}" Variant="Variant.Filled" Color="Color.Error">16인 레이드</MudButton>
+            <MudText Typo="Typo.h4">@(Is8Raid?"8인 레이드":"16인 레이드")</MudText>
             <MudSpacer />
             <MudText style="height:100%; text-align:center;">@($"{(ServerCounterService.CounterValue == 0 ? "" : ServerCounterService.CounterValue)}")</MudText>
         </MudStack>

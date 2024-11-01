@@ -1,0 +1,687 @@
+﻿@page "/loa/Bracelets"
+@using LazyMoon.Class.Loa
+@using System.Diagnostics
+@using System.Text
+@using static LazyMoon.Class.Loa.LoaBracelets
+
+<MudLayout Style="min-height: 800px">
+    <MudContainer>
+        <div style="min-height:20px; width:100%; height:100%;">
+            <div style="width:300px; height:100%; margin: auto;">
+                <AdFit AdUnitID="DAN-kC9eEgkpfEsMFUug" />
+            </div>
+        </div>
+        <!-- 고대 유물 -->
+        <MudStack Row="true">
+            <MudButton OnClick="()=>{ItemTypeClick(true);}" Variant="Variant.Filled" Color="Color.Surface">유물</MudButton>
+            <MudButton OnClick="()=>{ItemTypeClick(false);}" Variant="Variant.Filled" Color="Color.Surface">고대</MudButton>
+        </MudStack>
+        <!-- 고정, 부여효과 숫자 -->
+        <MudStack Row="true">
+            <div>
+                <InputRadioGroup @bind-Value="@FixedEffect">
+                    고정효과:
+                    <br>
+                    @foreach (var item in FixedEffectList)
+                    {
+                        <InputRadio Value="item" />
+                        @item
+                        <br>
+                    }
+                </InputRadioGroup>
+            </div>
+            <div>
+                <InputRadioGroup @bind-Value="@GrantEffect">
+                    부여효과:
+                    <br>
+                    @foreach (var item in GrantEffectList)
+                    {
+                        <InputRadio Value="item" />
+                        @item
+                        <br>
+                    }
+                </InputRadioGroup>
+            </div>
+        </MudStack>
+        <!---->
+        <MudSelect Class="mt-3" @bind-Value="fixedStringValue1" Label="고정효과" Placeholder="고정효과를 선택해주세요" AdornmentIcon="@Icons.Material.Filled.KeyboardArrowDown" AdornmentColor="Color.Primary">
+            @foreach (var item in SelectStringEffectList)
+            {
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+            }
+        </MudSelect>
+
+        @if (bFixedStringCountIs2)
+        {
+            <MudSelect Class="mt-3" @bind-Value="fixedStringValue2" Label="고정효과" Placeholder="고정효과를 선택해주세요" AdornmentIcon="@Icons.Material.Filled.KeyboardArrowDown" AdornmentColor="Color.Primary">
+                @foreach (var item in SelectStringEffectList)
+                {
+                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                }
+            </MudSelect>
+        }
+        @for (int i = 0; i < FixedCount; i++)
+        {
+            int index = i;
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                @if (index == 0)
+                {
+                    <MudText>@bottomFixedStringValue1</MudText>
+                }
+                else
+                {
+                    <MudText>@bottomFixedStringValue2</MudText>
+                }
+            </MudStack>
+        }
+
+        @foreach (var item in pageEffectItems)
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudText>@item.Text</MudText>
+                @if (IsUpgrading)
+                {
+                    <MudIconButton Icon="@(item.Lock?Icons.Material.Filled.Lock:Icons.Material.Filled.LockOpen)" Size="Size.Small" aria-label="delete" />
+                }
+                else
+                {
+                    <MudIconButton OnClick="@(()=>{ if (item.Text != "부여효과")item.Lock = !item.Lock;})" Icon="@(item.Lock?Icons.Material.Filled.Lock:Icons.Material.Filled.LockOpen)" Size="Size.Small" aria-label="delete" />
+                }
+            </MudStack>
+        }
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudButton Disabled="@(!((FixedCount == 2 ?(!string.IsNullOrEmpty(fixedStringValue1) && !string.IsNullOrEmpty(fixedStringValue2)):(!string.IsNullOrEmpty(fixedStringValue1))) && (FixedCount == 2 ? fixedStringValue1 != fixedStringValue2 : true))|| ConvertCount == MaxConvertCount)" OnClick="()=>{ConvertClick(false);}" Variant="Variant.Filled" Color="Color.Surface">재변환</MudButton>
+            <MudButton Disabled="@(!((FixedCount == 2 ?(!string.IsNullOrEmpty(fixedStringValue1) && !string.IsNullOrEmpty(fixedStringValue2)):(!string.IsNullOrEmpty(fixedStringValue1))) && (FixedCount == 2 ? fixedStringValue1 != fixedStringValue2 : true))|| !(ConvertCount == MaxConvertCount) || SpecialConvertCount == MaxSpecialConvertCount)" OnClick="()=>{ConvertClick(true);}" Variant="Variant.Filled" Color="Color.Surface">재변환권 사용</MudButton>
+            <MudButton OnClick="InitializeClick" Variant="Variant.Filled" Color="Color.Surface">초기화</MudButton>
+            @if (CanUpgrade == true)
+            {
+                <MudButton Disabled="@(!((FixedCount == 2 ?(!string.IsNullOrEmpty(fixedStringValue1) && !string.IsNullOrEmpty(fixedStringValue2)):(!string.IsNullOrEmpty(fixedStringValue1))) && (FixedCount == 2 ? fixedStringValue1 != fixedStringValue2 : true)))" OnClick="Upgrade" Variant="Variant.Filled" Color="Color.Surface">승급</MudButton>
+            }
+            <MudText>남은 재변환 @(MaxConvertCount - ConvertCount)회 재변한권@(MaxSpecialConvertCount - SpecialConvertCount)개</MudText>
+        </MudStack>
+        <!--MudButton OnClick="Test" Variant="Variant.Filled" Color="Color.Surface">테스트</!--MudButton-->
+
+    </MudContainer>
+</MudLayout>
+
+
+@code {
+    public bool IsbArtifact { get; set; } = false;
+    public bool CanUpgrade { get; set; } = false;
+
+    int ConvertCount = 0;
+    int MaxConvertCount = 4;
+    int SpecialConvertCount = 0;
+    int MaxSpecialConvertCount = 3;
+    int UsedSpecialConvertCount = 0;
+
+
+    class PageEffectItem
+    {
+        public EffectItem EffectItem { get; set; }
+        public bool Lock { get; set; }
+        public string Text { get; set; }
+    }
+
+    List<String> FixedEffectList = new List<string> { "2개", "1개" };
+
+    private string FixedEffect
+    {
+        get => _fixedEffect;
+        set
+        {
+            _fixedEffect = value;
+            EffectCount(true);
+        }
+    }
+    private string _fixedEffect = "2개";
+
+    List<String> GrantEffectList = new List<string> { "3개", "2개" };
+    private string GrantEffect
+    {
+        get => _grantEffect;
+        set
+        {
+            _grantEffect = value;
+            EffectCount(false);
+        }
+    }
+    private string _grantEffect = "3개";
+
+    List<String> SelectStringEffectList = [];
+    List<EffectType> SelectEffectList = [];
+
+    List<PageEffectItem> pageEffectItems = [
+        new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+    new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+    new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,];
+
+    private string fixedStringValue1 { get; set; } = string.Empty;
+    private string fixedStringValue2 { get; set; } = string.Empty;
+
+    private string bottomFixedStringValue1 { get; set; } = string.Empty;
+    private string bottomFixedStringValue2 { get; set; } = string.Empty;
+
+    private bool bFixedStringCountIs2 { get; set; } = true;
+
+    int FixedCount { get; set; } = 2;
+    int GrantCount { get; set; } = 3;
+
+
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            MakeStringList(false);
+        }
+        base.OnAfterRender(firstRender);
+    }
+
+    public void MakeStringList(bool bArtifact)
+    {
+        SelectEffectList.Clear();
+        SelectStringEffectList.Clear();
+        LoaBracelets loaBracelets = new LoaBracelets();
+        foreach (var item in loaBracelets.basicEffectTypes)
+        {
+            SelectEffectList.Add(item);
+        }
+        foreach (var item in loaBracelets.combatEffectTypes)
+        {
+            SelectEffectList.Add(item);
+        }
+        int index = 0;
+        foreach (var item in loaBracelets.specialEffectTypes)
+        {
+            SelectEffectList.Add(item);
+            if (index > 28)
+            {
+                break;
+            }
+            index++;
+        }
+
+        foreach (var item in SelectEffectList)
+        {
+            if (item.EffectTypeEnum == EEffectType.특수효과)
+            {
+                if (bArtifact && IsUpgrading == false)
+                {
+                    SelectStringEffectList.Add(item.Name1);
+                }
+                else
+                {
+                    SelectStringEffectList.Add(item.Name2);
+                }
+            }
+            else
+            {
+                SelectStringEffectList.Add(item.EffectTypeEnum.ToString());
+            }
+        }
+    }
+
+    public void ItemTypeClick(bool bArtifact)
+    {
+        IsbArtifact = bArtifact;
+        if (bArtifact)
+        {
+            FixedEffectList = new List<string> { "2개", "1개" };
+            GrantEffectList = new List<string> { "2개", "1개" };
+            FixedEffect = "2개";
+            GrantEffect = "2개";
+            MakeStringList(true);
+            CanUpgrade = true;
+        }
+        else
+        {
+            FixedEffectList = new List<string> { "2개", "1개" };
+            GrantEffectList = new List<string> { "3개", "2개" };
+            FixedEffect = "2개";
+            GrantEffect = "3개";
+            MakeStringList(false);
+            CanUpgrade = false;
+        }
+    }
+
+    private Task HandleGrantEffectChanged(string newValue)
+    {
+        GrantEffect = newValue;
+        // Your code here to handle the change
+        Console.WriteLine($"Grant effect changed to: {newValue}");
+        return Task.CompletedTask;
+    }
+
+    public void EffectCount(bool bFixedEffect)
+    {
+        if (bFixedEffect)
+        {
+            if (FixedEffect == "2개")
+            {
+                bFixedStringCountIs2 = true;
+                fixedStringValue1 = string.Empty;
+                fixedStringValue2 = string.Empty;
+                FixedCount = 2;
+            }
+            else
+            {
+                bFixedStringCountIs2 = false;
+                fixedStringValue1 = string.Empty;
+                fixedStringValue2 = string.Empty;
+                FixedCount = 1;
+            }
+        }
+        else
+        {
+            if (GrantEffect == "3개")
+            {
+                GrantCount = 3;
+                pageEffectItems = new List<PageEffectItem>
+            {
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+            };
+            }
+            if (GrantEffect == "2개")
+            {
+                GrantCount = 2;
+                pageEffectItems = new List<PageEffectItem>
+            {
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+            };
+            }
+            if (GrantEffect == "1개")
+            {
+                GrantCount = 1;
+                pageEffectItems = new List<PageEffectItem>
+            {
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+            };
+            }
+        }
+    }
+
+    public bool IsUpgrading { get; set; }
+
+    public void Upgrade()
+    {
+        ConvertCount = 0;
+        CanUpgrade = false;
+        IsUpgrading = true;
+        foreach (var item in pageEffectItems)
+        {
+            item.Lock = true;
+        }
+        pageEffectItems.Add(new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" });
+        ConvertClick();
+    }
+
+    public void InitializeClick()
+    {
+        if (IsbArtifact)
+        {
+            CanUpgrade = true;
+            bottomFixedStringValue1 = fixedStringValue1;
+            bottomFixedStringValue2 = fixedStringValue2;
+        }
+        IsUpgrading = false;
+        MakeStringList(IsbArtifact);
+        if (GrantEffect == "3개")
+        {
+            GrantCount = 3;
+            pageEffectItems = new List<PageEffectItem>
+            {
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+            };
+        }
+        if (GrantEffect == "2개")
+        {
+            GrantCount = 2;
+            pageEffectItems = new List<PageEffectItem>
+            {
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+            };
+        }
+        if (GrantEffect == "1개")
+        {
+            GrantCount = 1;
+            pageEffectItems = new List<PageEffectItem>
+            {
+                new PageEffectItem() { EffectItem = new EffectItem(), Text = "부여효과" } ,
+            };
+        }
+        ConvertCount = 0;
+        SpecialConvertCount = 0;
+    }
+
+    public void ConvertClick(bool bSpecialConvertCount = false)
+    {
+        LoaBracelets bracelets = new LoaBracelets();
+        void InitBracelets(LoaBracelets bracelets, string text)
+        {
+            EBraceletsEffectType braceletsEffectEnum = EBraceletsEffectType.None;
+            EEffectType effectTypeEnum = EEffectType.None;
+            foreach (EEffectType item in Enum.GetValues(typeof(EEffectType)))
+            {
+                if (text == item.ToString() || text == "힘")
+                {
+                    if (text == "힘")
+                    {
+                        effectTypeEnum = EEffectType.힘;
+                    }
+                    else
+                    {
+                        effectTypeEnum = item;
+                    }
+                    break;
+                }
+            }
+            switch (effectTypeEnum)
+            {
+                case EEffectType.힘:
+                    braceletsEffectEnum = EBraceletsEffectType.기본효과;
+                    break;
+                case EEffectType.체력:
+                    braceletsEffectEnum = EBraceletsEffectType.기본효과;
+                    break;
+                case EEffectType.치명:
+                    braceletsEffectEnum = EBraceletsEffectType.전투특성;
+                    break;
+                case EEffectType.특화:
+                    braceletsEffectEnum = EBraceletsEffectType.전투특성;
+                    break;
+                case EEffectType.제압:
+                    braceletsEffectEnum = EBraceletsEffectType.전투특성;
+                    break;
+                case EEffectType.신속:
+                    braceletsEffectEnum = EBraceletsEffectType.전투특성;
+                    break;
+                case EEffectType.인내:
+                    braceletsEffectEnum = EBraceletsEffectType.전투특성;
+                    break;
+                case EEffectType.숙련:
+                    braceletsEffectEnum = EBraceletsEffectType.전투특성;
+                    break;
+                case EEffectType.None:
+                    braceletsEffectEnum = EBraceletsEffectType.None;
+                    break;
+                default:
+                    braceletsEffectEnum = EBraceletsEffectType.특수효과;
+                    break;
+            }
+            if (braceletsEffectEnum == EBraceletsEffectType.None && !string.IsNullOrEmpty(text))
+            {
+                braceletsEffectEnum = EBraceletsEffectType.특수효과;
+                effectTypeEnum = EEffectType.특수효과;
+            }
+            bracelets.EffectItems.Add(new LoaBracelets.EffectItem() { BraceletsEffectEnum = braceletsEffectEnum, Name = text, EffectTypeEnum = effectTypeEnum, IsNull = false });
+        }
+        string value1 = fixedStringValue1;
+        string value2 = fixedStringValue2;
+
+        if (IsUpgrading)
+        {
+            if (bracelets.specialEffectTypes.Any(x => x.Name1 == fixedStringValue1))
+            {
+                value1 = bracelets.specialEffectTypes[bracelets.specialEffectTypes.IndexOf(bracelets.specialEffectTypes.First(x => x.Name1 == fixedStringValue1))].Name2;
+            }
+            if (bracelets.specialEffectTypes.Any(x => x.Name1 == fixedStringValue2))
+            {
+                value2 = bracelets.specialEffectTypes[bracelets.specialEffectTypes.IndexOf(bracelets.specialEffectTypes.First(x => x.Name1 == fixedStringValue2))].Name2;
+            }
+        }
+
+        bottomFixedStringValue1 = value1;
+        bottomFixedStringValue2 = value2;
+        InitBracelets(bracelets, value1);
+        InitBracelets(bracelets, value2);
+
+        foreach (var item in pageEffectItems)
+        {
+            if (item.Lock == true)
+            {
+                bracelets.EffectItems.Add(item.EffectItem);
+            }
+            else
+            {
+                bracelets.EffectItems.Add(new EffectItem());
+            }
+        }
+
+        for (int i = 0; i < 3; i++)
+        {
+            while (true)
+            {
+                bool temp = false;
+                Random random = new Random();
+                var randomValue = random.NextDouble();
+                List<double> probability = [0.35, 0.35, 0.3];
+                int index = 0;
+                foreach (var probabilityValue in probability)
+                {
+                    if (randomValue < probabilityValue)
+                    {
+                        if (index == 0)
+                        {
+                            temp = bracelets.SetItem(LoaBracelets.EBraceletsEffectType.기본효과, (IsbArtifact && IsUpgrading == false));
+                            break;
+                        }
+                        else if (index == 1)
+                        {
+                            temp = bracelets.SetItem(LoaBracelets.EBraceletsEffectType.전투특성, IsbArtifact && IsUpgrading == false);
+                            break;
+                        }
+                        else
+                        {
+                            temp = bracelets.SetItem(LoaBracelets.EBraceletsEffectType.특수효과, IsbArtifact && IsUpgrading == false);
+                            break;
+                        }
+                    }
+                    index++;
+                    randomValue -= probabilityValue;
+                }
+                if (temp)
+                {
+                    break;
+                }
+            }
+        }
+        int itemIndex = 0;
+        foreach (var item in pageEffectItems)
+        {
+            pageEffectItems[0 + itemIndex].EffectItem = bracelets.EffectItems[2 + itemIndex];
+            item.Text = item.EffectItem.EffectTypeEnum.ToString() == "특수효과" ? item.EffectItem.Name : item.EffectItem.EffectTypeEnum.ToString();
+            itemIndex++;
+        }
+        if (bSpecialConvertCount)
+        {
+            SpecialConvertCount++;
+        }
+        else
+        {
+            ConvertCount++;
+        }
+    }
+
+    @* public (int, int, int, int) Test2(bool bSpecial, bool bTwo, int grantEffectCount, int count, int okCount, List<int> option, List<int> doubleOption, bool bConstans = false)
+    {
+        if (bTwo)
+        {
+            fixedStringValue1 = "특화";
+            fixedStringValue2 = "치명";
+        }
+        else
+        {
+            fixedStringValue1 = "특화";
+            fixedStringValue2 = "힘";
+        }
+        GrantEffect = $"{grantEffectCount}개";
+        GrantCount = grantEffectCount;
+        int susessCount = 0;
+        int doubleCount1 = 0;
+        int doubleCount2 = 0;
+        int doubleCount3 = 0;
+
+        if (!bSpecial)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                InitializeClick();
+                while (true)
+                {
+                    if (ConvertCount == MaxConvertCount)
+                    {
+                        if (pageEffectItems.Where(x => option.Any(y => y == x.EffectItem.Type)).Count() >= okCount)
+                        {
+                            if (bTwo == false && !pageEffectItems.Any(x => x.EffectItem.EffectTypeEnum == EEffectType.치명))
+                            {
+                                if (bConstans)
+                                {
+                                    break;
+                                }
+                            }
+                            int doubleOptionCount = pageEffectItems.Where(x => doubleOption.Any(y => y == x.EffectItem.Type)).Count();
+                            if (doubleOptionCount == 1)
+                            {
+                                doubleCount1++;
+                            }
+                            if (doubleOptionCount == 2)
+                            {
+                                doubleCount2++;
+                            }
+                            if (doubleOptionCount == 3)
+                            {
+                                doubleCount3++;
+                            }
+                            susessCount++;
+                            break;
+                        }
+                        break;
+                    }
+                    ConvertClick();
+
+                    foreach (var item in pageEffectItems)
+                    {
+                        if (bTwo == false && item.EffectItem.EffectTypeEnum == EEffectType.치명)
+                        {
+                            item.Lock = true;
+                        }
+                        if (item.EffectItem.EffectTypeEnum == EEffectType.특수효과 && option.Any(x => x == item.EffectItem.Type))
+                        {
+                            item.Lock = true;
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < count; i++)
+            {
+                InitializeClick();
+                while (true)
+                {
+                    if (ConvertCount == MaxConvertCount && SpecialConvertCount == MaxSpecialConvertCount)
+                    {
+                        if (pageEffectItems.Where(x => option.Any(y => y == x.EffectItem.Type)).Count() >= okCount)
+                        {
+                            if (bTwo == false && !pageEffectItems.Any(x => x.EffectItem.EffectTypeEnum == EEffectType.치명))
+                            {
+                                if (bConstans)
+                                {
+                                    break;
+                                }
+                            }
+                            int doubleOptionCount = pageEffectItems.Where(x => doubleOption.Any(y => y == x.EffectItem.Type)).Count();
+                            if (doubleOptionCount == 1)
+                            {
+                                doubleCount1++;
+                            }
+                            if (doubleOptionCount == 2)
+                            {
+                                doubleCount2++;
+                            }
+                            if (doubleOptionCount == 3)
+                            {
+                                doubleCount3++;
+                            }
+                            susessCount++;
+                            break;
+                        }
+                        break;
+                    }
+                    ConvertClick(ConvertCount == MaxConvertCount);
+
+                    foreach (var item in pageEffectItems)
+                    {
+                        if (bTwo == false && item.EffectItem.EffectTypeEnum == EEffectType.치명)
+                        {
+                            item.Lock = true;
+                        }
+                        if (item.EffectItem.EffectTypeEnum == EEffectType.특수효과 && option.Any(x => x == item.EffectItem.Type))
+                        {
+                            item.Lock = true;
+                        }
+                    }
+                }
+            }
+        }
+        return (susessCount, doubleCount1, doubleCount2, doubleCount3);
+    }
+
+    public void Test()
+    {
+        //List<int> option = [10, 11, 12, 13, 14, 19, 20, 21, 22, 23, 24, 30, 31, 32,];
+        //List<int> doubleOption = [10, 11, 12, 13, 14, 19, 20, 21];
+        List<int> option = [15, 16, 17, 18, 27, 28, 29];
+        List<int> doubleOption = [15, 16, 17, 18,];
+        int count = 1000000;
+        List<(int, int, int, int)> result = new List<(int, int, int, int)>();
+
+        result.Add(Test2(false, true, 3, count, 3, option, doubleOption));
+        result.Add(Test2(true, true, 3, count, 3, option, doubleOption));
+        result.Add(Test2(false, true, 3, count, 2, option, doubleOption));
+        result.Add(Test2(true, true, 3, count, 2, option, doubleOption));
+        result.Add(Test2(false, true, 3, count, 1, option, doubleOption));
+        result.Add(Test2(true, true, 3, count, 1, option, doubleOption));
+        result.Add(Test2(false, true, 2, count, 2, option, doubleOption));
+        result.Add(Test2(true, true, 2, count, 2, option, doubleOption));
+        result.Add(Test2(false, true, 2, count, 1, option, doubleOption));
+        result.Add(Test2(true, true, 2, count, 1, option, doubleOption));
+        result.Add(Test2(false, true, 1, count, 1, option, doubleOption));
+        result.Add(Test2(true, true, 1, count, 1, option, doubleOption));
+
+        result.Add(Test2(false, false, 3, count, 3, option, doubleOption));
+        result.Add(Test2(true, false, 3, count, 3, option, doubleOption));
+        result.Add(Test2(false, false, 3, count, 2, option, doubleOption));
+        result.Add(Test2(true, false, 3, count, 2, option, doubleOption));
+        result.Add(Test2(false, false, 3, count, 1, option, doubleOption));
+        result.Add(Test2(true, false, 3, count, 1, option, doubleOption));
+        result.Add(Test2(false, false, 2, count, 2, option, doubleOption));
+        result.Add(Test2(true, false, 2, count, 2, option, doubleOption));
+        result.Add(Test2(false, false, 2, count, 1, option, doubleOption));
+        result.Add(Test2(true, false, 2, count, 1, option, doubleOption));
+        result.Add(Test2(false, false, 1, count, 1, option, doubleOption));
+        result.Add(Test2(true, false, 1, count, 1, option, doubleOption));
+
+        result.Add(Test2(false, false, 3, count, 2, option, doubleOption, true));
+        result.Add(Test2(true, false, 3, count, 2, option, doubleOption, true));
+        result.Add(Test2(false, false, 3, count, 1, option, doubleOption, true));
+        result.Add(Test2(true, false, 3, count, 1, option, doubleOption, true));
+        result.Add(Test2(false, false, 2, count, 1, option, doubleOption, true));
+        result.Add(Test2(true, false, 2, count, 1, option, doubleOption, true));
+
+        StringBuilder stringBuilder = new StringBuilder();
+        foreach (var item in result)
+        {
+            stringBuilder.AppendLine($"{item.Item1},{item.Item2},{item.Item3},{item.Item4},");
+        }
+        var a = stringBuilder.ToString();
+    } *@
+}

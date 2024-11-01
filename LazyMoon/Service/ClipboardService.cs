@@ -4,21 +4,21 @@ namespace LazyMoon.Service
 {
     public sealed class ClipboardService
     {
-        private readonly IJSRuntime _jsRuntime;
+        private readonly IJSRuntime mJsRuntime;
 
         public ClipboardService(IJSRuntime jsRuntime)
         {
-            _jsRuntime = jsRuntime;
+            this.mJsRuntime = jsRuntime;
         }
 
         public ValueTask<string> ReadTextAsync()
         {
-            return _jsRuntime.InvokeAsync<string>("navigator.clipboard.readText");
+            return mJsRuntime.InvokeAsync<string>("navigator.clipboard.readText");
         }
 
         public ValueTask WriteTextAsync(string text)
         {
-            return _jsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
+            return mJsRuntime.InvokeVoidAsync("navigator.clipboard.writeText", text);
         }
     }
 }

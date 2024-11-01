@@ -5,17 +5,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 namespace LazyMoon.Service
 {
-    public sealed class ServerCounterService(DBConnectionHistory _dBConnectionHistory)
+    public sealed class ServerCounterService(DBConnectionHistory dBConnectionHistory)
     {
         readonly HashSet<string> guids = [];
         public int CounterValue { get; set; }
-        private DateTime LastResetDate = GetKoreaTime().Date;
+        private DateTime mLastResetDate = GetKoreaTime().Date;
 
-        readonly DBConnectionHistory dBConnectionHistory = _dBConnectionHistory;
+        readonly DBConnectionHistory dBConnectionHistory = dBConnectionHistory;
 
         public async Task GetCounterValue()
         {
-            CounterValue = await dBConnectionHistory.GetCount(LastResetDate.ToString("yyyyMMdd"));
+            CounterValue = await dBConnectionHistory.GetCount(mLastResetDate.ToString("yyyyMMdd"));
         }
 
         public async void Add(string guid)
@@ -23,14 +23,14 @@ namespace LazyMoon.Service
             DateTime koreaTime = GetKoreaTime();
 
             // 날짜가 바뀌면 카운터 초기화
-            if (koreaTime.Date != LastResetDate)
+            if (koreaTime.Date != mLastResetDate)
             {
                 guids.Clear();
-                LastResetDate = koreaTime.Date;
+                mLastResetDate = koreaTime.Date;
             }
             if (!guids.Contains(guid))
             {
-                await dBConnectionHistory.AddCount(LastResetDate.ToString("yyyyMMdd"));
+                await dBConnectionHistory.AddCount(mLastResetDate.ToString("yyyyMMdd"));
             }
             guids.Add(guid);
 

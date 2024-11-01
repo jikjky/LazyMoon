@@ -2,9 +2,11 @@
 
 @inject NavigationManager NavigationManager
 
-<MudContainer>
+<MudContainer Style="min-height: 800px;">
     <h3>Loa</h3>
     <MudButton Variant="Variant.Filled" Color="Color.Surface" OnClick="PartyClick">본1부3 자동 구성</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Surface" OnClick="SimulatorClick">팔찌시뮬레이터</MudButton>
+
 </MudContainer>
 
 @code {
@@ -13,5 +15,10 @@
     void PartyClick()
     {
         NavigationManager.NavigateTo($"Loa/Party");
+    }
+
+    void SimulatorClick()
+    {
+        NavigationManager.NavigateTo($"Loa/Bracelets");
     }
 }
