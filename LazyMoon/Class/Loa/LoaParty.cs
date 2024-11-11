@@ -13,7 +13,6 @@ namespace LazyMoon.Class.Loa
         Dealer,
         Supporter
     }
-
     public enum EPartyCombinations
     {
         DDDD = 0,
@@ -25,6 +24,7 @@ namespace LazyMoon.Class.Loa
         SDSS = 12,
         SSSS = 13,
     }
+
 
     public class Player
     {

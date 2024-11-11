@@ -4,21 +4,10 @@
 
 <MudContainer Style="min-height: 800px;">
     <h3>Loa</h3>
-    <MudButton Variant="Variant.Filled" Color="Color.Surface" OnClick="PartyClick">본1부3 자동 구성</MudButton>
-    <MudButton Variant="Variant.Filled" Color="Color.Surface" OnClick="SimulatorClick">팔찌시뮬레이터</MudButton>
-
+    <a href="Loa/Party">
+        <MudButton Variant="Variant.Filled" Color="Color.Surface">본1부3 자동 구성</MudButton>
+    </a>
+    <a href="Loa/Bracelets">
+        <MudButton Variant="Variant.Filled" Color="Color.Surface">팔찌시뮬레이터</MudButton>
+    </a>
 </MudContainer>
-
-@code {
-    public string TextValue { get; set; }
-
-    void PartyClick()
-    {
-        NavigationManager.NavigateTo($"Loa/Party");
-    }
-
-    void SimulatorClick()
-    {
-        NavigationManager.NavigateTo($"Loa/Bracelets");
-    }
-}

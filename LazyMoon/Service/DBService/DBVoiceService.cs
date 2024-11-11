@@ -13,11 +13,11 @@ namespace LazyMoon.Service.DBService
 {
     public class DBVoiceService(IDbContextFactory<AppDbContext> contextFactory)
     {
-        readonly protected IDbContextFactory<AppDbContext> _contextFactory = contextFactory;
+        readonly protected IDbContextFactory<AppDbContext> contextFactory = contextFactory;
 
         public async Task<Voice?> GetVoiceOrNullAsync(string chanel, string name)
         {
-            var context = await _contextFactory.CreateDbContextAsync();
+            var context = await contextFactory.CreateDbContextAsync();
             var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null || user.TTS == null)
                 return null;
@@ -31,7 +31,7 @@ namespace LazyMoon.Service.DBService
         {
             if (tts == null)
                 return null;
-            var context = await _contextFactory.CreateDbContextAsync();
+            var context = await contextFactory.CreateDbContextAsync();
 
             Voice? voice = null;
             if (tts.Voices != null)
@@ -61,7 +61,7 @@ namespace LazyMoon.Service.DBService
 
         public async Task<Voice?> SetVoiceModeOrNullAsync(string chanel, string name, EVoice eVoice)
         {
-            var context = await _contextFactory.CreateDbContextAsync();
+            var context = await contextFactory.CreateDbContextAsync();
             var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null || user.TTS == null)
                 return null;
@@ -75,7 +75,7 @@ namespace LazyMoon.Service.DBService
 
         public async Task<Voice?> SetVoicePitchOrNullAsync(string chanel, string name, double pitch)
         {
-            var context = await _contextFactory.CreateDbContextAsync();
+            var context = await contextFactory.CreateDbContextAsync();
             var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null || user.TTS == null)
                 return null;
@@ -89,7 +89,7 @@ namespace LazyMoon.Service.DBService
 
         public async Task<Voice?> SetVoiceEnableOrNullAsync(string chanel, string name, bool enable)
         {
-            var context = await _contextFactory.CreateDbContextAsync();
+            var context = await contextFactory.CreateDbContextAsync();
             var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null || user.TTS == null)
                 return null;

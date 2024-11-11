@@ -1,0 +1,103 @@
+﻿@page "/loa/Bracelets"
+@using MudBlazor
+@rendermode InteractiveWebAssembly
+
+<MudPopoverProvider />
+
+<MudLayout Style="min-height: 800px">
+    <MudContainer>
+        <AdFitWASM AdUnitID="DAN-kC9eEgkpfEsMFUug" />
+        <!-- 고대 유물 -->
+        <MudStack Row="true">
+            <MudButton OnClick="()=>{ItemTypeClick(true);}" Variant="Variant.Filled" Color="Color.Surface">유물</MudButton>
+            <MudButton OnClick="()=>{ItemTypeClick(false);}" Variant="Variant.Filled" Color="Color.Surface">고대</MudButton>
+            <MudButton OnClick="()=>{ItemTypeClick(false);}" Variant="Variant.Filled" Color="Color.Surface">시뮬레이션</MudButton>
+        </MudStack>
+        <!-- 고정, 부여효과 숫자 -->
+        <MudStack Row="true">
+            <div>
+                <InputRadioGroup @bind-Value="@FixedEffect">
+                    고정효과:
+                    <br>
+                    @foreach (var item in fixedEffectList)
+                    {
+                        <InputRadio Value="item" />
+                        @item
+                        <br>
+                    }
+                </InputRadioGroup>
+            </div>
+            <div>
+                <InputRadioGroup @bind-Value="@GrantEffect">
+                    부여효과:
+                    <br>
+                    @foreach (var item in grantEffectList)
+                    {
+                        <InputRadio Value="item" />
+                        @item
+                        <br>
+                    }
+                </InputRadioGroup>
+            </div>
+        </MudStack>
+        <!---->
+        <MudSelect Class="mt-3" @bind-Value="FixedStringValue1" Label="고정효과" Placeholder="고정효과를 선택해주세요" AdornmentIcon="@Icons.Material.Filled.KeyboardArrowDown" AdornmentColor="Color.Primary">
+            @foreach (var item in selectStringEffectList)
+            {
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+            }
+        </MudSelect>
+
+        @if (IsFixedStringCount2)
+        {
+            <MudSelect Class="mt-3" @bind-Value="FixedStringValue2" Label="고정효과" Placeholder="고정효과를 선택해주세요" AdornmentIcon="@Icons.Material.Filled.KeyboardArrowDown" AdornmentColor="Color.Primary">
+                @foreach (var item in selectStringEffectList)
+                {
+                    <MudSelectItem Value="@item">@item</MudSelectItem>
+                }
+            </MudSelect>
+        }
+        @for (int i = 0; i < FixedCount; i++)
+        {
+            int index = i;
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                @if (index == 0)
+                {
+                    <MudText>@BottomFixedStringValue1</MudText>
+                }
+                else
+                {
+                    <MudText>@BottomFixedStringValue2</MudText>
+                }
+            </MudStack>
+        }
+
+        @foreach (var item in pageEffectItems)
+        {
+            <MudStack Row="true" AlignItems="AlignItems.Center">
+                <MudText style="@(string.IsNullOrEmpty(item.Grade) ? "" : $"color : {item.Grade};")">@item.Text</MudText>
+                @if (IsUpgrading)
+                {
+                    <MudIconButton Icon="@(item.Lock?Icons.Material.Filled.Lock:Icons.Material.Filled.LockOpen)" Size="Size.Small" aria-label="delete" />
+                }
+                else
+                {
+                    <MudIconButton OnClick="@(()=>{ if (item.Text != "부여효과")item.Lock = !item.Lock;})" Icon="@(item.Lock?Icons.Material.Filled.Lock:Icons.Material.Filled.LockOpen)" Size="Size.Small" aria-label="delete" />
+                }
+            </MudStack>
+        }
+        <MudStack Row="true" AlignItems="AlignItems.Center">
+            <MudButton Disabled="@(!((FixedCount == 2 ?(!string.IsNullOrEmpty(FixedStringValue1) && !string.IsNullOrEmpty(FixedStringValue2)):(!string.IsNullOrEmpty(FixedStringValue1))) && (FixedCount == 2 ? FixedStringValue1 != FixedStringValue2 : true))|| ConvertCount == MaxConvertCount)" OnClick="()=>{ConvertClick(false);}" Variant="Variant.Filled" Color="Color.Surface">재변환</MudButton>
+            <MudButton Disabled="@(!((FixedCount == 2 ?(!string.IsNullOrEmpty(FixedStringValue1) && !string.IsNullOrEmpty(FixedStringValue2)):(!string.IsNullOrEmpty(FixedStringValue1))) && (FixedCount == 2 ? FixedStringValue1 != FixedStringValue2 : true))|| !(ConvertCount == MaxConvertCount) || SpecialConvertCount == MaxSpecialConvertCount)" OnClick="()=>{ConvertClick(true);}" Variant="Variant.Filled" Color="Color.Surface">재변환권 사용</MudButton>
+            <MudButton OnClick="InitializeClick" Variant="Variant.Filled" Color="Color.Surface">초기화</MudButton>
+            @if (CanUpgrade == true)
+            {
+                <MudButton Disabled="@(!((FixedCount == 2 ?(!string.IsNullOrEmpty(FixedStringValue1) && !string.IsNullOrEmpty(FixedStringValue2)):(!string.IsNullOrEmpty(FixedStringValue1))) && (FixedCount == 2 ? FixedStringValue1 != FixedStringValue2 : true)))" OnClick="Upgrade" Variant="Variant.Filled" Color="Color.Surface">승급</MudButton>
+            }
+            <MudText>남은 재변환 @(MaxConvertCount - ConvertCount)회 재변한권@(MaxSpecialConvertCount - SpecialConvertCount)개</MudText>
+        </MudStack>
+        @* <div class="mt-10" />
+        <MudTextField @bind-Value="FixedStringValue1" Label="Count" Variant="Variant.Text"></MudTextField>
+        <MudButton OnClick="Test" Variant="Variant.Filled" Color="Color.Surface">테스트</MudButton> *@
+    </MudContainer>
+</MudLayout>

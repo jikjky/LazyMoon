@@ -10,11 +10,11 @@ namespace LazyMoon.Service.DBService
 {
     public class DBValorantRankService(AppDbContext context)
     {
-        readonly protected AppDbContext _context = context;
+        readonly protected AppDbContext context = context;
 
         public async Task<ValorantRank?> GetValorantRankOrNullAsync(string name)
         {
-            var user = await _context.Users.Include(x => x.ValorantRank).FirstOrDefaultAsync(x => x.Name == name);
+            var user = await context.Users.Include(x => x.ValorantRank).FirstOrDefaultAsync(x => x.Name == name);
             if (user == null)
                 return null;
             if (user.ValorantRank == null)
@@ -24,7 +24,7 @@ namespace LazyMoon.Service.DBService
 
         public async Task<ValorantRank?> SetValorantRankOrNullAsync(string name, string nickName, string tag)
         {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Name == name);
+            var user = await context.Users.FirstOrDefaultAsync(x => x.Name == name);
 
             if (user == null)
                 return null;
@@ -36,7 +36,7 @@ namespace LazyMoon.Service.DBService
             valorantRank.NickName = nickName;
             valorantRank.Tag = tag;
 
-            _context.SaveChanges();
+            context.SaveChanges();
 
             return valorantRank;
         }
@@ -44,7 +44,7 @@ namespace LazyMoon.Service.DBService
         private ValorantRank SetDefaultRank(User user)
         {
             user.ValorantRank = new ValorantRank() { NickName = string.Empty, Tag = string.Empty };
-            _context.SaveChanges();
+            context.SaveChanges();
             return user.ValorantRank;
         }
     }

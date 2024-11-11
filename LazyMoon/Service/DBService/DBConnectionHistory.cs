@@ -13,12 +13,12 @@ namespace LazyMoon.Service.DBService
 {
     public class DBConnectionHistory(IDbContextFactory<AppDbContext> contextFactory)
     {
-        readonly protected IDbContextFactory<AppDbContext> _contextFactory = contextFactory;
+        readonly protected IDbContextFactory<AppDbContext> contextFactory = contextFactory;
 
-        public async Task AddCount(string Date)
+        public async Task AddCount(string date)
         {
-            var dbContext = await _contextFactory.CreateDbContextAsync();
-            var dataHistory = dbContext.ConnectionHistorys.Where(x => x.Date == Date);
+            var dbContext = await contextFactory.CreateDbContextAsync();
+            var dataHistory = dbContext.ConnectionHistorys.Where(x => x.Date == date);
             if (dataHistory.Any())
             {
                 var history = dataHistory.First();
@@ -29,15 +29,15 @@ namespace LazyMoon.Service.DBService
             }
             else
             {
-                dbContext.ConnectionHistorys.Add(new ConnectionHistory() { Date = Date, Count = 1 });
+                dbContext.ConnectionHistorys.Add(new ConnectionHistory() { Date = date, Count = 1 });
             }
             await dbContext.SaveChangesAsync();
         }
 
-        public async Task<int> GetCount(string Date)
+        public async Task<int> GetCount(string date)
         {
-            var dbContext = await _contextFactory.CreateDbContextAsync();
-            var dataHistory = dbContext.ConnectionHistorys.Where(x => x.Date == Date);
+            var dbContext = await contextFactory.CreateDbContextAsync();
+            var dataHistory = dbContext.ConnectionHistorys.Where(x => x.Date == date);
             if (dataHistory.Any())
             {
                 var history = dataHistory.First();

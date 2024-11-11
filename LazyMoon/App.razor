@@ -1,17 +1,54 @@
-<MudThemeProvider/>
-<MudDialogProvider/>
-<MudSnackbarProvider/>
-<MudPopoverProvider/>
+<!DOCTYPE html>
+<html lang="en">
 
-<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(Program).Assembly">
-        <Found Context="routeData">
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        </Found>
-        <NotFound>
-            <LayoutView Layout="@typeof(MainLayout)">
-                <p>Sorry, there's nothing at this address.</p>
-            </LayoutView>
-        </NotFound>
-    </Router>
-</CascadingAuthenticationState>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LazyMoon</title>
+    <base href="/" />
+
+    <!--Font-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sunflower:wght@500&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon2.ico">
+
+    <link href="css/site.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="js/bootstrap.js"></script>
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+
+    <link href="css/paint.css" rel="stylesheet" />
+    <script src="js/paint.js"></script>
+
+
+    <link href="css/animation.css" rel="stylesheet" />
+    <link href="css/portfolio.css" rel="stylesheet" />
+    <link href="css/slide.css" rel="stylesheet" />
+
+    <!-- AdFit -->
+    <script src="https://developers.kakao.com/sdk/js/kakao.js"></script>
+    <script type="text /javascript" src="//t1.daumcdn.net/kas/static/ba.min.js" async></script>
+
+    <script src="js/script.js"></script>
+
+    <script src="js/matterInterop.js"></script>
+</head>
+
+<body>
+    <MudThemeProvider />
+    <MudDialogProvider />
+    <MudSnackbarProvider />
+
+    <Routes />
+    <script src="_framework/blazor.web.js"></script>
+</body>
+
+</html>
+

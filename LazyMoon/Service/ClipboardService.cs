@@ -2,14 +2,9 @@
 using Microsoft.JSInterop;
 namespace LazyMoon.Service
 {
-    public sealed class ClipboardService
+    public sealed class ClipboardService(IJSRuntime jsRuntime)
     {
-        private readonly IJSRuntime mJsRuntime;
-
-        public ClipboardService(IJSRuntime jsRuntime)
-        {
-            this.mJsRuntime = jsRuntime;
-        }
+        private readonly IJSRuntime mJsRuntime = jsRuntime;
 
         public ValueTask<string> ReadTextAsync()
         {
