@@ -53,7 +53,6 @@
                 await localStorage.SetItemAsStringAsync("GUID", guid);
             }
             ServerCounterService.Add(guid);
-            await ServerCounterService.GetCounterValue();
             await this.InvokeAsync(() => { StateHasChanged(); });
         }
         base.OnAfterRender(firstRender);

@@ -1,13 +1,24 @@
 ﻿@page "/loa"
 
 @inject NavigationManager NavigationManager
+@rendermode InteractiveServer
 
 <MudContainer Style="min-height: 800px;">
     <h3>Loa</h3>
-    <a href="Loa/Party">
-        <MudButton Variant="Variant.Filled" Color="Color.Surface">본1부3 자동 구성</MudButton>
-    </a>
-    <a href="Loa/Bracelets">
-        <MudButton Variant="Variant.Filled" Color="Color.Surface">팔찌시뮬레이터</MudButton>
-    </a>
+    <MudStack Row="true">
+        <MudItem>
+            <Animation AnimationType="Component.Animation.EAnimations.FadeIn">
+                <a href="Loa/Party">
+                    <MudButton Variant="Variant.Filled" Color="Color.Surface">본1부3 자동 구성</MudButton>
+                </a>
+            </Animation>
+        </MudItem>
+        <MudItem>
+            <Animation Delay="500" AnimationType="Component.Animation.EAnimations.FadeIn">
+                <a href="Loa/Bracelets">
+                    <MudButton Variant="Variant.Filled" Color="Color.Surface">팔찌시뮬레이터</MudButton>
+                </a>
+            </Animation>
+        </MudItem>        
+    </MudStack>
 </MudContainer>

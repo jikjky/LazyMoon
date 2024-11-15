@@ -41,6 +41,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Component\Animation.razor.css" />
     <None Remove="Service\TTSService" />
   </ItemGroup>
 
@@ -71,12 +72,6 @@
     <Content Update="wwwroot\google.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Update="wwwroot\Image\profile.png">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
-    <Content Update="wwwroot\Image\Slime\jump.gif">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Update="wwwroot\js\bootstrap.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -84,7 +79,6 @@
 
   <ItemGroup>
     <Folder Include="Class\Component\" />
-    <Folder Include="wwwroot\Image\Slime\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -108,6 +102,13 @@
 
   <ItemGroup>
     <_ContentIncludedByDefault Remove="Pages\LostArk\LoaIndex.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Component\Animation.razor.css">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>

@@ -9,15 +9,9 @@
 </div>
 
 <script>    
-    var mudContent = document.querySelector('.mud-toolbar');
-
-
     // 주기적으로 크기 체크하는 타이머 설정
     setInterval(() => {
-        // 타겟 요소 가져오기
-        mudContent = document.querySelector('.mud-toolbar');
-        const currentWidth = mudContent.clientWidth;        
         var lzContent = document.querySelector('.lz-main-content');
-        lzContent.style.width = currentWidth + 'px';
-    }, 10); // 50ms 간격으로 확인
+        lzContent.style.width = document.querySelector('.mud-toolbar').clientWidth + 'px';
+    }, 30); // 30ms 간격으로 확인
 </script>

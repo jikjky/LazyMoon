@@ -9,7 +9,7 @@ namespace LazyMoon.Service
     {
         readonly HashSet<string> guids = [];
         public int CounterValue { get; set; }
-        private DateTime mLastResetDate = GetKoreaTime().Date;
+        private DateTime mLastResetDate = GetKoreaTimeNow().Date;
 
         readonly DBConnectionHistory dBConnectionHistory = dBConnectionHistory;
 
@@ -20,7 +20,7 @@ namespace LazyMoon.Service
 
         public async void Add(string guid)
         {
-            DateTime koreaTime = GetKoreaTime();
+            DateTime koreaTime = GetKoreaTimeNow();
 
             // 날짜가 바뀌면 카운터 초기화
             if (koreaTime.Date != mLastResetDate)
@@ -37,7 +37,7 @@ namespace LazyMoon.Service
             await GetCounterValue();
         }
 
-        private static DateTime GetKoreaTime()
+        private static DateTime GetKoreaTimeNow()
         {
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById("Korea Standard Time"));
         }
