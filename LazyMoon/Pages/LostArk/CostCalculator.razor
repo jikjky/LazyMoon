@@ -1,0 +1,190 @@
+﻿@page "/loa/costcaculator"
+@rendermode InteractiveServer
+
+<MudLayout>
+    <MudContainer>
+        <MudText Class="mb-5" Typo="Typo.h6">가격</MudText>
+        <MudStack AlignItems="AlignItems.Center" Row="true">
+            <MudTextField @bind-Value="prices100[0]" Label="일반" Variant="Variant.Text"></MudTextField>
+            <MudTextField @bind-Value="prices100[1]" Label="고급" Variant="Variant.Text"></MudTextField>
+            <MudTextField @bind-Value="prices100[2]" Label="3T희귀" Variant="Variant.Text"></MudTextField>
+            <MudTextField @bind-Value="prices100[3]" Label="4T희귀" Variant="Variant.Text"></MudTextField>
+        </MudStack>
+        <MudText Class="mb-5" Typo="Typo.h6">현재개수</MudText>
+        <MudStack Class="mb-5" AlignItems="AlignItems.Center" Row="true">
+            <MudTextField @bind-Value="currents[0]" Label="일반" Variant="Variant.Text"></MudTextField>
+            <MudTextField @bind-Value="currents[1]" Label="고급" Variant="Variant.Text"></MudTextField>
+            <MudTextField @bind-Value="currents[2]" Label="3T희귀" Variant="Variant.Text"></MudTextField>
+            <MudTextField @bind-Value="currents[3]" Label="4T희귀" Variant="Variant.Text"></MudTextField>
+        </MudStack>
+        <MudStack AlignItems="AlignItems.Center" Row="true">
+            <MudTextField @bind-Value="productionQuantity" Label="제작개수" Variant="Variant.Text"></MudTextField>
+        </MudStack>
+        <MudButton OnClick="Process" Variant="Variant.Filled" Color="Color.Secondary">계산</MudButton>
+        @foreach (var item in strings)
+        {
+            <MudStack Class="mb-5" AlignItems="AlignItems.Center">
+                <MudText Class="mb-5" Typo="Typo.caption">@item</MudText>
+            </MudStack>
+        }
+    </MudContainer>
+</MudLayout>
+
+
+@code {
+    public List<string> strings = new List<string>();
+
+    public class Exchange
+    {
+        public int Source { get; set; }
+        public int Destination { get; set; }
+        public double Rate { get; set; }
+    }
+
+    private static string GetResourceName(int resourceIndex)
+    {
+        return resourceIndex switch
+        {
+            0 => "일반",
+            1 => "고급",
+            2 => "3T희귀",
+            3 => "4T희귀",
+            _ => "알 수 없음"
+        };
+    }
+
+    public static (Exchange?, double) CalculateMinValue(int Destination, List<Exchange> exchanges, double[] prices)
+    {
+        Exchange? exchange = null;
+        double minPrice = prices[Destination];
+        foreach (var item in exchanges.Where(x => x.Destination == Destination))
+        {
+            var a = prices[item.Source] / item.Rate;
+            if (a < minPrice)
+            {
+                exchange = item;
+                minPrice = a;
+            }
+        }
+
+        return (exchange, minPrice);
+    }
+
+    double[] currents = { 0, 0, 0, 0 };
+    double[] prices100 = { 0, 0, 0, 0 };
+    double[] ratios = { 86, 45, 0, 33 };
+    int productionQuantity = 40;
+
+    void Process()
+    {
+        double[] target = { ratios[0] * productionQuantity, ratios[1] * productionQuantity, ratios[2] * productionQuantity, ratios[3] * productionQuantity };
+        double[] prices =
+        {
+            prices100[0] != 0 ? prices100[0] : 999 / 100,
+            prices100[1] != 0 ? prices100[1] : 999 / 100,
+            prices100[2] != 0 ? prices100[2] : 999 / 100,
+            prices100[3] != 0 ? prices100[3] : 999 / 100
+    };
+
+        var exchangeRates = new List<Exchange>
+        {
+            new Exchange { Source = 0, Destination = 1, Rate = 0.4},
+            new Exchange { Source = 0, Destination = 3, Rate = 0.08},
+            new Exchange { Source = 1, Destination = 0, Rate = 0.8},
+            new Exchange { Source = 1, Destination = 3, Rate = 0.16},
+            new Exchange { Source = 2, Destination = 0, Rate = 10 },
+            new Exchange { Source = 2, Destination = 1, Rate = 4 },//
+            new Exchange { Source = 2, Destination = 3, Rate = 0.8 }//
+        };
+
+        var log = new List<string>();
+        var purchaseLog = new Dictionary<string, double>();
+        var exchangeLog = new Dictionary<string, double>();
+
+        for (int i = 0; i < target.Length; i++)
+        {
+            while (currents[i] < target[i])
+            {
+                var (exchange, minPrice) = CalculateMinValue(i, exchangeRates, prices);
+                if (exchange == null)
+                {
+                    log.Add($"{GetResourceName(i)} 자원을 구입합니다. 비용: {minPrice}");
+                    currents[i] += 1;
+                    if (purchaseLog.ContainsKey(GetResourceName(i)))
+                    {
+                        purchaseLog[GetResourceName(i)] += 1;
+                    }
+                    else
+                    {
+                        purchaseLog[GetResourceName(i)] = 1;
+                    }
+                }
+                else
+                {
+                    log.Add($"{GetResourceName(exchange.Source)} 자원을 {GetResourceName(exchange.Destination)} 자원으로 교환합니다. 비율: {exchange.Rate}");
+                    currents[exchange.Source] -= 1;
+                    currents[exchange.Destination] += (1 * exchange.Rate);
+                    string exchangeKey = $"{GetResourceName(exchange.Source)} -> {GetResourceName(exchange.Destination)}";
+                    if (exchangeLog.ContainsKey(exchangeKey))
+                    {
+                        exchangeLog[exchangeKey] += 1;
+                    }
+                    else
+                    {
+                        exchangeLog[exchangeKey] = 1;
+                    }
+
+                    for (int j = 0; j < currents.Length; j++)
+                    {
+                        if (exchange.Source == j && currents[exchange.Source] < 0)
+                        {
+                            double purchaseAmount = -currents[exchange.Source];
+                            log.Add($"{GetResourceName(j)} 자원을 추가로 구입합니다. 비용: {prices[j] * purchaseAmount}");
+                            currents[j] += purchaseAmount;
+                            if (purchaseLog.ContainsKey(GetResourceName(j)))
+                            {
+                                purchaseLog[GetResourceName(j)] += purchaseAmount;
+                            }
+                            else
+                            {
+                                purchaseLog[GetResourceName(j)] = purchaseAmount;
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        for (int i = 0; i < currents.Length; i++)
+        {
+            if (currents[i] < target[i])
+            {
+                int purchaseAmount = (int)(target[i] - currents[i]);
+                log.Add($"{GetResourceName(i)} 자원을 추가로 구입합니다. 비용: {prices[i] * purchaseAmount}");
+                currents[i] += purchaseAmount;
+                if (purchaseLog.ContainsKey(GetResourceName(i)))
+                {
+                    purchaseLog[GetResourceName(i)] += purchaseAmount;
+                }
+                else
+                {
+                    purchaseLog[GetResourceName(i)] = purchaseAmount;
+                }
+            }
+        }
+
+        strings.Clear();
+
+        strings.Add("\n구매 내역:");
+        foreach (var entry in purchaseLog)
+        {
+            strings.Add($"{entry.Key}: {entry.Value}개");
+        }
+
+        strings.Add("\n교환 내역:");
+        foreach (var entry in exchangeLog)
+        {
+            strings.Add($"{entry.Key}: {entry.Value}번");
+        }
+    }
+}

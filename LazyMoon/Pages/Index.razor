@@ -5,45 +5,57 @@
 @using System.Security.Cryptography
 <body>
     <MudContainer>
-        <div class="d-flex align-items-center section-aquamarine py-5 cover" style="background-image: url(&quot;Image/darksky.jpg&quot;);">
+        <div class="d-flex align-items-center section-aquamarine py-5 cover" style="background-image: url(&quot;Image/darksky.jpg&quot;); min-height: 100vh; background-size: cover; background-position: center;">
             <div class="container mt-5">
-                <div class="jumbotron">
-                    <div>
-                        <h1 class="text-center"><b>LazyMoon</b></h1>
-                        <p class="text-center">Hello My WebPage</p>
+                <div class="jumbotron text-white">
+                    <div class="animate__animated animate__fadeIn">
+                        <h1 class="text-center display-2 fw-bold">LazyMoon</h1>
+                        <p class="text-center lead fs-3">Welcome to My Creative Space</p>
+                        <hr class="my-4 bg-white">
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="py-5 bg-light" id="Infomation">
-            <div class="container-fluid">
+        <div class="py-5 bg-light" id="Information">
+            <div class="container">
                 <div class="jumbotron">
-                    <div>
-                        <h3 class="text-center mt-5"><b>Portfolio</b></h3>
+                    <div class="animate__animated animate__fadeInUp">
+                        <h2 class="text-center mt-5 fw-bold text-primary">Portfolio</h2>
+                        <div class="border-bottom border-primary mx-auto" style="width: 100px;"></div>
                     </div>
                 </div>
             </div>
-            <div class="container-fluid">
+            <div class="container">
                 <div class="jumbotron">
-                    <div>
-                        <h3 class="text-center mt-5"><b>Create By</b></h3>
-                        <img src="Image/dsBuffer.png" alt="" class="rounded-circle mx-auto d-block" style="max-width : 20%;">
-                        <h3 class="text-center"><b>Jung Gwang Young</b></h3>
-                        <p class="text-center">Developer</p>
+                    <div class="animate__animated animate__fadeInUp">
+                        <h2 class="text-center mt-5 fw-bold text-primary">Create By</h2>
+                        <div class="profile-section mt-4">
+                            <img src="Image/dsBuffer.png" alt="Profile" class="rounded-circle mx-auto d-block shadow-lg" style="max-width: 200px; border: 5px solid #fff;">
+                            <h3 class="text-center mt-4 fw-bold">Jung Gwang Young</h3>
+                            <p class="text-center text-muted">Full Stack Developer</p>
+                        </div>
                     </div>
                 </div>
-                <div class="row">
+                <div class="row mt-5 g-4">
                     <div class="col-md-6">
-                        <a href="https://www.youtube.com/channel/UCjeyFRwDpdyev_HmiABTvGg">
-                            <img src="Image/YouTube.png" alt="" height="50" class="my-2 mx-auto d-block">
-                            <h3 class="text-center">Youtube</h3>
+                        <a href="https://www.youtube.com/channel/UCjeyFRwDpdyev_HmiABTvGg" class="text-decoration-none">
+                            <div class="card h-100 shadow-sm hover-lift transition-all">
+                                <div class="card-body text-center">
+                                    <img src="Image/YouTube.png" alt="YouTube" height="60" class="my-3">
+                                    <h3 class="card-title text-danger">YouTube</h3>
+                                </div>
+                            </div>
                         </a>
                     </div>
                     <div class="col-md-6">
-                        <a href="https://github.com/jikjky">
-                            <img src="Image/Github.png" alt="" height="50" class="my-2 mx-auto d-block">
-                            <h3 class="text-center">Github</h3>
+                        <a href="https://github.com/jikjky" class="text-decoration-none">
+                            <div class="card h-100 shadow-sm hover-lift transition-all">
+                                <div class="card-body text-center">
+                                    <img src="Image/Github.png" alt="GitHub" height="60" class="my-3">
+                                    <h3 class="card-title text-dark">GitHub</h3>
+                                </div>
+                            </div>
                         </a>
                     </div>
                 </div>

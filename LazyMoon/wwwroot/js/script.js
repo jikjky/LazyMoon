@@ -4,6 +4,7 @@
     downloadLink.href = linkSource;
     downloadLink.download = fileName;
     downloadLink.click();
+    downloadLink.remove();
 }
 window.loadKakaoAdScript = function () {
     const script = document.createElement("script");
