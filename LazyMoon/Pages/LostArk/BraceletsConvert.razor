@@ -1,12 +1,9 @@
 ﻿@page "/loa/Bracelets"
 @using MudBlazor
-@rendermode InteractiveWebAssembly
-
-<MudPopoverProvider />
 
 <MudLayout Style="min-height: 800px">
     <MudContainer>
-        <AdFitWASM AdUnitID="DAN-kC9eEgkpfEsMFUug" />
+        <AdFit AdUnitID="DAN-kC9eEgkpfEsMFUug" />
         <!-- 고대 유물 -->
         <MudStack Row="true">
             <MudButton OnClick="()=>{ItemTypeClick(true);}" Variant="Variant.Filled" Color="Color.Surface">유물</MudButton>

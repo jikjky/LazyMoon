@@ -1,13 +1,13 @@
-﻿using LazyMoon.Client.Class.Loa;
-using static LazyMoon.Client.Class.Loa.LoaBracelets;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
 using System.Diagnostics;
 using System.Text;
 using System.Linq;
+using static LazyMoon.Class.Loa.LoaBracelets;
+using LazyMoon.Class.Loa;
 
-namespace LazyMoon.Client.Pages
+namespace LazyMoon.Pages.LostArk
 {
     public partial class BraceletsConvert
     {
@@ -29,7 +29,7 @@ namespace LazyMoon.Client.Pages
 
         }
 
-        List<String> fixedEffectList = ["2개", "1개"];
+        List<string> fixedEffectList = ["2개", "1개"];
 
         private string FixedEffect
         {
@@ -42,7 +42,7 @@ namespace LazyMoon.Client.Pages
         }
         private string fixedEffect = "2개";
 
-        List<String> grantEffectList = ["3개", "2개"];
+        List<string> grantEffectList = ["3개", "2개"];
         private string GrantEffect
         {
             get => grantEffect;
@@ -54,7 +54,7 @@ namespace LazyMoon.Client.Pages
         }
         private string grantEffect = "3개";
 
-        readonly List<String> selectStringEffectList = [];
+        readonly List<string> selectStringEffectList = [];
         readonly List<EffectType> selectEffectList = [];
 
         List<PageEffectItem> pageEffectItems = [
@@ -346,7 +346,7 @@ namespace LazyMoon.Client.Pages
                         {
                             if (index == 0)
                             {
-                                temp = bracelets.SetItem(LoaBracelets.EBraceletsEffectType.기본효과, (IsArtifact && IsUpgrading == false));
+                                temp = bracelets.SetItem(LoaBracelets.EBraceletsEffectType.기본효과, IsArtifact && IsUpgrading == false);
                                 break;
                             }
                             else if (index == 1)

@@ -14,16 +14,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MudBlazor.Services;
-using LazyMoon.Client;
 using System.Configuration;
 using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
-                .AddInteractiveServerComponents()
-                .AddInteractiveWebAssemblyComponents();
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
 #region DataBase   
 builder.Services.AddDbContextFactory<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DBConnection")));
@@ -62,14 +60,10 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 
 app.UseRouting();
 
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
-
-app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode()
-    .AddInteractiveWebAssemblyRenderMode()
-    .AddAdditionalAssemblies(typeof(LazyMoon.Client._Imports).Assembly);
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
 
 app.Run();

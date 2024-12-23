@@ -1,19 +1,13 @@
 ﻿@inherits LayoutComponentBase
 @inject IJSRuntime JSRuntime
 
-
+<MudThemeProvider />
+<MudPopoverProvider />
 <AppBarComponent />
 <div class="lz-main-content">
-
     @Body
 </div>
 
-<script>    
-    // 주기적으로 크기 체크하는 타이머 설정
-    setInterval(() => {
-        var lzContent = document.querySelector('.lz-main-content');
-        if(lzContent) {
-            lzContent.style.width = document.querySelector('.mud-toolbar').clientWidth + 'px';
-        }
-    }, 30); // 30ms 간격으로 확인
+<script>
+    
 </script>

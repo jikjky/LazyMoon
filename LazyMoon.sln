@@ -5,8 +5,6 @@ VisualStudioVersion = 17.3.32819.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyMoon", "LazyMoon\LazyMoon.csproj", "{A36C9E8F-D5DE-48F6-AEF6-125CD95FB4AB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LazyMoon.Client", "LazyMoon.Client\LazyMoon.Client.csproj", "{C503760B-8BDA-4B97-ADFB-5A4D9E54BCF2}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,12 +18,6 @@ Global
 		{A36C9E8F-D5DE-48F6-AEF6-125CD95FB4AB}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A36C9E8F-D5DE-48F6-AEF6-125CD95FB4AB}.Remote|Any CPU.ActiveCfg = Remote|Any CPU
 		{A36C9E8F-D5DE-48F6-AEF6-125CD95FB4AB}.Remote|Any CPU.Build.0 = Remote|Any CPU
-		{C503760B-8BDA-4B97-ADFB-5A4D9E54BCF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C503760B-8BDA-4B97-ADFB-5A4D9E54BCF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C503760B-8BDA-4B97-ADFB-5A4D9E54BCF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C503760B-8BDA-4B97-ADFB-5A4D9E54BCF2}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C503760B-8BDA-4B97-ADFB-5A4D9E54BCF2}.Remote|Any CPU.ActiveCfg = Release|Any CPU
-		{C503760B-8BDA-4B97-ADFB-5A4D9E54BCF2}.Remote|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

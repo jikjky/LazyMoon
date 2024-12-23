@@ -65,9 +65,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="wwwroot\Ads.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Update="wwwroot\favicon2.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -116,9 +113,5 @@
   <ItemGroup>
     <None Include="Component\Animation.razor" />
     <None Include="Component\StikerComponent.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\LazyMoon.Client\LazyMoon.Client.csproj" />
   </ItemGroup>
 </Project>

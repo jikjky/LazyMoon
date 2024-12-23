@@ -1,5 +1,4 @@
 ﻿@page "/loa/costcaculator"
-@rendermode InteractiveServer
 
 <MudLayout>
     <MudContainer>
@@ -57,7 +56,7 @@
             _ => "알 수 없음"
         };
     }
-
+    #nullable enable
     public static (Exchange?, double) CalculateMinValue(int Destination, List<Exchange> exchanges, double[] prices)
     {
         Exchange? exchange = null;
@@ -74,6 +73,7 @@
 
         return (exchange, minPrice);
     }
+    #nullable disable
 
     double[] currents = { 0, 0, 0, 0 };
     double[] prices100 = { 0, 0, 0, 0 };
