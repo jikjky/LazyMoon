@@ -5,11 +5,11 @@ namespace LazyMoon.Service
 {
     public class BlazorTimerService
     {
-        private Timer mTimer;
+        private System.Timers.Timer mTimer;
 
         public void SetTimer(double interval)
         {
-            mTimer = new Timer(interval);
+            mTimer = new System.Timers.Timer(interval);
             mTimer.Elapsed += NotifyTimerElapsed;
             mTimer.Enabled = true;
         }

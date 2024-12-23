@@ -1,117 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <UserSecretsId>8afe8f0f-c822-4314-9fd4-928ae8e006e2</UserSecretsId>
-    <AssemblyName>LazyMoon</AssemblyName>
-    <RootNamespace>LazyMoon</RootNamespace>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-	<DebugType>portable</DebugType>
-	<Configurations>Debug;Release;Remote</Configurations>
-	<ProduceReferenceAssembly>True</ProduceReferenceAssembly>
-	<NeutralLanguage>ko</NeutralLanguage>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Remote|AnyCPU'">
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Optimize>False</Optimize>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+	</PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="log\**" />
-    <Compile Remove="wwwroot\sound\**" />
-    <Content Remove="log\**" />
-    <Content Remove="wwwroot\sound\**" />
-    <EmbeddedResource Remove="log\**" />
-    <EmbeddedResource Remove="wwwroot\sound\**" />
-    <None Remove="log\**" />
-    <None Remove="wwwroot\sound\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Remove="Service\GoggleTtsService.cs" />
-    <Compile Remove="Service\TtsDBService.cs" />
-    <Compile Remove="Service\UserService.cs" />
-    <Compile Remove="Service\Voice.Service.cs" />
-    <Compile Remove="Service\VoiceService.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="Component\Animation.razor.css" />
-    <None Remove="Service\TTSService" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.13.1" />
-    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="8.0.10" />    
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.10" />    
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.6" />
+    <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />    
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
     <PackageReference Include="MudBlazor" Version="7.15.0" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.10" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
     <PackageReference Include="System.Text.Json" Version="9.0.0" />
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.1" />    
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="wwwroot\favicon2.ico">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="wwwroot\google.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Update="wwwroot\js\bootstrap.js">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Class\Component\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="Properties\Resources.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Update="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Pages\LostArk\LoaIndex.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Pages\LostArk\LoaIndex.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="Component\Animation.razor.css">
-      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Component\Animation.razor" />
-    <None Include="Component\StikerComponent.razor" />
   </ItemGroup>
 </Project>
