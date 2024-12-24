@@ -12,7 +12,7 @@
         <MudStack AlignItems="AlignItems.Center" Row="true">
             <MudButton OnClick="(e)=>{Raid8Click();}" Variant="Variant.Filled" Color="Color.Error">@(IsEnglish ? "8-player raid" : "8인 레이드")</MudButton>
             <MudButton OnClick="(e)=>{Raid16Click();}" Variant="Variant.Filled" Color="Color.Error">@(IsEnglish ? "16-player raid" : "16인 레이드")</MudButton>
-            <MudButton OnClick="(e)=>{ChangeLanguage();}" Variant="Variant.Filled" Color="Color.Error">@(IsEnglish ? "English" : "한국어")</MudButton>
+            <MudButton OnClick="(e)=>{ChangeLanguage();}" Variant="Variant.Filled" Color="Color.Error">@(IsEnglish ? "한국어" : "English")</MudButton>
             <MudText Typo="Typo.h4">@(Is8Raid ? (IsEnglish ? "8-player raid" : "8인 레이드") : (IsEnglish ? "16-player raid" : "16인 레이드"))</MudText>
             <MudSpacer />
             <MudText style="height:100%; text-align:center;">@($"{(ServerCounterService.CounterValue == 0 ? "" : ServerCounterService.CounterValue)}")</MudText>
