@@ -10,9 +10,10 @@
             </div>
         </div>
         <MudStack AlignItems="AlignItems.Center" Row="true">
-            <MudButton OnClick="(e)=>{Raid8Click();}" Variant="Variant.Filled" Color="Color.Error">8인 레이드</MudButton>
-            <MudButton OnClick="(e)=>{Raid16Click();}" Variant="Variant.Filled" Color="Color.Error">16인 레이드</MudButton>
-            <MudText Typo="Typo.h4">@(Is8Raid?"8인 레이드":"16인 레이드")</MudText>
+            <MudButton OnClick="(e)=>{Raid8Click();}" Variant="Variant.Filled" Color="Color.Error">@(IsEnglish ? "8-player raid" : "8인 레이드")</MudButton>
+            <MudButton OnClick="(e)=>{Raid16Click();}" Variant="Variant.Filled" Color="Color.Error">@(IsEnglish ? "16-player raid" : "16인 레이드")</MudButton>
+            <MudButton OnClick="(e)=>{ChangeLanguage();}" Variant="Variant.Filled" Color="Color.Error">@(IsEnglish ? "English" : "한국어")</MudButton>
+            <MudText Typo="Typo.h4">@(Is8Raid ? (IsEnglish ? "8-player raid" : "8인 레이드") : (IsEnglish ? "16-player raid" : "16인 레이드"))</MudText>
             <MudSpacer />
             <MudText style="height:100%; text-align:center;">@($"{(ServerCounterService.CounterValue == 0 ? "" : ServerCounterService.CounterValue)}")</MudText>
         </MudStack>
@@ -21,7 +22,7 @@
             <MudGrid>
                 @for (int i = 0; i < 4; i++)
                 {
-                    <LoaPartyComponent Order="i" IsRaid8="false"></LoaPartyComponent>
+                    <LoaPartyComponent Order="i" IsRaid8="false" IsEnglish="@IsEnglish"></LoaPartyComponent>
                 }
             </MudGrid>
         }
@@ -30,7 +31,7 @@
             <MudGrid>
                 @for (int i = 0; i < 2; i++)
                 {
-                    <LoaPartyComponent Order="i" IsRaid8="true"></LoaPartyComponent>
+                    <LoaPartyComponent Order="i" IsRaid8="true" IsEnglish="@IsEnglish"></LoaPartyComponent>
                 }
             </MudGrid>
         }
@@ -40,12 +41,13 @@
 
 @code {
     bool Is8Raid { get; set; } = false;
+    bool IsEnglish { get; set; } = false;
 
     protected async override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            string guid = await localStorage.GetItemAsStringAsync("GUID");
+            string guid = await localStorage.GetItemAsStringAsync("GUID") ?? string.Empty; ;
             if (string.IsNullOrEmpty(guid))
             {
                 guid = Guid.NewGuid().ToString();
@@ -61,7 +63,10 @@
     {
         if (dropItem.DropzoneIdentifier.ToLower() == "delete")
         {
-            _items.Remove(dropItem.Item);
+            if (dropItem.Item != null)
+            {
+                _items.Remove(dropItem.Item);
+            }
         }
     }
 
@@ -77,6 +82,12 @@
         StateHasChanged();
     }
 
+    private void ChangeLanguage()
+    {
+        IsEnglish = !IsEnglish;
+        StateHasChanged();
+    }
+
     private List<DropItem> _items = new()
     {
         new DropItem(){ Name = "ㄷㄷㄷㅍ", Identifier = "Item" },
@@ -88,7 +99,7 @@
 
     public class DropItem
     {
-        public string Name { get; init; }
-        public string Identifier { get; set; }
+        public string Name { get; init; } = string.Empty;
+        public string Identifier { get; set; } = string.Empty;
     }
 }

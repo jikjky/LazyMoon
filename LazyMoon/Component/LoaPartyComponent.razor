@@ -5,8 +5,8 @@
 
 <MudItem xs="12" sm="6">
     <MudStack Class="mt-3" Row="true">
-        <MudText Typo="Typo.h5">@($"{Order + 1}파티")</MudText>
-        <MudText Class="mt-1">@($"인원 {LoaParty.MaxCombinations - LoaParty.CurrnetCombinations} / {LoaParty.MaxCombinations} 서폿{LoaParty.MaxSupoter - LoaParty.CurrentSupoter} / {LoaParty.MaxSupoter}")</MudText>
+        <MudText Typo="Typo.h5">@($"{Order + 1} {(IsEnglish ? "Party" : "파티")}")</MudText>
+        <MudText Class="mt-1">@($"{(IsEnglish ? "Player" : "인원")} {LoaParty.MaxCombinations - LoaParty.CurrnetCombinations} / {LoaParty.MaxCombinations} {(IsEnglish ? "Supporter" : "서포터")}{LoaParty.MaxSupoter - LoaParty.CurrentSupoter} / {LoaParty.MaxSupoter}")</MudText>
     </MudStack>
     <MudGrid>
         <MudItem xs="12" sm="12">
@@ -16,11 +16,14 @@
 
                     </MudDropZone>
                     <MudDropZone T="DropItem" Identifier="Delete" OnlyZone AllowReorder Class="relative rounded-lg border-danger border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full z-10">
-                        <MudText Typo="Typo.h6" Class="mb-4">삭제 (Item Drag)</MudText>
+                        <MudText Typo="Typo.h6" Class="mb-4">@(IsEnglish ? "Delete" : "삭제") (Item Drag)</MudText>
                     </MudDropZone>
                 </ChildContent>
                 <ItemRenderer>
-                    <MudPaper Elevation="25" Class="pa-4 my-4">@LoaParty.PartyCombinationsToString(context.Player)</MudPaper>
+                    @if (context.Player != null)
+                    {
+                        <MudPaper Elevation="25" Class="pa-4 my-4">@(IsEnglish ? LoaParty.PartyCombinationsToString(context.Player).Replace("ㄷ", "D").Replace("ㅍ", "S") : LoaParty.PartyCombinationsToString(context.Player))</MudPaper>
+                    }
                 </ItemRenderer>
             </MudDropContainer>
         </MudItem>
@@ -33,27 +36,27 @@
                 </MudItem>
                 <MudItem xs="6">
                     <MudStack>
-                        <MudButton OnClick="@(()=>{OnClick("DDDD");})" Disabled="@enabledDDDD" id="dddd" Variant="Variant.Filled" Color="Color.Surface">ㄷㄷㄷㄷ</MudButton>
-                        <MudButton OnClick="@(()=>{OnClick("DDDS");})" Disabled="@enabledDDDS" id="ddds" Variant="Variant.Filled" Color="Color.Surface">ㄷㄷㄷㅍ</MudButton>
-                        <MudButton OnClick="@(()=>{OnClick("DDSS");})" Disabled="@enabledDDSS" id="ddss" Variant="Variant.Filled" Color="Color.Surface">ㄷㄷㅍㅍ</MudButton>
-                        <MudButton OnClick="@(()=>{OnClick("DSSS");})" Disabled="@enabledDSSS" id="dsss" Variant="Variant.Filled" Color="Color.Surface">ㄷㅍㅍㅍ</MudButton>
+                        <MudButton OnClick="@(()=>{OnClick("DDDD");})" Disabled="@enabledDDDD" id="dddd" Variant="Variant.Filled" Color="Color.Surface">@(IsEnglish ? "DDDD" : "ㄷㄷㄷㄷ")</MudButton>
+                        <MudButton OnClick="@(()=>{OnClick("DDDS");})" Disabled="@enabledDDDS" id="ddds" Variant="Variant.Filled" Color="Color.Surface">@(IsEnglish ? "DDDS" : "ㄷㄷㄷㅍ")</MudButton>
+                        <MudButton OnClick="@(()=>{OnClick("DDSS");})" Disabled="@enabledDDSS" id="ddss" Variant="Variant.Filled" Color="Color.Surface">@(IsEnglish ? "DDSS" : "ㄷㄷㅍㅍ")</MudButton>
+                        <MudButton OnClick="@(()=>{OnClick("DSSS");})" Disabled="@enabledDSSS" id="dsss" Variant="Variant.Filled" Color="Color.Surface">@(IsEnglish ? "DSSS" : "ㄷㅍㅍㅍ")</MudButton>
                     </MudStack>
 
                 </MudItem>
                 <MudItem xs="6">
                     <MudStack>
-                        <MudButton OnClick="@(()=>{OnClick("SDDD");})" Disabled="@enabledSDDD" id="sddd" Variant="Variant.Filled" Color="Color.Surface">ㅍㄷㄷㄷ</MudButton>
-                        <MudButton OnClick="@(()=>{OnClick("SDDS");})" Disabled="@enabledSDDS" id="sdds" Variant="Variant.Filled" Color="Color.Surface">ㅍㄷㄷㅍ</MudButton>
-                        <MudButton OnClick="@(()=>{OnClick("SDSS");})" Disabled="@enabledSDSS" id="sdss" Variant="Variant.Filled" Color="Color.Surface">ㅍㄷㅍㅍ</MudButton>
-                        <MudButton OnClick="@(()=>{OnClick("SSSS");})" Disabled="@enabledSSSS" id="ssss" Variant="Variant.Filled" Color="Color.Surface">ㅍㅍㅍㅍ</MudButton>
+                        <MudButton OnClick="@(()=>{OnClick("SDDD");})" Disabled="@enabledSDDD" id="sddd" Variant="Variant.Filled" Color="Color.Surface">@(IsEnglish ? "SDDD" : "ㅍㄷㄷㄷ")</MudButton>
+                        <MudButton OnClick="@(()=>{OnClick("SDDS");})" Disabled="@enabledSDDS" id="sdds" Variant="Variant.Filled" Color="Color.Surface">@(IsEnglish ? "SDDS" : "ㅍㄷㄷㅍ")</MudButton>
+                        <MudButton OnClick="@(()=>{OnClick("SDSS");})" Disabled="@enabledSDSS" id="sdss" Variant="Variant.Filled" Color="Color.Surface">@(IsEnglish ? "SDSS" : "ㅍㄷㅍㅍ")</MudButton>
+                        <MudButton OnClick="@(()=>{OnClick("SSSS");})" Disabled="@enabledSSSS" id="ssss" Variant="Variant.Filled" Color="Color.Surface">@(IsEnglish ? "SSSS" : "ㅍㅍㅍㅍ")</MudButton>
                     </MudStack>
                 </MudItem>
                 <MudItem xs="12">
                     <MudStack>
                         <MudButton OnClick="MakeButtonClick" Variant="Variant.Filled" Color="Color.Primary">Make</MudButton>
-                        <MudTextField @bind-Value="ResultValue" Label="파티순서" ReadOnly="true" Variant="Variant.Text" />
+                        <MudTextField @bind-Value="ResultValue" Label="@(IsEnglish ? "Party Order" : "파티순서")" ReadOnly="true" Variant="Variant.Text" />
                         <MudButton OnClick="CopyButtonClick" Variant="Variant.Filled" Color="Color.Primary">Copy</MudButton>
-                        
+
                     </MudStack>
                 </MudItem>
             </MudGrid>
@@ -62,7 +65,7 @@
 </MudItem>
 
 @code {
-    MudDropContainer<DropItem> _container;
+    MudDropContainer<DropItem>? _container;
     bool enabledDDDD;
     bool enabledDDDS;
     bool enabledDDSS;
@@ -79,6 +82,10 @@
     [Parameter]
     public bool IsRaid8 { get; set; }
 
+    private bool isEnglish;
+    [Parameter]
+    public bool IsEnglish { get { return isEnglish; } set { isEnglish = value; Update(); } }
+
     public LoaParty LoaParty { get; private set; } = new LoaParty();
 
     private List<DropItem> _items = new()
@@ -88,8 +95,8 @@
 
     public class DropItem
     {
-        public Class.Loa.Player Player { get; init; }
-        public string Identifier { get; set; }
+        public Class.Loa.Player? Player { get; init; }
+        public string Identifier { get; set; } = string.Empty;
     }
 
     private async void Test()
@@ -105,11 +112,13 @@
             // 랜덤 인덱스 선택
             while (LoaParty.MaxCombinations != LoaParty.CurrnetCombinations)
             {
-                EPartyCombinations randomValue = (EPartyCombinations)values.GetValue(random.Next(values.Length));
-                if (LoaParty.OKPartyCombinations(randomValue))
+                if ((values.GetValue(random.Next(values.Length))) is EPartyCombinations randomValue)
                 {
-                    var playerObject = LoaParty.Add(randomValue);
-                    _items.Add(new DropItem() { Player = playerObject, Identifier = "Item" });
+                    if (LoaParty.OKPartyCombinations(randomValue))
+                    {
+                        var playerObject = LoaParty.Add(randomValue);
+                        _items.Add(new DropItem() { Player = playerObject, Identifier = "Item" });
+                    }
                 }
             }
             Update();
@@ -131,6 +140,11 @@
 
     private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
     {
+        if (dropItem == null || dropItem.Item == null || dropItem.Item.Player == null)
+        {
+            return;
+        }
+
         if (dropItem.DropzoneIdentifier.ToLower() == "delete")
         {
             LoaParty.Remove(dropItem.Item.Player);
@@ -144,14 +158,20 @@
                 if (index < dropItem.IndexInZone)
                 {
                     _items.Insert(dropItem.IndexInZone + 1, dropItem.Item ?? new DropItem());
-                    var findfIndex = _items.IndexOf(dropItem.Item);
-                    _items.RemoveAt(findfIndex);
+                    if (dropItem.Item != null)
+                    {
+                        var findfIndex = _items.IndexOf(dropItem.Item);
+                        _items.RemoveAt(findfIndex);
+                    }
                 }
                 else
                 {
                     _items.Insert(dropItem.IndexInZone, dropItem.Item ?? new DropItem());
-                    var findfIndex = _items.LastIndexOf(dropItem.Item);
-                    _items.RemoveAt(findfIndex);
+                    if (dropItem.Item != null)
+                    {
+                        var findfIndex = _items.LastIndexOf(dropItem.Item);
+                        _items.RemoveAt(findfIndex);
+                    }
                 }
             }
         }
@@ -177,7 +197,10 @@
     {
         foreach (var item in _items)
         {
-            LoaParty.Remove(item.Player);
+            if (item.Player != null)
+            {
+                LoaParty.Remove(item.Player);
+            }
         }
         LoaParty.Players.Clear();
         _items.Clear();
@@ -187,7 +210,7 @@
     private void MakeButtonClick()
     {
         Update();
-        ResultValue = LoaParty.Make();
+        ResultValue = IsEnglish ? LoaParty.Make().Replace("ㄷ", "D").Replace("ㅍ", "S") : LoaParty.Make();
     }
 
     private async Task CopyButtonClick()
@@ -201,8 +224,11 @@
 
         foreach (var item in _items)
         {
-            LoaParty.Players.Remove(item.Player);
-            LoaParty.Players.Add(item.Player);
+            if (item.Player != null)
+            {
+                LoaParty.Players.Remove(item.Player);
+                LoaParty.Players.Add(item.Player);
+            }
         }
 
         foreach (EPartyCombinations item in Enum.GetValues(typeof(EPartyCombinations)))
@@ -240,7 +266,7 @@
 
         await InvokeAsync(() =>
         {
-            StateHasChanged(); _container.Refresh();
+            StateHasChanged(); _container?.Refresh();
         });
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MudBlazor;
 using MudBlazor.Services;
 using System.Configuration;
 using System.Linq;
@@ -33,7 +34,9 @@ builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddSingleton<ServerCounterService>();
 builder.Services.AddTransient<LazyMoon.Service.BlazorTimerService>();
+builder.Services.AddTransient<LazyMoon.Service.OpenAIService>();
 builder.Services.AddMudServices();
+builder.Services.AddMudMarkdownServices();
 builder.Services.AddHttpClient();
 
 

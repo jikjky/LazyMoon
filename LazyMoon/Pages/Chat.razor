@@ -1,0 +1,114 @@
+﻿@page "/chat"
+@using OpenAI.Chat
+@inject OpenAIService OpenAIService
+@inject IJSRuntime JSRuntime
+
+<div class="chat-container">
+    <div id="chatContainer" class="chat-messages" @ref="chatContainer">
+        <h6>Chat</h6>
+        <div>
+            @foreach (var item in Messages)
+            {
+                if (item is UserChatMessage)
+                {
+                    if (string.IsNullOrEmpty(item.Content[0].Text) == false)
+                    {
+                        <div class="message user-message">
+                            <MudMarkdown Value="@item.Content[0].Text" />
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="message ai-message">
+                        <MudMarkdown Value="@item.Content[0].Text" />
+                    </div>
+                }
+            }
+        </div>
+    </div>
+    <div class="chat-input">
+        <div class="file-input">
+            <InputFile OnChange="OnInputFileChange" />
+            @if (!string.IsNullOrEmpty(UploadedImage))
+            {
+                <div class="thumbnail">
+                    <img src="@UploadedImage" alt="Uploaded Image" />
+                    <button @onclick="RemoveImage">X</button>
+                </div>
+            }
+        </div>
+        <div class="message-input">
+        <textarea @bind-value="Message" @bind-value:event="oninput" placeholder="Message" @onkeydown="HandleKeyDown"></textarea>
+        <button @onclick="() => SendMessage()">Send</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    List<ChatMessage> Messages { get; set; } = new List<ChatMessage>();
+    string Message { get; set; } = string.Empty;
+    string UploadedImage { get; set; } = string.Empty;
+    ElementReference chatContainer;
+    byte[]? buffer;
+
+    protected override void OnInitialized()
+    {
+        Messages = OpenAIService.ChatMessages;
+        base.OnInitialized();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await ScrollToBottom();
+        }
+    }
+
+    async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            await SendMessage();
+        }
+    }
+
+    async Task SendMessage()
+    {
+        Task temp;
+        if (buffer != null && string.IsNullOrEmpty(UploadedImage) == false)
+        {
+            temp = OpenAIService.SendImageAsync(new MemoryStream(buffer), Message);
+        }
+        else
+        {
+            temp = OpenAIService.SendMessageAsync(Message);
+        }
+
+        Message = string.Empty;
+        await Task.Delay(100);
+        await ScrollToBottom();
+        await temp;
+        StateHasChanged();
+        await ScrollToBottom();
+    }
+
+    async Task ScrollToBottom()
+    {
+        await JSRuntime.InvokeVoidAsync("scrollToBottom");
+    }
+
+    async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        buffer = new byte[file.Size];
+        await file.OpenReadStream().ReadAsync(buffer);
+        UploadedImage = $"data:image/png;base64,{Convert.ToBase64String(buffer)}";
+    }
+
+    void RemoveImage()
+    {
+        UploadedImage = string.Empty;
+    }
+}

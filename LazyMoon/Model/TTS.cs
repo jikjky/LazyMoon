@@ -8,6 +8,6 @@ namespace LazyMoon.Model
         public double Rate { get; set; } = 1;
         public double Volume { get; set; } = 0;
         public bool TTSEnable { get; set; } = true;
-        public ICollection<Voice> Voices { get; set; }
+        public ICollection<Voice>? Voices { get; set; }
     }
 }

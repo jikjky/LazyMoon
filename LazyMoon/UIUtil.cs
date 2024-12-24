@@ -43,14 +43,12 @@ namespace LazyMoon
         public static int MouseY { get; set; } = 0;
         public static Dictionary<string, IdSize> IdSizeDictionry { get; set; } = [];
 
-        #nullable enable
         public static Action? OnMousePositionChanged { get; set; }
-        #nullable disable
 
         [JSInvokable]
         public static void GetIdSize(string id, double width, double height)
         {
-            if (IdSizeDictionry.TryGetValue(id, out IdSize value))
+            if (IdSizeDictionry.TryGetValue(id, out IdSize? value))
             {
                 value.Width = width;
                 value.Height = height;

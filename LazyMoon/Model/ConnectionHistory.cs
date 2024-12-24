@@ -10,7 +10,7 @@ namespace LazyMoon.Model
         [Required]
         [NotNull]
         public int Id { get; set; }
-        public string Date { get; set; }
+        public string Date { get; set; } = string.Empty;
         public int Count { get; set; }
     }
 }

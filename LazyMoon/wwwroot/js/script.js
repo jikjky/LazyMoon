@@ -12,3 +12,11 @@ window.loadKakaoAdScript = function () {
     script.async = true;
     document.body.appendChild(script);
 };
+
+
+window.scrollToBottom = function () {
+    var container = document.getElementById("chatContainer");
+    if (container) {
+        container.scrollTop = container.scrollHeight;
+    }
+};

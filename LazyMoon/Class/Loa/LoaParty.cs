@@ -27,7 +27,7 @@ namespace LazyMoon.Class.Loa
 
     public class Player
     {
-        public List<string> OrderMessages { get; set; }
+        public List<string> OrderMessages { get; set; } = [];
         public int UsedSupoterCount { get; set; } = 0;
         public int SupoterCount
         {

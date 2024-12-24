@@ -2,15 +2,15 @@
 
 <div id="adfit-container" style="width:100%; text-align:center;">
     <ins class="kakao_ad_area"
-         style="display:none;"
-         data-ad-unit="@AdUnitID"
-         data-ad-width="@AdWidth"
-         data-ad-height="@AdHeight"></ins>
+    style="display:none;"
+    data-ad-unit="@AdUnitID"
+    data-ad-width="@AdWidth"
+    data-ad-height="@AdHeight"></ins>
 </div>
 
 @code {
     [Parameter]
-    public string AdUnitID { get; set; }
+    public string AdUnitID { get; set; } = string.Empty;
     [Parameter]
     public int AdWidth { get; set; } = 320;
     [Parameter]
