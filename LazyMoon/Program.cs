@@ -1,8 +1,8 @@
 using Blazored.LocalStorage;
 using LazyMoon;
+using LazyMoon.Class.Service;
+using LazyMoon.Class.Service.DBService;
 using LazyMoon.Model;
-using LazyMoon.Service;
-using LazyMoon.Service.DBService;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Server;
 using Microsoft.AspNetCore.Hosting;
@@ -33,8 +33,8 @@ builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped<ClipboardService>();
 builder.Services.AddSingleton<ServerCounterService>();
-builder.Services.AddTransient<LazyMoon.Service.BlazorTimerService>();
-builder.Services.AddTransient<LazyMoon.Service.OpenAIService>();
+builder.Services.AddTransient<BlazorTimerService>();
+builder.Services.AddTransient<OpenAIService>();
 builder.Services.AddMudServices();
 builder.Services.AddMudMarkdownServices();
 builder.Services.AddHttpClient();

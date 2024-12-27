@@ -364,7 +364,8 @@ namespace LazyMoon.Class.Loa
 
         private string Make8()
         {
-            int supoterIndex = DepartureOrder;
+            //supporer
+            int suppoterIndex = DepartureOrder;
             int tempIndex;
             tempIndex = DepartureOrder;
             Random rd = new();
@@ -372,21 +373,21 @@ namespace LazyMoon.Class.Loa
             {
                 while (true)
                 {
-                    var supotersPlayers = Players.Where(x => x.SupoterCount - x.UsedSupoterCount != 0);
-                    if (supotersPlayers.Any())
+                    var suppotersPlayers = Players.Where(x => x.SupoterCount - x.UsedSupoterCount != 0);
+                    if (suppotersPlayers.Any())
                     {
-                        Player supotersPlayer;
+                        Player suppotersPlayer;
                         if (rd.Next(0, 2) == 0)
                         {
-                            supotersPlayer = supotersPlayers.First();
+                            suppotersPlayer = suppotersPlayers.First();
                         }
                         else
                         {
-                            supotersPlayer = supotersPlayers.Last();
+                            suppotersPlayer = suppotersPlayers.Last();
                         }
-                        supotersPlayer.OrderMessages[supoterIndex] = "ㅍ";
-                        supotersPlayer.UsedSupoterCount++;
-                        supoterIndex = supoterIndex < 3 ? supoterIndex + 1 : 0;
+                        suppotersPlayer.OrderMessages[suppoterIndex] = "ㅍ";
+                        suppotersPlayer.UsedSupoterCount++;
+                        suppoterIndex = suppoterIndex < 3 ? suppoterIndex + 1 : 0;
                         continue;
                     }
                     break;
@@ -399,7 +400,7 @@ namespace LazyMoon.Class.Loa
                 while (true)
                 {
 
-                    var stroingDealers = Players.Where(x => x.StrongCharacter == CharacterClass.Dealer && !x.OrderMessages.Contains("(ㄷ)"));
+                    var stroingDealers = Players.Where(x => !x.OrderMessages.Contains("(ㄷ)"));
                     if (stroingDealers.Any())
                     {
                         Player stroingDealer;
@@ -459,11 +460,11 @@ namespace LazyMoon.Class.Loa
                         item.UsedSupoterCount = 0;
                     }
                     tempIndex = tempIndex < 3 ? tempIndex + 1 : 0;
-                    supoterIndex = tempIndex;
+                    suppoterIndex = tempIndex;
                     continue;
                 }
                 break;
-            }
+            }            
 
             foreach (var player in Players)
             {
@@ -519,12 +520,12 @@ namespace LazyMoon.Class.Loa
             }
             while (true)
             {
-                var supotersPlayers = Players.Where(x => x.SupoterCount - x.UsedSupoterCount != 0);
-                if (supotersPlayers.Any())
+                var playersWithSupporters = Players.Where(x => x.SupoterCount - x.UsedSupoterCount != 0);
+                if (playersWithSupporters.Any())
                 {
-                    var supotersPlayer = supotersPlayers.First();
-                    supotersPlayer.OrderMessages[supoterIndex] = "ㅍ";
-                    supotersPlayer.UsedSupoterCount++;
+                    var suppotersPlayer = playersWithSupporters.First();
+                    suppotersPlayer.OrderMessages[supoterIndex] = "ㅍ";
+                    suppotersPlayer.UsedSupoterCount++;
                     supoterIndex = supoterIndex < 3 ? supoterIndex + 1 : 0;
                     continue;
                 }

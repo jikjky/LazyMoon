@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.JSInterop;
-namespace LazyMoon.Service
+namespace LazyMoon.Class.Service
 {
     public sealed class ClipboardService(IJSRuntime jsRuntime)
     {

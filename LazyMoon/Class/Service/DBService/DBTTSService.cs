@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 #nullable enable
-namespace LazyMoon.Service.DBService
+namespace LazyMoon.Class.Service.DBService
 {
     public class DBTTSService(IDbContextFactory<AppDbContext> contextFactory)
     {
@@ -54,7 +54,7 @@ namespace LazyMoon.Service.DBService
         public async Task<TTS?> SetTTSOrNullAsync(string chanel, double rate, double volume)
         {
             var context = await contextFactory.CreateDbContextAsync();
-            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
+            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x!.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
             user.TTS = new TTS() { Rate = rate, Volume = volume, TTSEnable = true };
@@ -65,7 +65,7 @@ namespace LazyMoon.Service.DBService
         public async Task<TTS?> GetTTSByChanelOrNullAsync(string chanel)
         {
             var context = await contextFactory.CreateDbContextAsync();
-            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
+            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x!.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
             if (user.TTS == null)
@@ -84,7 +84,7 @@ namespace LazyMoon.Service.DBService
         public async Task<TTS?> SetTTSEnableOrNullAsync(string chanel, bool enable)
         {
             var context = await contextFactory.CreateDbContextAsync();
-            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
+            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x!.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
             user.TTS ??= SetTTSDefault();
@@ -96,7 +96,7 @@ namespace LazyMoon.Service.DBService
         {
             var context = await contextFactory.CreateDbContextAsync();
             Rate = rate;
-            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
+            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x!.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
             user.TTS ??= SetTTSDefault();
@@ -109,7 +109,7 @@ namespace LazyMoon.Service.DBService
         {
             var context = await contextFactory.CreateDbContextAsync();
             Volume = volume;
-            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
+            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x!.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
             user.TTS ??= SetTTSDefault();
@@ -121,7 +121,7 @@ namespace LazyMoon.Service.DBService
         public async Task<TTS?> SetTTSDefaultOrNullAsync(string chanel)
         {
             var context = await contextFactory.CreateDbContextAsync();
-            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
+            var user = await context.Users.Include(x => x.TTS).ThenInclude(x => x!.Voices).FirstOrDefaultAsync(x => x.Name == chanel);
             if (user == null)
                 return null;
             user.TTS ??= SetTTSDefault();

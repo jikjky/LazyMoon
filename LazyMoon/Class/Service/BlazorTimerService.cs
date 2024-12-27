@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Timers;
 
-namespace LazyMoon.Service
+namespace LazyMoon.Class.Service
 {
     public class BlazorTimerService
     {

@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 
 #nullable enable
-namespace LazyMoon.Service.DBService
+namespace LazyMoon.Class.Service.DBService
 {
     public class DBUserService(AppDbContext context)
     {

@@ -1,9 +1,9 @@
+using LazyMoon.Class.Service.DBService;
 using LazyMoon.Model;
-using LazyMoon.Service.DBService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-namespace LazyMoon.Service
+namespace LazyMoon.Class.Service
 {
     public sealed class ServerCounterService(DBConnectionHistory dBConnectionHistory)
     {

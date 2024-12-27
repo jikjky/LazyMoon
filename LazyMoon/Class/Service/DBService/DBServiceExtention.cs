@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using System.Data;
 
-namespace LazyMoon.Service.DBService
+namespace LazyMoon.Class.Service.DBService
 {
     static public class DBServiceExtentions
     {

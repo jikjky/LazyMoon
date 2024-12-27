@@ -1,7 +1,7 @@
 ﻿using OpenAI;
 using OpenAI.Chat;
 
-namespace LazyMoon.Service
+namespace LazyMoon.Class.Service
 {
     public class OpenAIService
     {
@@ -15,7 +15,7 @@ namespace LazyMoon.Service
             if (configuration.GetRequiredSection("OpenAI:ApiKey").Value is string configurationApiKey)
             {
                 apiKey = configurationApiKey;
-                openAiClient = new OpenAI.Chat.ChatClient("gpt-4o-mini", apiKey);
+                openAiClient = new ChatClient("gpt-4o-mini", apiKey);
             }
         }
 
@@ -42,7 +42,7 @@ namespace LazyMoon.Service
             {
                 return string.Empty;
             }
-            byte[] imageBytes = memoryStream.ToArray();            
+            byte[] imageBytes = memoryStream.ToArray();
             var image = BinaryData.FromStream(new MemoryStream(imageBytes));
             var part = ChatMessageContentPart.CreateImagePart(image, "image/png", ChatImageDetailLevel.Low);
             ChatMessages.Add(ChatMessage.CreateUserMessage(message));
